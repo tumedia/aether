@@ -186,7 +186,7 @@ abstract class AetherSection {
                     if ($cache && array_key_exists('cache', $module) && $module['cache'] > 0) {
                         $mCacheName = $cacheName . $module['name'] ;
 
-                        if ($module['provides'])
+                        if (isset($module['provides']))
                             $mCacheName .= $module['provides'];
 
                         if (array_key_exists('cacheas', $module)) {
