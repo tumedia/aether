@@ -141,16 +141,6 @@ class AetherConfig {
         }
         $urlRules = $nodelist->item(0);
 
-        // Subtract global options
-        $ruleBase = " | /config/site[@name='$sitename']/urlRules/";
-        $xquery = "/config/site[@name='$sitename']/option";
-        $xquery .= $ruleBase . 'section';
-        $xquery .= $ruleBase . 'template';
-        $xquery .= $ruleBase . 'module';
-        $xquery .= $ruleBase . 'option';
-        $optionList = $xpath->query($xquery);
-        if ($optionList->length > 0)
-            $this->readNodeConfiguration($optionList);
         $path = $url->get('path');
         $explodedPath = explode('/', substr($path,1));
         
@@ -169,6 +159,17 @@ class AetherConfig {
         }
         try {
             $node = $this->findMatchingConfigNode($urlRules, $explodedPath);
+            
+            // Subtract global options
+            $ruleBase = " | /config/site[@name='$sitename']/urlRules/";
+            $xquery = "/config/site[@name='$sitename']/option";
+            $xquery .= $ruleBase . 'section';
+            $xquery .= $ruleBase . 'template';
+            $xquery .= $ruleBase . 'module';
+            $xquery .= $ruleBase . 'option';
+            $optionList = $xpath->query($xquery);
+            if ($optionList->length > 0)
+                $this->readNodeConfiguration($optionList, false);
         }
         catch (AetherNoUrlRuleMatchException $e) {
             // No match found :( Send 404 and throw exception to logs
