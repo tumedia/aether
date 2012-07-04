@@ -253,7 +253,7 @@ class AetherConfig {
             $n = $match;
             do {
                 if ($n->nodeName == 'rule') {
-                    $this->readNodeConfiguration($n, false);
+                    $this->readNodeConfiguration($n);
                 }
             }
             while (($n = $n->parentNode) && $n->nodeName != "#document");
@@ -328,7 +328,7 @@ class AetherConfig {
      * @return void
      * @param DOMNode $node
      */
-     private function readNodeConfiguration($node, $overwrite = true) {
+     private function readNodeConfiguration($node) {
         if ($node instanceof DOMNode) {
             if ($node->hasAttribute('cache'))
                 $this->cache = $node->getAttribute('cache');
@@ -393,9 +393,8 @@ class AetherConfig {
 
                 case 'option':
                     $name = $child->getAttribute('name');
-                    // Skip name crashes insted of overwrite as default
-                    $mode = $overwrite ? "overwrite" : "skip";
                     // Support additive options
+                    $mode = "overwrite";
                     if ($child->hasAttribute("mode")) {
                         if (array_key_exists($name, $this->options)) {
                             $mode = $child->getAttribute("mode");
@@ -427,15 +426,7 @@ class AetherConfig {
                             $value = trim($child->nodeValue);
                             break;
                     }
-                    if ($mode == 'skip') {
-                        // Skip name crashes
-                        if (!isset($this->options[$name])) {
-                            $this->options[$name] = $value;
-                        }
-                    }
-                    else {
-                        $this->options[$name] = $value;
-                    }
+                    $this->options[$name] = $value;
                     break;
             }
         }
