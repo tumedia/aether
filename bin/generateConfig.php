@@ -8,7 +8,7 @@ Aether::$aetherPath = $path;
 spl_autoload_register(array('Aether', 'autoLoad'));
 
 
-function resolveImports($doc, $prefix, $i) {
+function resolveImports($doc, $prefix, $i, $configFolder) {
     $xpath = new DOMXPath($doc);
     $xquery = "//import";
     $nodelist = $xpath->query($xquery);
@@ -37,7 +37,7 @@ function resolveImports($doc, $prefix, $i) {
         // Read in import file
         $import = loadConfig($toImport);
 
-        resolveImports($import, $prefix, $i + 1);
+        resolveImports($import, $prefix, $i + 1, $configFolder);
 
         foreach ($import->documentElement->childNodes as $child) {
             $import = $doc->importNode($child,true);
@@ -106,7 +106,7 @@ if (!file_exists($baseConfig)) {
 $doc = loadConfig($baseConfig);
 
 echo "Resolving imports from aether.config.xml\n";
-resolveImports($doc, $prefix, 0);
+resolveImports($doc, $prefix, 0, $configFolder);
 echo "\n";
 
 // Add a little comment so people wont fuck this file up
