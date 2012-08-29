@@ -37,6 +37,9 @@ class AetherTemplateSmarty extends AetherTemplate {
         $this->engine->compile_dir = $base . 'compiled/';
         $this->engine->config_dir = $base . 'configs/';
         $this->engine->cache_dir = $base . 'cache/';
+
+        // Make sure template files are group writable
+        umask(0022);
     }
 
     /**
