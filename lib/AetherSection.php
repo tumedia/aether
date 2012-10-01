@@ -131,6 +131,14 @@ abstract class AetherSection {
         // Support i18n
         $locale = (isset($options['locale'])) ? $options['locale'] : "nb_NO.UTF-8";
         setlocale(LC_ALL, $locale);
+
+        // Cache complete pages in Aether. Does not affect module cache
+        if (isset($options['cachePages']) && $options['cachePages'] == 'false') {
+            $cachePages = false;
+        }
+        else {
+            $cachePages = true;
+        }
         
         $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
         setlocale(LC_NUMERIC, $lc_numeric);
@@ -141,22 +149,31 @@ abstract class AetherSection {
         AetherModuleFactory::$path = $searchPath;
 
         $modules = $config->getModules();
+
+        // Preload modules, set cachetime and find minimum page cache time
         foreach ($modules as &$module) {
             if (!isset($module['options']))
                 $module['options'] = array();
+            $object = "";
             // Get module object
-            $object = AetherModuleFactory::create($module['name'], 
-                    $this->sl, $module['options']);
-            // If the module, in this setting, blocks caching, accept
-            if ($cache && ($cachetime = $object->getCacheTime()) !== null) {
-                $module['cache'] = $cachetime;
+            try {
+                $object = AetherModuleFactory::create($module['name'], 
+                        $this->sl, $module['options']);
+                
+                // If the module, in this setting, blocks caching, accept
+                if ($cache && ($cachetime = $object->getCacheTime()) !== null) {
+                    $module['cache'] = $cachetime;
 
-                // Reset page cache time to module since we ask for stuff
-                // to be updated at an earlier interval
-                $pageCacheTime = min($pageCacheTime, $module['cache']);
+                    // Reset page cache time to module since we ask for stuff
+                    // to be updated at an earlier interval
+                    $pageCacheTime = min($pageCacheTime, $module['cache']);
+                }
+
+                $module['obj'] = $object;
             }
-
-            $module['obj'] = $object;
+            catch (Exception $e) {
+                $this->logerror($e);
+            }
         }
         /**
          * If we have a timer, end this timing
@@ -171,7 +188,7 @@ abstract class AetherSection {
          * Render page
          */
         $cacheable = ($cacheable && is_object($cache));
-        if (!$cacheable || $pageCacheTime === 0 || ($cache->get($cacheName) == false)) {
+        if (!$cachePages || !$cacheable || $pageCacheTime === 0 || ($cache->get($cacheName) == false)) {
             /* Load controller template
              * This template knows where all modules should be placed
              * and have internal wrapping html for this section
@@ -195,36 +212,38 @@ abstract class AetherSection {
 
                         // Try to read from cache, else generate and cache
                         if (($mOut = $cache->get($mCacheName)) == false) {
-                            $mCacheTime = $module['cache'];
-                            $mod = $module['obj'];
+                            if (isset($module['obj'])) {
+                                $mod = $module['obj'];
+                                $mCacheTime = $module['cache'];
 
-                            try {
-                                $mOut = $mod->run();
-                                if (is_numeric($mCacheTime) && $mCacheTime > 0) {
-                                    $cache->set($mCacheName, $mOut, $mCacheTime);
+                                try {
+                                    $mOut = $mod->run();
+                                    if (is_numeric($mCacheTime) && $mCacheTime > 0) {
+                                        $cache->set($mCacheName, $mOut, $mCacheTime);
+                                    }
+                                    else {
+                                        $pageCacheTime = 0;
+                                    }
                                 }
-                                else {
-                                    $pageCacheTime = 0;
+                                catch (Exception $e) {
+                                    $this->logerror($e);
                                 }
-                            }
-                            catch (Exception $e) {
-                                $pageCacheTime = 0;
-                                $this->logerror($e);
                             }
                         }
                     }
                     else {
                         // Module shouldn't be cached, just render it without
                         // saving to cache
-                        $mod = $module['obj'];
+                        if (isset($module['obj'])) {
+                            $mod = $module['obj'];
 
-                        try {
-                            $mOut = $mod->run();
-                        }
-                        catch (Exception $e) {
-                            $pageCacheTime = 0;
-                            $this->logerror($e);
-                            continue;
+                            try {
+                                $mOut = $mod->run();
+                            }
+                            catch (Exception $e) {
+                                $this->logerror($e);
+                                continue;
+                            }
                         }
                     }
                     /**
@@ -286,7 +305,7 @@ abstract class AetherSection {
                 $output = $tpl->fetch($tplInfo['name']);
             }
 
-            if ($cacheable && $pageCacheTime > 0) {
+            if ($cachePages && $cacheable && $pageCacheTime > 0) {
                 $cache->set($cacheName, $output, $pageCacheTime);
             }
         }
@@ -294,6 +313,8 @@ abstract class AetherSection {
             $output = $cache->get($cacheName);
         }
 
+        // Page is cacheable even with cachePages off since we want headers for 
+        // browser and ex. varnish etc.
         if ($cacheable) {
             header("Cache-Control: max-age={$pageCacheTime}");
         }
@@ -385,6 +406,6 @@ abstract class AetherSection {
      * @param Exception $e
      */
     private function logerror($e) {
-        trigger_error("Caught exception at " . $e->getFile() . ":" . $e->getLine() . ": " . $e->getMessage() . ", trace: " . $e->getTraceAsString());
+        trigger_error("Caught exception at " . $e->getFile() . ":" . $e->getLine() . ": " . $e->getMessage() . ", trace: " . str_replace("\n", ", ", $e->getTraceAsString()));
     }
 }
