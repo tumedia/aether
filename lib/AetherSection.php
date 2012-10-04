@@ -382,7 +382,7 @@ abstract class AetherSection {
             // Run service
             return $mod->service($serviceName);
         }
-        throw new Exception("Service run error: Failed to locate module [$moduleName], check if it is loaded in config for this url: " . $_SERVER['SCRIPT_URI']);
+        throw new Exception("Service run error: Failed to locate module [$moduleName], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
     }
     
     /**
