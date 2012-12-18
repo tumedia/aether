@@ -60,6 +60,8 @@ class AetherCacheMemcache implements AetherCacheInterface {
      * @return bool
      */
     public function set($name, $data, $ttl=false) {
+        if (strpos($name, "109432") !== false)
+            file_put_contents("/tmp/cachedebug", "Saving: " . $name . "\n", FILE_APPEND);
         if (!is_numeric($ttl)) 
             $ttl = 0;
 
@@ -80,6 +82,8 @@ class AetherCacheMemcache implements AetherCacheInterface {
      * @param int $maxAge
      */
     public function get($name, $maxAge = false) {
+        if (strpos($name, "109432") !== false)
+            file_put_contents("/tmp/cachedebug", "Get: " . $name . "\n", FILE_APPEND);
         //Get data from cache
         $cache = $this->con->get($name);
 
