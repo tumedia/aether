@@ -315,7 +315,7 @@ abstract class AetherSection {
 
         // Page is cacheable even with cachePages off since we want headers for 
         // browser and ex. varnish etc.
-        if ($cacheable) {
+        if (is_numeric($pageCacheTime)) {
             header("Cache-Control: max-age={$pageCacheTime}");
         }
 
