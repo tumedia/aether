@@ -17,6 +17,7 @@ $searchpath = $xpath->query("//option[@name='searchpath']");
 
 $searchpaths = explode(";", $searchpath->item(0)->textContent);
 $searchpaths = array_map("trim", $searchpaths);
+$searchpaths = array_filter($searchpaths, "strlen");
 
 $modules = $xpath->query("//module");
 
