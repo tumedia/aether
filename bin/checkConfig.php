@@ -52,19 +52,46 @@ foreach ($modules as $m) {
                 if (file_exists($testfile)) 
                     $exists = $testfile;
             }
-            $modulesByPath[$pathString]['modules'][$module] = array(
+            $moduleInfo = array(
+                'name' => $module,
                 'filename' => ($exists ? $exists : 'not found')
             );
+            $modulesByPath[$pathString]['modules'][$module] = $moduleInfo;
+            $allModules[$module] = $moduleInfo;
         }
     }
 }
 
-print "List of unique modules loaded per path:\n\n";
+print "\nUnique modules loaded per path\n";
+print "──────────────────────────────\n";
 foreach ($modulesByPath as $path => $d) {
-    print "[31m" . $path . ":[0m\n";
+    print "[36m" . $path . "[0m\n";
     foreach ($d['modules'] as $module => $data) {
         print "    [32m{$module}[0m ({$data['filename']})\n";
     }
 }
 
+$unusedModules = array();
+foreach ($searchpaths as $spath) {
+    $d = opendir($spath . "modules");
+    while ($f = readdir($d)) {
+        if (substr($f, -4) !== ".php") 
+            continue;
 
+        $module = substr($f, 0, -4);
+        if (!isset($allModules[$module])) {
+            $unusedModules[] = array(
+                'name' => $module,
+                'filename' => $spath . "modules/" . $f
+            );
+        }
+    }
+}
+
+if ($unusedModules) {
+    print "\nModules NOT used by this config (but might be used by other configs)\n";
+    print "────────────────────────────────────────────────────────────────────\n";
+    foreach ($unusedModules as $m) {
+        print "    [31m{$m['name']}[0m ({$m['filename']})\n";
+    }
+}
