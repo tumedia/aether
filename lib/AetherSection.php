@@ -360,6 +360,9 @@ abstract class AetherSection {
             ? $options['searchpath'] : $this->sl->get("aetherPath");
         AetherModuleFactory::$path = $searchPath;
 
+        $locale = (isset($options['locale'])) ? $options['locale'] : "nb_NO.UTF-8";
+        setlocale(LC_ALL, $locale);
+
         // Create module
         $mod = null;
         foreach ($config->getModules() as $module) {
