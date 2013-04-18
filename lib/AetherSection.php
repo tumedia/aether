@@ -316,10 +316,14 @@ abstract class AetherSection {
         // Page is cacheable even with cachePages off since we want headers for 
         // browser and ex. varnish etc.
         if (is_numeric($pageCacheTime)) {
-            $cacheString = "Cache-Control: max-age={$pageCacheTime}";
-            if (isset($options['must-revalidate']) && $options['must-revalidate'] == "true")
-                $cacheString .= ", must-revalidate";
-            header($cacheString);
+            if ($pageCacheTime == 0 && isset($options['must-revalidate']) && $options['must-revalidate'] == "true") {
+                header('Cache-Control: no-cache, no-store, must-revalidate');
+                header('Pragma: no-cache');
+                header('Expires: 0');
+            }
+            else {
+                header("Cache-Control: max-age={$pageCacheTime}");
+            }
         }
 
         /**
