@@ -318,7 +318,7 @@ abstract class AetherSection {
         if (is_numeric($pageCacheTime)) {
             // for all sites require login                                   
             if ($pageCacheTime > 0 && isset($options['must-revalidate']) && $options['must-revalidate'] == "true") {
-                header("Cache-Control: max-age={$pageCacheTime}, no-cache");
+                header("Cache-Control: s-maxage={$pageCacheTime}, no-cache");
                 /*
                 header('Cache-Control: max-age={$pageCacheTime}, no-cache, no-store, must-revalidate');
                 header('Pragma: no-cache');
