@@ -215,7 +215,7 @@ class Aether {
                 $providers = array();
                 foreach ($modules as $m) {
                     $providers[] = array(
-                        'provides' => $m['provides'],
+                        'provides' => isset($m['provides']) ? $m['provides'] : null,
                         'cache' => isset($m['cache']) ? $m['cache'] : false
                     );
                 }
