@@ -60,10 +60,10 @@ abstract class AetherSection {
 
             // Check if module overrides cache time
             if (($cachetime = $object->getCacheTime()) !== null) {
-                header("Cache-Control: max-age={$cacheTime}");
+                header("Cache-Control: s-maxage={$cacheTime}");
             } 
             else if (isset($module['cache'])) {
-                header("Cache-Control: max-age={$module['cache']}");
+                header("Cache-Control: s-maxage={$module['cache']}");
             }
 
             print $object->run();
@@ -316,18 +316,7 @@ abstract class AetherSection {
         // Page is cacheable even with cachePages off since we want headers for 
         // browser and ex. varnish etc.
         if (is_numeric($pageCacheTime)) {
-            // for all sites require login                                   
-            if ($pageCacheTime > 0 && isset($options['must-revalidate']) && $options['must-revalidate'] == "true") {
-                header("Cache-Control: s-maxage={$pageCacheTime}");
-                /*
-                header('Cache-Control: max-age={$pageCacheTime}, no-cache, no-store, must-revalidate');
-                header('Pragma: no-cache');
-                header('Expires: 0');
-                */
-            }
-            else {
-                header("Cache-Control: max-age={$pageCacheTime}");
-            }
+            header("Cache-Control: s-maxage={$pageCacheTime}");
         }
 
         /**
