@@ -195,7 +195,7 @@ class Aether {
             $response = $this->section->service(
                 $_GET['module'], $_GET['service']);
             if (!is_object($response) || !($response instanceof AetherResponse)) {
-                trigger_error("Expected " . preg_replace("/[^A-z0-9]+/", "", $_GET['module']) . "::service() to return an AetherResponse object", E_USER_WARNING);
+                trigger_error("Expected " . preg_replace("/[^A-z0-9]+/", "", $_GET['module']) . "::service() to return an AetherResponse object." . (isset($_SERVER['HTTP_REFERER']) ? " Referer: " . $_SERVER['HTTP_REFERER'] : ""), E_USER_WARNING);
             }
             else {
                 $response->draw($this->sl);
