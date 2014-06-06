@@ -151,8 +151,10 @@ class AetherConfig {
         $xquery .= $ruleBase . 'module';
         $xquery .= $ruleBase . 'option';
         $optionList = $xpath->query($xquery);
-        if ($optionList->length > 0)
-            $this->readNodeConfiguration($optionList);
+        if ($optionList->length > 0) {
+            $nodeConfig = $this->getNodeConfiguration($optionList);
+            $this->readNodeConfiguration($nodeConfig);
+        }
         $path = $url->get('path');
         $explodedPath = explode('/', substr($path,1));
         
@@ -255,7 +257,8 @@ class AetherConfig {
             $n = $match;
             do {
                 if ($n->nodeName == 'rule') {
-                    $this->readNodeConfiguration($n);
+                    $nodeConfig = $this->getNodeConfiguration($n);
+                    $this->readNodeConfiguration($nodeConfig);
                 }
             }
             while (($n = $n->parentNode) && $n->nodeName != "#document");
@@ -330,9 +333,7 @@ class AetherConfig {
      * @return void
      * @param DOMNode $node
      */
-    private function readNodeConfiguration($node) {
-        $nodeConfig = $this->getNodeConfiguration($node);
-
+    private function readNodeConfiguration($nodeConfig) {
         if (isset($nodeConfig['cache']))
             $this->cache = $nodeConfig['cache'];
         if (isset($nodeConfig['cacheas']))
@@ -360,7 +361,7 @@ class AetherConfig {
         }
      }
 
-     private function getNodeConfiguration($node, $filterType = null) {
+     private function getNodeConfiguration($node) {
         $nodeData = [];
         if ($node instanceof DOMNode) {
             if ($node->hasAttribute('cache'))
@@ -374,8 +375,6 @@ class AetherConfig {
         }
         foreach ($nodelist as $child) {
             if ($child instanceof DOMText)
-                continue;
-            if ($filterType && $child->nodeName != $filterType)
                 continue;
             switch ($child->nodeName) {
                 case 'section': 
@@ -463,20 +462,18 @@ class AetherConfig {
                     break;
                 case 'fragment':
                     $provides = $child->getAttribute("provides");
-                    $modules = $this->getNodeConfiguration($child, 'modules');
+                    $nodeConfig = $this->getNodeConfiguration($child);
+                    $this->readNodeConfiguration($nodeConfig);
 
                     $nodeData['fragment'][$provides] = [
                         'provides' => $provides,
-                        'modules' => $modules
+                        'modules' => $nodeConfig
                     ];
                     break;
             }
         }
 
-        if ($filterType)
-            return isset($nodeData[$filterType]) ? $nodeData[$filterType] : null;
-        else
-            return $nodeData;
+        return $nodeData;
     }
     
     /**
