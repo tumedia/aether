@@ -50,6 +50,8 @@ class AetherConfig {
      * @var array
      */
     private $modules = array();
+
+    private $fragments = array();
     
     /**
      * Option settings for this section (highly optional)
@@ -328,12 +330,43 @@ class AetherConfig {
      * @return void
      * @param DOMNode $node
      */
-     private function readNodeConfiguration($node) {
+    private function readNodeConfiguration($node) {
+        $nodeConfig = $this->getNodeConfiguration($node);
+
+        if (isset($nodeConfig['cache']))
+            $this->cache = $nodeConfig['cache'];
+        if (isset($nodeConfig['cacheas']))
+            $this->cacheas = $nodeConfig['cacheas'];
+        if (isset($nodeConfig['section']))
+            $this->section = $nodeConfig['section'];
+
+        if (!isset($this->template) && isset($nodeConfig['template']))
+            $this->template = $nodeConfig['template'];
+
+        if (isset($nodeConfig['module'])) {
+            $this->modules = $nodeConfig['module'] + ($this->modules ? $this->modules : []);
+        }
+        if (isset($nodeConfig['option'])) {
+            if ($this->options)
+                $this->options = $nodeConfig['option'] + $this->options;
+            else
+                $this->options = $nodeConfig['option'];
+        }
+        if (isset($nodeConfig['fragment'])) {
+            if ($this->fragments)
+                $this->fragments = $nodeConfig['fragment'] + $this->fragments;
+            else
+                $this->fragments = $nodeConfig['fragment'];
+        }
+     }
+
+     private function getNodeConfiguration($node, $filterType = null) {
+        $nodeData = [];
         if ($node instanceof DOMNode) {
             if ($node->hasAttribute('cache'))
-                $this->cache = $node->getAttribute('cache');
+                $nodeData['cache'] = $node->getAttribute('cache');
             if ($node->hasAttribute('cacheas'))
-                $this->cacheas = $node->getAttribute('cacheas');
+                $nodeData['cacheas'] = $node->getAttribute('cacheas');
             $nodelist = $node->childNodes;
         }
         else {
@@ -342,17 +375,17 @@ class AetherConfig {
         foreach ($nodelist as $child) {
             if ($child instanceof DOMText)
                 continue;
+            if ($filterType && $child->nodeName != $filterType)
+                continue;
             switch ($child->nodeName) {
                 case 'section': 
-                    $this->section = $child->nodeValue;
+                    $nodeData['section'] = $child->nodeValue;
                     break;
 
                 case 'template':
-                    if (!isset($this->template)) {
-                        $tpl = array();
-                        $tpl['name'] = $child->nodeValue;
-                        $this->template = $tpl;
-                    }
+                    $nodeData['template'] = [
+                        'name' => $child->nodeValue
+                    ];
                     break;
 
                 case 'module':
@@ -368,11 +401,11 @@ class AetherConfig {
                         
                     // Merge options from all scopes together
                     $options = array_merge($this->options, $opts);
-                    $module = array();
-                    //$module = array(
-                    $module['name'] = trim($text);
-                    $module['options'] = $options;
-                    $module['_'] = null;
+                    $module = [
+                        'name' => trim($text),
+                        'options' => $options,
+                        '_' => null
+                    ];
 
                     if ($child->hasAttribute('cache'))
                         $module['cache'] = $child->getAttribute('cache');
@@ -388,7 +421,7 @@ class AetherConfig {
                     if ($child->hasAttribute('provides'))
                         $module['provides'] = trim($child->getAttribute('provides'));
 
-                    $this->modules[] = $module;
+                    $nodeData['module'][] = $module;
                     break;
 
                 case 'option':
@@ -426,10 +459,24 @@ class AetherConfig {
                             $value = trim($child->nodeValue);
                             break;
                     }
-                    $this->options[$name] = $value;
+                    $nodeData['option'][$name] = $value;
+                    break;
+                case 'fragment':
+                    $provides = $child->getAttribute("provides");
+                    $modules = $this->getNodeConfiguration($child, 'modules');
+
+                    $nodeData['fragment'][$provides] = [
+                        'provides' => $provides,
+                        'modules' => $modules
+                    ];
                     break;
             }
         }
+
+        if ($filterType)
+            return isset($nodeData[$filterType]) ? $nodeData[$filterType] : null;
+        else
+            return $nodeData;
     }
     
     /**
@@ -475,6 +522,13 @@ class AetherConfig {
      */
     public function getTemplate() {
         return $this->template;
+    }
+
+    public function getFragments($name = null) {
+        if ($name === null)
+            return $this->fragments;
+        else
+            return isset($this->fragments[$name]) ? $this->fragments[$name] : null;
     }
     
     /**

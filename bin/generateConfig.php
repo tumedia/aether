@@ -4,6 +4,7 @@ $path = explode("/",pathinfo(__FILE__, PATHINFO_DIRNAME));
 array_pop($path);
 $path = join("/", $path) . "/";
 require_once($path . "Aether.php");
+require_once($path . "lib/AetherConfig.php");
 Aether::$aetherPath = $path;
 spl_autoload_register(array('Aether', 'autoLoad'));
 

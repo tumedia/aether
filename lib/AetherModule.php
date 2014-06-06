@@ -78,5 +78,6 @@ abstract class AetherModule {
      * @return AetherResponse
      */
     public function service($name) {
+        return new AetherTextResponse('');
     }
 }

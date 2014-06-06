@@ -45,7 +45,7 @@ abstract class AetherSection {
         $mods = $config->getModules();
 
         foreach ($mods as $m) {
-            if ($m['provides'] === $providerName) {
+            if (isset($m['provides']) && $m['provides'] === $providerName) {
                 $module = $m;
                 break;
             }
@@ -351,7 +351,7 @@ abstract class AetherSection {
      * @param string $moduleName
      * @param string $serviceName Name of service
      */
-    public function service($moduleName, $serviceName) {
+    public function service($name, $serviceName, $type = 'module') {
         // Locate module containing service
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
@@ -366,10 +366,18 @@ abstract class AetherSection {
         $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
         setlocale(LC_NUMERIC, $lc_numeric);
 
+        if ($type == 'fragment') {
+            $fragment = $config->getFragments($name);
+            $modules = isset($fragment['module']) ? $fragment['module'] : [];
+        }
+        else {
+            $modules = [ $name ];
+        }
+
         // Create module
         $mod = null;
         foreach ($config->getModules() as $module) {
-            if ($module['name'] != $moduleName)
+            if (!in_array($module['name'], $modules))
                 continue;
             if (!isset($module['options']))
                 $module['options'] = array();
@@ -381,14 +389,31 @@ abstract class AetherSection {
             // Get module object
             $mod = AetherModuleFactory::create($module['name'], 
                     $this->sl, $module['options']);
-            break;
+            if ($type == 'module') {
+                $modules = [ $mod ];
+                break;
+            }
+            else {
+                $modules[] = $mod;
+            }
         }
         // Run service
-        if ($mod instanceof AetherModule) {
-            // Run service
-            return $mod->service($serviceName);
+        $moduleResponses = [];
+        foreach ($modules as $mod) {
+            if ($mod instanceof AetherModule) {
+                // Run service
+                if ($type == 'module') {
+                    return $mod->service($serviceName);
+                }
+                else {
+                    $moduleResponses[] = $mod->service($serviceName);
+                }
+            }
+            else {
+                throw new Exception("Service run error: Failed to locate module [$moduleName], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
+            }
         }
-        throw new Exception("Service run error: Failed to locate module [$moduleName], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
+        return new AetherFragmentResponse($moduleResponses);
     }
     
     /**
