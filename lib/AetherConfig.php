@@ -411,16 +411,12 @@ class AetherConfig {
                     if ($child->hasAttribute('cacheas'))
                         $module['cacheas'] = $child->getAttribute('cacheas');
 
-                    /**
-                     * A module could provide itself under a fake name
-                     * For example AmobilHeader could be provided as
-                     * "header", this object would then be usable
-                     * elsewhere in the application
-                     */
                     if ($child->hasAttribute('provides'))
                         $module['provides'] = trim($child->getAttribute('provides'));
 
-                    $nodeData['module'][] = $module;
+                    $nodeId = isset($module['provides']) ? $module['provides'] : $module['name'];
+
+                    $nodeData['module'][$nodeId] = $module;
                     break;
 
                 case 'option':
@@ -462,13 +458,14 @@ class AetherConfig {
                     break;
                 case 'fragment':
                     $provides = $child->getAttribute("provides");
+                    $template = $child->getAttribute("template");
                     $nodeConfig = $this->getNodeConfiguration($child);
                     $this->readNodeConfiguration($nodeConfig);
 
                     $nodeData['fragment'][$provides] = [
                         'provides' => $provides,
-                        'modules' => $nodeConfig
-                    ];
+                        'template' => $template
+                    ] + $nodeConfig;
                     break;
             }
         }
@@ -535,17 +532,20 @@ class AetherConfig {
      * @return array
      */
     public function getModules() {
-        // Reorder modules so providers are first
-        $regular = array();
-        $providers = array();
-        foreach ($this->modules as $module) {
-            if (array_key_exists('provides', $module))
-                $providers[] = $module;
-            else
-                $regular[] = $module;
-            
-        }
-        return array_merge($providers, $regular);
+        $modules = $this->modules;
+        uksort($modules, function ($a, $b) {
+            $aSum = $bSum = 0;
+            if (isset($a['provides']))
+                $aSum++;
+            if (isset($a['priority']))
+                $aSum += intval($a['priority']);
+            if (isset($b['provides']))
+                $bSum++;
+            if (isset($b['priority']))
+                $bSum += intval($a['priority']);
+            return $aSum > $bSum ? 1 : -1;
+        });
+        return $modules;
     }
     
     /**

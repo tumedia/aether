@@ -44,7 +44,7 @@ class AetherJSONResponse extends AetherResponse {
         if ($this->struct !== null) {
             header("Content-Type: application/json");
         }
-        echo $this->get();
+        echo json_encode($this->get());
     }
     
     /**
@@ -54,6 +54,6 @@ class AetherJSONResponse extends AetherResponse {
      * @return string
      */
     public function get() {
-        return json_encode($this->struct);
+        return $this->struct;
     }
 }

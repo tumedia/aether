@@ -197,7 +197,7 @@ abstract class AetherSection {
             $tpl = $this->sl->getTemplate();
             if (is_array($modules)) {
                 $tpl->set("extras", $tplVars);
-                $modulesOut = array();
+
                 foreach ($modules as &$module) {
                     // If module should be cached, handle it
                     if ($cache && array_key_exists('cache', $module) && $module['cache'] > 0) {
@@ -217,7 +217,7 @@ abstract class AetherSection {
                                 $mCacheTime = $module['cache'];
 
                                 try {
-                                    $mOut = $mod->run();
+                                    $module['output'] = $mod->run();
                                     if (is_numeric($mCacheTime) && $mCacheTime > 0) {
                                         $cache->set($mCacheName, $mOut, $mCacheTime);
                                     }
@@ -238,7 +238,7 @@ abstract class AetherSection {
                             $mod = $module['obj'];
 
                             try {
-                                $mOut = $mod->run();
+                                $module['output'] = $mod->run();
                             }
                             catch (Exception $e) {
                                 $this->logerror($e);
@@ -246,31 +246,16 @@ abstract class AetherSection {
                             }
                         }
                     }
-                    /**
-                     * If this module provides some service
-                     * make sure we actually push it
-                     */
-                    if (array_key_exists('provides', $module)) {
-                        $this->provide($module['provides'], $mOut);
-                    }
 
                     /**
                      * Support multiple modules of same type by 
                      * specificaly naming them with a surname when
                      * duplicates are encountered
                      */
-                    $modName = $module['name'];
+                    $modId = isset($module['provides']) ? $module['provides'] : $module['name'];
 
-                    if (!isset($modulesOut[$modName])) {
-                        $modulesOut[$modName] = array();
-                    }
-
-                    if (array_key_exists('provides', $module)) {
-                        $modulesOut[$modName][$module['provides']] = $mOut;
-                    }
-                    else {
-                        $modulesOut[$modName][] = $mOut;
-                    }
+                    $this->provide($modId, $module['output']);
+                    $tpl->set($modId, $module['output']);
 
                     /**
                      * If we have a timer, end this timing
@@ -286,17 +271,12 @@ abstract class AetherSection {
                         $timer->tick('module_run', $timerMsg);
                     }
                 }
-                // Export rendered modules to template
-                foreach ($modulesOut as $name => $mod) {
-                    $name = str_replace('/', '_', $name);
+            }
 
-                    if (count($mod) > 1) {
-                        $tpl->set($name, $mod);
-                    }
-                    else {
-                        $tpl->set($name, current($mod));
-                    }
-                }
+            foreach ($config->getFragments() as $frag) {
+                foreach (array_keys($frag['module']) as $mod) 
+                    $tpl->set($modules[$mod]['provides'], $modules[$mod]['output']);
+                $this->provide($frag['provides'], $tpl->fetch($frag['template']));
             }
             if (!isset($tplInfo['name']) || strlen($tplInfo['name']) === 0) {
                 throw new AetherConfigErrorException("Template not specified for url: " . (string)$url);
@@ -368,16 +348,17 @@ abstract class AetherSection {
 
         if ($type == 'fragment') {
             $fragment = $config->getFragments($name);
-            $modules = isset($fragment['module']) ? $fragment['module'] : [];
+            $moduleNames = isset($fragment['module']) ? array_keys($fragment['module']) : [];
         }
         else {
-            $modules = [ $name ];
+            $moduleNames = [ $name ];
         }
 
         // Create module
         $mod = null;
-        foreach ($config->getModules() as $module) {
-            if (!in_array($module['name'], $modules))
+        $modules = [];
+        foreach ($config->getModules() as $id => $module) {
+            if (!in_array($id, $moduleNames))
                 continue;
             if (!isset($module['options']))
                 $module['options'] = array();
@@ -394,23 +375,23 @@ abstract class AetherSection {
                 break;
             }
             else {
-                $modules[] = $mod;
+                $modules[$id] = $mod;
             }
         }
         // Run service
         $moduleResponses = [];
-        foreach ($modules as $mod) {
+        foreach ($modules as $id => $mod) {
             if ($mod instanceof AetherModule) {
                 // Run service
                 if ($type == 'module') {
                     return $mod->service($serviceName);
                 }
                 else {
-                    $moduleResponses[] = $mod->service($serviceName);
+                    $moduleResponses[$id] = $mod->service($serviceName);
                 }
             }
             else {
-                throw new Exception("Service run error: Failed to locate module [$moduleName], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
+                throw new Exception("Service run error: Failed to locate {$type} [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
             }
         }
         return new AetherFragmentResponse($moduleResponses);
@@ -419,12 +400,11 @@ abstract class AetherSection {
     /**
      * Provide the output of a module
      *
-     * @access public
      * @return void
      * @param string $name
      * @param string $content
      */
-    public function provide($name, $content) {
+    private function provide($name, $content) {
         $vector = $this->sl->getVector('aetherProviders');
         $vector[$name] = $content;
     }
