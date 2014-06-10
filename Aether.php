@@ -252,8 +252,12 @@ class Aether {
     public static function autoLoad($class) {
         if (class_exists($class, false))
             return true;
-        if ($class == "Smarty")
-            require_once(self::$aetherPath . 'lib/templating/smarty/libs/Smarty.class.php');
+        if ($class == "Smarty") {
+            if (defined("SMARTY_PATH"))
+                require_once(SMARTY_PATH . 'libs/Smarty.class.php');
+            else
+                require_once(self::$aetherPath . 'lib/templating/smarty/libs/Smarty.class.php');
+        }
 
         // Split up the name of the class by camel case (AetherDriver
         $matches = preg_split('/([A-Z][^A-Z]+)/', $class, -1,

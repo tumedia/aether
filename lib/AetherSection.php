@@ -56,7 +56,7 @@ abstract class AetherSection {
                 $module['options'] = array();
             // Get module object
             $object = AetherModuleFactory::create($module['name'], 
-                    $this->sl, $module['options']);
+                    $this->sl, $module['options'] + $options);
 
             // Check if module overrides cache time
             if (($cachetime = $object->getCacheTime()) !== null) {
