@@ -403,7 +403,7 @@ class AetherConfig {
                     $module = [
                         'name' => trim($text),
                         'options' => $options,
-                        '_' => null
+                        'output' => null
                     ];
 
                     if ($child->hasAttribute('cache'))
