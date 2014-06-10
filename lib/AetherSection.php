@@ -354,9 +354,21 @@ abstract class AetherSection {
         // Create module
         $mod = null;
         $modules = [];
-        foreach ($config->getModules() as $id => $module) {
-            if (!in_array($id, $moduleNames))
-                continue;
+        $configModules = $config->getModules();
+        $configModuleNames = array_map(function ($mod) { return $mod['name']; }, $configModules);
+
+        foreach ($moduleNames as $moduleName) {
+            if (isset($configModules[$moduleName]))
+                $module = $configModules[$moduleName];
+            elseif (in_array($moduleName, $configModuleNames)) {
+                foreach ($configModules as $m) {
+                    if ($m['name'] == $moduleName) {
+                        $module = $m;
+                        break;
+                    }
+                }
+            }
+
             if (!isset($module['options']))
                 $module['options'] = array();
             $opts = $module['options'] + $options;
