@@ -351,7 +351,7 @@ abstract class AetherSection {
             $moduleNames = isset($fragment['module']) ? array_keys($fragment['module']) : [];
         }
         else {
-            $moduleNames = [ $name ];
+            $moduleNames = [ $name ];
         }
 
         // Create module

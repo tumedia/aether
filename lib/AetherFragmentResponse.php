@@ -40,6 +40,7 @@ class AetherFragmentResponse extends AetherResponse {
      * @return string
      */
     public function get() {
+        $out = [];
         foreach ($this->moduleResponses as $id => $resp) 
             $out[$id] = $resp->get();
         return $out;
