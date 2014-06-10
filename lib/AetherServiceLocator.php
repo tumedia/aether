@@ -40,11 +40,11 @@ class AetherServiceLocator {
         if ($this->template == null)
             $this->template = AetherTemplate::get('smarty',$this);
         // Add global stuff
-        $providers = $this->getVector('aetherProviders');
-        $this->template->set('aether', array_merge(
-            array('providers' => $providers),
-            $this->getVector('templateGlobals')->getAsArray())
-        );
+        $providers = $this->getVector('aetherProviders')->getAsArray();
+        $globals = $this->getVector('templateGlobals')->getAsArray();
+
+        $this->template->set('aether', ['providers' => $providers] + $globals);
+
         return $this->template;
     }
 
