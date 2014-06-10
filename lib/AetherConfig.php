@@ -533,17 +533,23 @@ class AetherConfig {
      */
     public function getModules() {
         $modules = $this->modules;
-        uksort($modules, function ($a, $b) {
+        uksort($modules, function ($a, $b) use ($modules) {
             $aSum = $bSum = 0;
-            if (isset($a['provides']))
+            if (isset($modules[$a]['provides']))
                 $aSum++;
-            if (isset($a['priority']))
-                $aSum += intval($a['priority']);
-            if (isset($b['provides']))
+            if (isset($modules[$a]['priority']))
+                $aSum += intval($modules[$a]['priority']);
+            if (isset($modules[$b]['provides']))
                 $bSum++;
-            if (isset($b['priority']))
-                $bSum += intval($a['priority']);
-            return $aSum > $bSum ? 1 : -1;
+            if (isset($modules[$b]['priority']))
+                $bSum += intval($modules[$b]['priority']);
+
+            if ($aSum < $bSum) 
+                return 1;
+            elseif ($aSum == $bSum)
+                return 0;
+            else 
+                return -1;
         });
         return $modules;
     }

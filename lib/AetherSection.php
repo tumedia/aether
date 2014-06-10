@@ -263,12 +263,8 @@ abstract class AetherSection {
                      * information
                      */
                     if (isset($timer) AND is_object($timer)) {
-                        if (array_key_exists('provides', $module))
-                            $timerMsg = $module['provides'];
-                        else
-                            $timerMsg = $modName;
 
-                        $timer->tick('module_run', $timerMsg);
+                        $timer->tick('module_run', $modId);
                     }
                 }
             }
