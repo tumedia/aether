@@ -399,7 +399,7 @@ class AetherConfig {
                     }
                         
                     // Merge options from all scopes together
-                    $options = array_merge($this->options, $opts);
+                    $options = $opts + $this->options;
                     $module = [
                         'name' => trim($text),
                         'options' => $options,
@@ -572,7 +572,7 @@ class AetherConfig {
      * @param array $defaults Provide a set of defaults to use if no value is set
      */
     public function getOptions($defaults=array()) {
-        return array_merge($defaults, $this->options);
+        return $this->options + $defaults;
     }
 
     /**

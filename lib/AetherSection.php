@@ -158,7 +158,7 @@ abstract class AetherSection {
             // Get module object
             try {
                 $object = AetherModuleFactory::create($module['name'], 
-                        $this->sl, $module['options']);
+                        $this->sl, $options + $module['options']);
                 
                 // If the module, in this setting, blocks caching, accept
                 if ($cache && ($cachetime = $object->getCacheTime()) !== null) {
@@ -255,7 +255,8 @@ abstract class AetherSection {
                     $modId = isset($module['provides']) ? $module['provides'] : $module['name'];
 
                     $this->provide($modId, $module['output']);
-                    $tpl->set($modId, $module['output']);
+                    // DEPRECATED: direct access to $ModuleName in template
+                    $tpl->set($module['name'], $module['output']);
 
                     /**
                      * If we have a timer, end this timing
@@ -365,7 +366,7 @@ abstract class AetherSection {
             }
             // Get module object
             $mod = AetherModuleFactory::create($module['name'], 
-                    $this->sl, $module['options']);
+                    $this->sl, $opts);
             if ($type == 'module') {
                 $modules = [ $mod ];
                 break;
