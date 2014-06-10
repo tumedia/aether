@@ -345,6 +345,10 @@ class AetherConfig {
             $this->template = $nodeConfig['template'];
 
         if (isset($nodeConfig['module'])) {
+            $count = count($this->modules);
+            foreach ($nodeConfig['module'] as &$nc) {
+                $nc['num'] = $count++;
+            }
             $this->modules = $nodeConfig['module'] + ($this->modules ? $this->modules : []);
         }
         if (isset($nodeConfig['option'])) {
@@ -399,10 +403,9 @@ class AetherConfig {
                     }
                         
                     // Merge options from all scopes together
-                    $options = $opts + $this->options;
                     $module = [
                         'name' => trim($text),
-                        'options' => $options,
+                        'options' => $opts,
                         'output' => null
                     ];
 
@@ -534,21 +537,20 @@ class AetherConfig {
     public function getModules() {
         $modules = $this->modules;
         uksort($modules, function ($a, $b) use ($modules) {
-            $aSum = $bSum = 0;
+            $aSum = $modules[$a]['num'] / 100;
+            $bSum = $modules[$b]['num'] / 100;
             if (isset($modules[$a]['provides']))
-                $aSum++;
+                $aSum--;
             if (isset($modules[$a]['priority']))
                 $aSum += intval($modules[$a]['priority']);
             if (isset($modules[$b]['provides']))
-                $bSum++;
+                $bSum--;
             if (isset($modules[$b]['priority']))
                 $bSum += intval($modules[$b]['priority']);
 
-            if ($aSum < $bSum) 
+            if ($aSum > $bSum) 
                 return 1;
-            elseif ($aSum == $bSum)
-                return 0;
-            else 
+            else
                 return -1;
         });
         return $modules;
