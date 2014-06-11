@@ -217,12 +217,22 @@ class Aether {
             }
             else {
                 $modules = $config->getModules();
+                $fragments = $config->getFragments();
                 $providers = array();
-                foreach ($modules as $m) {
-                    $providers[] = array(
+                foreach ($modules + $fragments as $m) {
+                    $provider = [
                         'provides' => isset($m['provides']) ? $m['provides'] : null,
                         'cache' => isset($m['cache']) ? $m['cache'] : false
-                    );
+                    ];
+                    if (isset($m['module'])) {
+                        $provider['providers'] = array_map(function ($m) {
+                            return [ 
+                                'provides' => $m['provides'], 
+                                'cache' => isset($m['cache']) ? $m['cache'] : false
+                            ];
+                        }, array_values($m['module']));
+                    }
+                    $providers[] = $provider;
                 }
                 $response = new AetherJSONResponse(array('providers' => $providers));
                 $response->draw($this->sl);
