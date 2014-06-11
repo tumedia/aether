@@ -175,6 +175,7 @@ abstract class AetherSection {
                 $this->logerror($e);
             }
         }
+
         /**
          * If we have a timer, end this timing
          * we're in test mode and thus showing timing
@@ -182,7 +183,6 @@ abstract class AetherSection {
          */
         if (isset($timer) AND is_object($timer))
             $timer->tick('module_run', 'read_config');
-
 
         /**
          * Render page
@@ -253,7 +253,7 @@ abstract class AetherSection {
                      * duplicates are encountered
                      */
                     $modId = isset($module['provides']) ? $module['provides'] : $module['name'];
-
+                    
                     $this->provide($modId, $module['output']);
                     // DEPRECATED: direct access to $ModuleName in template
                     $tpl->set($module['name'], $module['output']);
