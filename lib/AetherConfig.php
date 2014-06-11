@@ -409,6 +409,8 @@ class AetherConfig {
                         'output' => null
                     ];
 
+                    if ($child->hasAttribute('priority'))
+                        $module['priority'] = $child->getAttribute('priority');
                     if ($child->hasAttribute('cache'))
                         $module['cache'] = $child->getAttribute('cache');
                     if ($child->hasAttribute('cacheas'))
