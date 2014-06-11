@@ -384,7 +384,7 @@ abstract class AetherSection {
                 break;
             }
             else {
-                $modules[$id] = $mod;
+                $modules[$moduleName] = $mod;
             }
         }
         // Run service
