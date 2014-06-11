@@ -357,6 +357,25 @@ class AetherConfig {
             else
                 $this->options = $nodeConfig['option'];
         }
+        if (isset($nodeConfig['optionDel'])) {
+            foreach ($nodeConfig['optionDel'] as $k => $v) {
+                if (isset($this->options[$k])) {
+                    $this->options[$k] = join(";", array_filter(function ($e) { 
+                        return $e != $v; 
+                    }, explode(";", $this->options[$k])));
+                }
+            }
+        }
+        if (isset($nodeConfig['optionAdd'])) {
+            foreach ($nodeConfig['optionAdd'] as $k => $v) {
+                if (isset($this->options[$k])) {
+                    $this->options[$k] .= ";" . $v;
+                }
+                else {
+                    $this->options[$k] = $v;
+                }
+            }
+        }
         if (isset($nodeConfig['fragment'])) {
             if ($this->fragments)
                 $this->fragments = $nodeConfig['fragment'] + $this->fragments;
@@ -437,29 +456,18 @@ class AetherConfig {
                                 "trim", explode(";", $child->nodeValue));
                         }
                     }
+                    $value = trim($child->nodeValue);
                     switch ($mode) {
                         case 'add':
-                            /**
-                             * If mode is "add", add to ; separated list
-                             * and ensure no duplicates are created?
-                             */
-                            // Add everything that doesnt create dupes
-                            foreach ($opts as $opt) {
-                                if (!in_array($opt, $prev))
-                                    $prev[] = $opt;
-                            }
-                            $value = implode(";", $prev);
+                            $nodeData['optionAdd'][$name] = $value;
                             break;
                         case 'del':
-                             // If mode is "del", delete from ; list
-                            $value = implode(";", array_diff($prev, $opts));
+                            $nodeData['optionDel'][$name] = $value;
                             break;
                         default:
-                            // Simple string/int value
-                            $value = trim($child->nodeValue);
+                            $nodeData['option'][$name] = $value;
                             break;
                     }
-                    $nodeData['option'][$name] = $value;
                     break;
                 case 'fragment':
                     $provides = $child->getAttribute("provides");

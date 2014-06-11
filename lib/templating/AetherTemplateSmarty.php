@@ -50,7 +50,13 @@ class AetherTemplateSmarty extends AetherTemplate {
      * @param mixed $value
      */
     public function set($key,$value) {
-        $this->engine->assign($key,$value);
+        $this->engine->assign($key, $value);
+    }
+
+    public function setAll($keyValues) {
+        foreach ($keyValues as $key => $value) {
+            $this->engine->assign($key, $value);
+        }
     }
 
     /**

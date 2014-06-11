@@ -37,6 +37,8 @@ abstract class AetherTemplate {
      */
     abstract public function set($key, $value);
 
+    abstract public function setAll($keyValues);
+
     /**
      * Fetch rendered template
      *
