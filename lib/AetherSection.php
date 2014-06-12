@@ -42,32 +42,53 @@ abstract class AetherSection {
         $searchPath = (isset($options['searchpath'])) 
             ? $options['searchpath'] : $this->sl->get("aetherPath");
         AetherModuleFactory::$path = $searchPath;
-        $mods = $config->getModules();
 
-        foreach ($mods as $m) {
-            if (isset($m['provides']) && $m['provides'] === $providerName) {
-                $module = $m;
-                break;
-            }
+        $fragment = $config->getFragments($providerName);
+        if ($fragment) {
+            $modules = $fragment['modules'];
+        }
+        else {
+            $module = $config->getModules($providerName);
+            $modules = [ $module ];
         }
 
-        if (isset($module)) {
-            if (!isset($module['options']))
-                $module['options'] = array();
-            // Get module object
-            $object = AetherModuleFactory::create($module['name'], 
-                    $this->sl, $module['options'] + $options);
+        if (isset($modules)) {
+            $output = '';
+            $maxAge = 0;
+            if (isset($fragment['template'])) {
+                $tpl = $this->sl->getTemplate();
+            }
+            foreach ($modules as $module) {
+                if (!isset($module['options']))
+                    $module['options'] = array();
+                
+                // Get module object
+                $object = AetherModuleFactory::create($module['name'], 
+                        $this->sl, $module['options'] + $options);
 
-            // Check if module overrides cache time
-            if (($cachetime = $object->getCacheTime()) !== null) {
-                header("Cache-Control: s-maxage={$cacheTime}");
+                if ($object->getCacheTime() !== null)
+                    $maxAge = min($object->getCacheTime(), $maxAge);
+
+                if (isset($module['cache']))
+                    $maxAge = min($module['cache'], $maxAge);
+
+                if (isset($fragment['template'])) {
+                    $this->provide($module['provides'], $object->run());
+                }
+                else {
+                    $output .= $object->run();
+                }
+            }
+            if (isset($fragment['template'])) {
+                $output = $tpl->fetch($fragment['template']);
+            }
+            
+            if ($maxAge > 0) {
+                header("Cache-Control: s-maxage={$maxAge}");
             } 
-            else if (isset($module['cache'])) {
-                header("Cache-Control: s-maxage={$module['cache']}");
-            }
-
-            print $object->run();
+            print $output;
         }
+
     }
     
     private function preloadModules($modules, $options) {
@@ -278,7 +299,7 @@ abstract class AetherSection {
             }
 
             foreach ($config->getFragments() as $frag) {
-                foreach (array_keys($frag['module']) as $mod) 
+                foreach (array_keys($frag['modules']) as $mod) 
                     $tpl->set($modules[$mod]['provides'], $modules[$mod]['output']);
                 $this->provide($frag['provides'], $tpl->fetch($frag['template']));
             }
@@ -352,7 +373,7 @@ abstract class AetherSection {
 
         if ($type == 'fragment') {
             $fragment = $config->getFragments($name);
-            $moduleNames = isset($fragment['module']) ? array_keys($fragment['module']) : [];
+            $moduleNames = isset($fragment['modules']) ? array_keys($fragment['modules']) : [];
         }
         else {
             $moduleNames = [ $name ];

@@ -344,18 +344,18 @@ class AetherConfig {
         if (!isset($this->template) && isset($nodeConfig['template']))
             $this->template = $nodeConfig['template'];
 
-        if (isset($nodeConfig['module'])) {
+        if (isset($nodeConfig['modules'])) {
             $count = count($this->modules);
-            foreach ($nodeConfig['module'] as &$nc) {
+            foreach ($nodeConfig['modules'] as &$nc) {
                 $nc['num'] = $count++;
             }
-            $this->modules = $nodeConfig['module'] + ($this->modules ? $this->modules : []);
+            $this->modules = $nodeConfig['modules'] + ($this->modules ? $this->modules : []);
         }
-        if (isset($nodeConfig['option'])) {
+        if (isset($nodeConfig['options'])) {
             if ($this->options)
-                $this->options = $nodeConfig['option'] + $this->options;
+                $this->options = $nodeConfig['options'] + $this->options;
             else
-                $this->options = $nodeConfig['option'];
+                $this->options = $nodeConfig['options'];
         }
         if (isset($nodeConfig['optionDel'])) {
             foreach ($nodeConfig['optionDel'] as $k => $v) {
@@ -376,11 +376,11 @@ class AetherConfig {
                 }
             }
         }
-        if (isset($nodeConfig['fragment'])) {
+        if (isset($nodeConfig['fragments'])) {
             if ($this->fragments)
-                $this->fragments = $nodeConfig['fragment'] + $this->fragments;
+                $this->fragments = $nodeConfig['fragments'] + $this->fragments;
             else
-                $this->fragments = $nodeConfig['fragment'];
+                $this->fragments = $nodeConfig['fragments'];
         }
      }
 
@@ -440,7 +440,7 @@ class AetherConfig {
 
                     $nodeId = isset($module['provides']) ? $module['provides'] : $module['name'];
 
-                    $nodeData['module'][$nodeId] = $module;
+                    $nodeData['modules'][$nodeId] = $module;
                     break;
 
                 case 'option':
@@ -465,7 +465,7 @@ class AetherConfig {
                             $nodeData['optionDel'][$name] = $value;
                             break;
                         default:
-                            $nodeData['option'][$name] = $value;
+                            $nodeData['options'][$name] = $value;
                             break;
                     }
                     break;
@@ -475,7 +475,7 @@ class AetherConfig {
                     $nodeConfig = $this->getNodeConfiguration($child);
                     $this->readNodeConfiguration($nodeConfig);
 
-                    $nodeData['fragment'][$provides] = [
+                    $nodeData['fragments'][$provides] = [
                         'provides' => $provides,
                         'template' => $template
                     ] + $nodeConfig;
@@ -531,11 +531,11 @@ class AetherConfig {
         return $this->template;
     }
 
-    public function getFragments($name = null) {
-        if ($name === null)
+    public function getFragments($providerName = null) {
+        if ($providerName === null)
             return $this->fragments;
         else
-            return isset($this->fragments[$name]) ? $this->fragments[$name] : null;
+            return isset($this->fragments[$providerName]) ? $this->fragments[$providerName] : null;
     }
     
     /**
@@ -544,7 +544,15 @@ class AetherConfig {
      * @access public
      * @return array
      */
-    public function getModules() {
+    public function getModules($providerName = null) {
+        if ($providerName !== null) {
+            foreach ($this->modules as $m) {
+                if ($m['provides'] == $providerName)
+                    return $m;
+            }
+            return null;
+        }
+
         $modules = $this->modules;
         uksort($modules, function ($a, $b) use ($modules) {
             $aSum = $modules[$a]['num'] / 100;
