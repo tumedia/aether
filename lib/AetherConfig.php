@@ -448,13 +448,11 @@ class AetherConfig {
                     // Support additive options
                     $mode = "overwrite";
                     if ($child->hasAttribute("mode")) {
-                        if (array_key_exists($name, $this->options)) {
-                            $mode = $child->getAttribute("mode");
-                            $prev = array_map(
-                                "trim", explode(";", $this->options[$name]));
-                            $opts = array_map(
-                                "trim", explode(";", $child->nodeValue));
-                        }
+                        $mode = $child->getAttribute("mode");
+                        $prev = array_map(
+                            "trim", explode(";", $this->options[$name]));
+                        $opts = array_map(
+                            "trim", explode(";", $child->nodeValue));
                     }
                     $value = trim($child->nodeValue);
                     switch ($mode) {
