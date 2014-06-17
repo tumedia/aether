@@ -545,7 +545,7 @@ class AetherConfig {
     public function getModules($providerName = null) {
         if ($providerName !== null) {
             foreach ($this->modules as $m) {
-                if ($m['provides'] == $providerName)
+                if (!empty($m['provides']) && $m['provides'] == $providerName)
                     return $m;
             }
             return null;
