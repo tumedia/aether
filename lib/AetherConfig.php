@@ -449,10 +449,6 @@ class AetherConfig {
                     $mode = "overwrite";
                     if ($child->hasAttribute("mode")) {
                         $mode = $child->getAttribute("mode");
-                        $prev = array_map(
-                            "trim", explode(";", $this->options[$name]));
-                        $opts = array_map(
-                            "trim", explode(";", $child->nodeValue));
                     }
                     $value = trim($child->nodeValue);
                     switch ($mode) {
