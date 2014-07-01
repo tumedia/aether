@@ -143,18 +143,6 @@ class AetherConfig {
         }
         $urlRules = $nodelist->item(0);
 
-        // Subtract global options
-        $ruleBase = " | /config/site[@name='$sitename']/urlRules/";
-        $xquery = "/config/site[@name='$sitename']/option";
-        $xquery .= $ruleBase . 'section';
-        $xquery .= $ruleBase . 'template';
-        $xquery .= $ruleBase . 'module';
-        $xquery .= $ruleBase . 'option';
-        $optionList = $xpath->query($xquery);
-        if ($optionList->length > 0) {
-            $nodeConfig = $this->getNodeConfiguration($optionList);
-            $this->readNodeConfiguration($nodeConfig);
-        }
         $path = $url->get('path');
         $explodedPath = explode('/', substr($path,1));
         
@@ -256,7 +244,7 @@ class AetherConfig {
         if ($match) {
             $n = $match;
             do {
-                if ($n->nodeName == 'rule') {
+                if ($n->nodeName == 'rule' || $n->nodeName == 'urlRules' || $n->nodeName == 'site') {
                     $nodeConfig = $this->getNodeConfiguration($n);
                     $this->readNodeConfiguration($nodeConfig);
                 }
@@ -334,13 +322,12 @@ class AetherConfig {
      * @param DOMNode $node
      */
     private function readNodeConfiguration($nodeConfig) {
-        if (isset($nodeConfig['cache']))
+        if (!isset($this->cache) && isset($nodeConfig['cache']))
             $this->cache = $nodeConfig['cache'];
-        if (isset($nodeConfig['cacheas']))
+        if (!isset($this->cacheas) && isset($nodeConfig['cacheas']))
             $this->cacheas = $nodeConfig['cacheas'];
-        if (isset($nodeConfig['section']))
+        if (!isset($this->section) && isset($nodeConfig['section']))
             $this->section = $nodeConfig['section'];
-
         if (!isset($this->template) && isset($nodeConfig['template']))
             $this->template = $nodeConfig['template'];
 
@@ -352,10 +339,7 @@ class AetherConfig {
             $this->modules = $nodeConfig['modules'] + ($this->modules ? $this->modules : []);
         }
         if (isset($nodeConfig['options'])) {
-            if ($this->options)
-                $this->options = $nodeConfig['options'] + $this->options;
-            else
-                $this->options = $nodeConfig['options'];
+            $this->options = $nodeConfig['options'] + ($this->options ? $this->options : []);
         }
         if (isset($nodeConfig['optionDel'])) {
             foreach ($nodeConfig['optionDel'] as $k => $v) {
@@ -377,10 +361,7 @@ class AetherConfig {
             }
         }
         if (isset($nodeConfig['fragments'])) {
-            if ($this->fragments)
-                $this->fragments = $nodeConfig['fragments'] + $this->fragments;
-            else
-                $this->fragments = $nodeConfig['fragments'];
+            $this->fragments = $nodeConfig['fragments'] + ($this->fragments ? $this->fragments : []);
         }
      }
 
