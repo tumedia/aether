@@ -242,14 +242,20 @@ class AetherConfig {
         }
 
         if ($match) {
+            // Fetch the complete path of nodes back to document
             $n = $match;
+            $readNodes = [];
             do {
                 if ($n->nodeName == 'rule' || $n->nodeName == 'urlRules' || $n->nodeName == 'site') {
-                    $nodeConfig = $this->getNodeConfiguration($n);
-                    $this->readNodeConfiguration($nodeConfig);
+                    $readNodes[] = $n;
                 }
             }
             while (($n = $n->parentNode) && $n->nodeName != "#document");
+
+            while ($n = array_pop($readNodes)) {
+                $nodeConfig = $this->getNodeConfiguration($n);
+                $this->readNodeConfiguration($nodeConfig);
+            }
 
             return true;
         }
@@ -322,13 +328,13 @@ class AetherConfig {
      * @param DOMNode $node
      */
     private function readNodeConfiguration($nodeConfig) {
-        if (!isset($this->cache) && isset($nodeConfig['cache']))
+        if (isset($nodeConfig['cache']))
             $this->cache = $nodeConfig['cache'];
-        if (!isset($this->cacheas) && isset($nodeConfig['cacheas']))
+        if (isset($nodeConfig['cacheas']))
             $this->cacheas = $nodeConfig['cacheas'];
-        if (!isset($this->section) && isset($nodeConfig['section']))
+        if (isset($nodeConfig['section']))
             $this->section = $nodeConfig['section'];
-        if (!isset($this->template) && isset($nodeConfig['template']))
+        if (isset($nodeConfig['template']))
             $this->template = $nodeConfig['template'];
 
         if (isset($nodeConfig['modules'])) {
