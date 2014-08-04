@@ -104,14 +104,7 @@ class AetherConfig {
         $this->configFilePath = $configFilePath;
     }
 
-    /**
-     * Match an url against this config
-     *
-     * @access public
-     * @return bool
-     * @param AetherUrlParser $url
-     */
-    public function matchUrl(AetherUrlParser $url) {
+    private function getSiteConfig($url) {
         $configFilePath = $this->configFilePath;
         if (!file_exists($configFilePath)) {
             throw new AetherMissingFileException(
@@ -122,7 +115,6 @@ class AetherConfig {
         $doc->load($configFilePath);
         $this->doc = $doc;
         $xpath = new DOMXPath($doc);
-
 
         /*
          * Find starting point of url rules, from this point on we
@@ -159,8 +151,24 @@ class AetherConfig {
                 $explodedPath[$key] = '/' . $part;
             }
         }
+
+        return [
+            'rules' => $urlRules,
+            'path' => $explodedPath
+        ];
+    }
+
+    /**
+     * Match an url against this config
+     *
+     * @access public
+     * @return bool
+     * @param AetherUrlParser $url
+     */
+    public function matchUrl(AetherUrlParser $url) {
+        $config = $this->getSiteConfig($url);
         try {
-            $node = $this->findMatchingConfigNode($urlRules, $explodedPath);
+            $node = $this->readMatchingConfigNode($config['rules'], $config['path']);
         }
         catch (AetherNoUrlRuleMatchException $e) {
             // No match found :( Send 404 and throw exception to logs
@@ -218,13 +226,6 @@ class AetherConfig {
      * else "fragment" will be used when matching nodes.
      */
     private function findMatchingConfigNode($urlRules, $path) {
-        // Crawl the config hierarchy till the right node is found
-
-        $this->path = $path;
-
-        // First node is urlRules xml tag
-        $this->matchedNodes[] = $urlRules;
-
         $match = $this->findRecursive($urlRules->childNodes, $path);
 
         /**
@@ -241,6 +242,19 @@ class AetherConfig {
             }
         }
 
+        return $match;
+    }
+
+    private function readMatchingConfigNode($urlRules, $path) {
+        // Crawl the config hierarchy till the right node is found
+
+        $this->path = $path;
+
+        // First node is urlRules xml tag
+        $this->matchedNodes[] = $urlRules;
+
+        $match = $this->findMatchingConfigNode($urlRules, $path);
+
         if ($match) {
             // Fetch the complete path of nodes back to document
             $n = $match;
@@ -252,9 +266,10 @@ class AetherConfig {
             }
             while (($n = $n->parentNode) && $n->nodeName != "#document");
 
+            // Read in the config for each node
             while ($n = array_pop($readNodes)) {
-                $nodeConfig = $this->getNodeConfiguration($n);
-                $this->readNodeConfiguration($nodeConfig);
+                $nodeConfig = $this->getNodeConfig($n);
+                $this->readNodeConfig($nodeConfig);
             }
 
             return true;
@@ -327,7 +342,7 @@ class AetherConfig {
      * @return void
      * @param DOMNode $node
      */
-    private function readNodeConfiguration($nodeConfig) {
+    private function readNodeConfig($nodeConfig) {
         if (isset($nodeConfig['cache']))
             $this->cache = $nodeConfig['cache'];
         if (isset($nodeConfig['cacheas']))
@@ -369,9 +384,30 @@ class AetherConfig {
         if (isset($nodeConfig['fragments'])) {
             $this->fragments = $nodeConfig['fragments'] + ($this->fragments ? $this->fragments : []);
         }
-     }
+    }
 
-     private function getNodeConfiguration($node) {
+    /**
+     * Fetch outer node config for a URL (contains modules, section and 
+     * template info
+     */
+    public function getNodeConfigByUrl($url) {
+        $parsedUrl = new AetherUrlParser();
+        $parsedUrl->parseServerArray($_SERVER);
+        $parsedUrl->parse($url);
+        $config = $this->getSiteConfig($parsedUrl);
+        $node = $this->findMatchingConfigNode($config['rules'], $config['path']);
+        // Fetch last and previous node since last node always is the ""
+        // match at the end of the url, but may include some modules
+        $data1 = $this->getNodeConfig($node);
+        $data2 = $this->getNodeConfig($node->parentNode);
+
+        return array_merge($data1, $data2);
+    }
+
+    /**
+     * Fetch node config for a specific node
+     */
+    private function getNodeConfig($node) {
         $nodeData = [];
         if ($node instanceof DOMNode) {
             if ($node->hasAttribute('cache'))
@@ -453,8 +489,8 @@ class AetherConfig {
                 case 'fragment':
                     $provides = $child->getAttribute("provides");
                     $template = $child->getAttribute("template");
-                    $nodeConfig = $this->getNodeConfiguration($child);
-                    $this->readNodeConfiguration($nodeConfig);
+                    $nodeConfig = $this->getNodeConfig($child);
+                    $this->readNodeConfig($nodeConfig);
 
                     $nodeData['fragments'][$provides] = [
                         'provides' => $provides,
