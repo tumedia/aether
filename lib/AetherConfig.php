@@ -400,9 +400,14 @@ class AetherConfig {
         // match at the end of the url, but may include some modules
         $data1 = $this->getNodeConfig($node);
         $data2 = $this->getNodeConfig($node->parentNode);
-
-        return array_merge($data1, $data2);
-    }
+       
+        foreach ($data1 as $k => $v){
+            foreach ($v as $k2 => $v2){
+                $data2[$k][$k2] = $v2;
+            }
+        }
+        return $data2;        
+      }
 
     /**
      * Fetch node config for a specific node
