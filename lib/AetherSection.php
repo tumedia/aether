@@ -388,8 +388,9 @@ abstract class AetherSection {
         $configModuleNames = array_map(function ($mod) { return $mod['name']; }, $configModules);
 
         foreach ($moduleNames as $moduleName) {
-            if (isset($configModules[$moduleName]))
+            if (isset($configModules[$moduleName])) {
                 $module = $configModules[$moduleName];
+            }
             elseif (in_array($moduleName, $configModuleNames)) {
                 foreach ($configModules as $m) {
                     if ($m['name'] == $moduleName) {
@@ -407,8 +408,7 @@ abstract class AetherSection {
                 session_start();
             }
             // Get module object
-            $mod = AetherModuleFactory::create($module['name'], 
-                    $this->sl, $opts);
+            $mod = AetherModuleFactory::create($moduleName, $this->sl, $opts);
             if ($type == 'module') {
                 $modules = [ $mod ];
                 break;
