@@ -261,7 +261,7 @@ abstract class AetherSection {
          * Render page
          */
         $cacheable = ($cacheable && is_object($this->cache));
-        if (!$cachePages || !$cacheable || $this->pageCacheTime === 0 || ($cache->get($cacheName) == false)) {
+        if (!$cachePages || !$cacheable || $this->pageCacheTime === 0 || ($this->cache->get($cacheName) == false)) {
             /* Load controller template
              * This template knows where all modules should be placed
              * and have internal wrapping html for this section
