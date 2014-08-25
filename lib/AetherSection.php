@@ -164,7 +164,7 @@ abstract class AetherSection {
                 }
                 catch (Exception $e) {
                     $this->logerror($e);
-                    continue;
+                    return false;
                 }
             }
         }
@@ -274,6 +274,8 @@ abstract class AetherSection {
                 foreach ($modules as &$module) {
                     // If module should be cached, handle it
                     $module = $this->loadModule($module);
+                    if (!$module)
+                        continue;
 
                     /**
                      * Support multiple modules of same type by 
