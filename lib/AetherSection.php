@@ -100,7 +100,7 @@ abstract class AetherSection {
             // Get module object
             try {
                 $object = AetherModuleFactory::create($module['name'], 
-                        $this->sl, $options + $module['options']);
+                        $this->sl, $module['options'] + $options);
                 
                 // If the module, in this setting, blocks caching, accept
                 if ($this->cache && ($cachetime = $object->getCacheTime()) !== null) {
