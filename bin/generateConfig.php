@@ -40,6 +40,18 @@ function resolveImports($doc, $prefix, $i, $configFolder) {
 
         resolveImports($import, $prefix, $i + 1, $configFolder);
 
+        // Add provides-prefix if import-tag provides-prefix attribute is set
+        $providesPrefix = $node->getAttribute('prefix-provides');
+        if ($providesPrefix) {
+            $modules = $import->documentElement->getElementsByTagName('module');
+            foreach ($modules as $m) {
+                $provides = $m->getAttribute('provides');
+                if ($provides) {
+                    $m->setAttribute('provides', $providesPrefix . ucfirst($provides));
+                }
+            }
+        }
+
         foreach ($import->documentElement->childNodes as $child) {
             $import = $doc->importNode($child,true);
             $parent->insertBefore($import, $node);
