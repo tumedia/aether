@@ -49,7 +49,12 @@ abstract class AetherSection {
         }
         else {
             $module = $config->getModules($providerName);
-            $modules = [ $module ];
+            if ($module !== null) {
+                $modules = [ $module ];
+            }
+            else {
+                throw new Exception("Provider \"{$providerName}\" did not match any module at {$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
+            }
         }
 
         if (isset($modules)) {
