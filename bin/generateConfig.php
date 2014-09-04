@@ -165,7 +165,8 @@ foreach ($nodelist as $node) {
  */
 echo "Saving config file [$saveTo] moving old to [{$saveTo}.old]\n";
 copy($saveTo, $saveTo . ".old");
-$doc->save($saveTo);
+$doc->save($saveTo . ".tmp");
+rename($saveTo . ".tmp", $saveTo);
 
 echo "Done\n\n";
 
