@@ -128,7 +128,7 @@ abstract class AetherSection {
 
     private function loadModule($module) {
         if ($this->cache && array_key_exists('cache', $module) && $module['cache'] > 0) {
-            $mCacheName = $cacheName . $module['name'] ;
+            $mCacheName = $this->cacheName . $module['name'] ;
 
             if (isset($module['provides']))
                 $mCacheName .= $module['provides'];
@@ -209,9 +209,9 @@ abstract class AetherSection {
         if ($this->cache) {
             $cacheas = $config->getCacheName();
             if ($cacheas != false)
-                $cacheName = $url->get('host') . '_' . $cacheas;
+                $this->cacheName = $url->get('host') . '_' . $cacheas;
             else
-                $cacheName = $url->cacheName();
+                $this->cacheName = $url->cacheName();
 
             $this->pageCacheTime = $config->getCacheTime();
             if ($this->pageCacheTime === false) 
@@ -266,7 +266,7 @@ abstract class AetherSection {
          * Render page
          */
         $cacheable = ($cacheable && is_object($this->cache));
-        if (!$cachePages || !$cacheable || $this->pageCacheTime === 0 || ($this->cache->get($cacheName) == false)) {
+        if (!$cachePages || !$cacheable || $this->pageCacheTime === 0 || ($this->cache->get($this->cacheName) == false)) {
             /* Load controller template
              * This template knows where all modules should be placed
              * and have internal wrapping html for this section
@@ -318,11 +318,11 @@ abstract class AetherSection {
             }
 
             if ($cachePages && $cacheable && $this->pageCacheTime > 0) {
-                $this->cache->set($cacheName, $output, $this->pageCacheTime);
+                $this->cache->set($this->cacheName, $output, $this->pageCacheTime);
             }
         }
         else {
-            $output = $this->cache->get($cacheName);
+            $output = $this->cache->get($this->cacheName);
         }
 
         // Page is cacheable even with cachePages off since we want headers for 
