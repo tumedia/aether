@@ -144,7 +144,7 @@ abstract class AetherSection {
                     $mCacheTime = $module['cache'];
 
                     try {
-                        $module['output'] = $mod->run();
+                        $mOut = $mod->run();
                         if (is_numeric($mCacheTime) && $mCacheTime > 0) {
                             $this->cache->set($mCacheName, $mOut, $mCacheTime);
                         }
@@ -165,7 +165,7 @@ abstract class AetherSection {
                 $mod = $module['obj'];
 
                 try {
-                    $module['output'] = $mod->run();
+                    $mOut = $mod->run();
                 }
                 catch (Exception $e) {
                     $this->logerror($e);
@@ -173,6 +173,8 @@ abstract class AetherSection {
                 }
             }
         }
+
+        $module['output'] = $mOut;
 
         return $module;
     }
