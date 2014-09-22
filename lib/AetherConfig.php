@@ -402,8 +402,13 @@ class AetherConfig {
         $data2 = $this->getNodeConfig($node->parentNode);
        
         foreach ($data1 as $k => $v){
-            foreach ($v as $k2 => $v2){
-                $data2[$k][$k2] = $v2;
+            if (is_array($v)) {
+                foreach ($v as $k2 => $v2){
+                    $data2[$k][$k2] = $v2;
+                }
+            }
+            else {
+                $data2[$k] = $v;
             }
         }
         return $data2;        
