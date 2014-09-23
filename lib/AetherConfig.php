@@ -387,34 +387,6 @@ class AetherConfig {
     }
 
     /**
-     * Fetch outer node config for a URL (contains modules, section and 
-     * template info
-     */
-    public function getNodeConfigByUrl($url) {
-        $parsedUrl = new AetherUrlParser();
-        $parsedUrl->parseServerArray($_SERVER);
-        $parsedUrl->parse($url);
-        $config = $this->getSiteConfig($parsedUrl);
-        $node = $this->findMatchingConfigNode($config['rules'], $config['path']);
-        // Fetch last and previous node since last node always is the ""
-        // match at the end of the url, but may include some modules
-        $data1 = $this->getNodeConfig($node);
-        $data2 = $this->getNodeConfig($node->parentNode);
-       
-        foreach ($data1 as $k => $v){
-            if (is_array($v)) {
-                foreach ($v as $k2 => $v2){
-                    $data2[$k][$k2] = $v2;
-                }
-            }
-            else {
-                $data2[$k] = $v;
-            }
-        }
-        return $data2;        
-      }
-
-    /**
      * Fetch node config for a specific node
      */
     private function getNodeConfig($node) {
