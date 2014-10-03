@@ -25,6 +25,8 @@ function load() {
     // Make div openable by click
     var opener = document.getElementById("aetherDebugBarButton");
     opener.addEventListener("click", aetherDebugPanelToggle, false);
+    if (!!localStorage.getItem("aetherDebugBar"))
+        opener.nextSibling.nextSibling.style.display = localStorage.getItem("aetherDebugBar");
 }
 function aetherDebugPanelToggle(event) {
     var div = event.target.nextSibling.nextSibling;
@@ -34,6 +36,7 @@ function aetherDebugPanelToggle(event) {
     else {
         div.style.display = "none";
     }
+    localStorage.setItem("aetherDebugBar",div.style.display);
 }
 load();
 </script>
