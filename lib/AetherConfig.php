@@ -79,13 +79,6 @@ class AetherConfig {
     private $urlRoot = '/';
     
     /**
-     * When matching parts of the url, should the path fragment
-     * maintain its first slash or not.
-     * @var string "keep" or "skip"
-     */
-    private $slashMode = "skip";
-    
-    /**
      * Hold config file path
      * @var string
      */
@@ -141,16 +134,6 @@ class AetherConfig {
         // Treat /foo/bar the same as /foo/bar/
         if (end($explodedPath) !== "")
             $explodedPath[] = "";
-
-        /**
-         * If AetherSlashMode is "keep", make sure $current is prefixed
-         * with a slash as the slash is not maintained from earlier
-         */
-        if ($this->slashMode() == 'keep') {
-            foreach ($explodedPath as $key => $part) {
-                $explodedPath[$key] = '/' . $part;
-            }
-        }
 
         return [
             'rules' => $urlRules,
@@ -669,20 +652,6 @@ class AetherConfig {
      */
     public function getPathLeftOvers() {
         return $this->path;
-    }
-    
-    /**
-     * What slashmode are Aether running in
-     *
-     * @access public
-     * @return string
-     */
-    public function slashMode() {
-        $opts = $this->getOptions();
-        if (isset($opts['AetherSlashMode'])) 
-            $this->slashMode = $opts['AetherSlashMode'];
-
-        return $this->slashMode;
     }
     
     /**
