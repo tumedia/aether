@@ -1,11 +1,11 @@
 <div id="aetherDebugBar" class="nimbus" style="text-align: left; position: absolute; width: 240px; max-width: 400px; right: 16px; top: 0; border: 1px solid #f0ede7; -moz-border-radius-bottomleft: 10px; -moz-border-radius-bottomright: 10px; background: #f0ede7; opacity: 0.9; -moz-box-shadow: 2px 2px 7px; box-shadow: 2px 2px 7px; -webkit-box-shadow: 2px 2px 7px; z-index: 10000; font-size: 8pt; padding: 10px 2px 4px; color: #847864;">
     <h2 id="aetherDebugBarButton" style="text-align: center; margin: 0; cursor: pointer; letter-spacing: 1px; font-size: 8pt; font-weight: normal; text-decoration: underline; text-transform: uppercase" title="Click to open">Debug center</h2>
 <div style="display: none; padding: 2px 12px 40px 12px;">
-<ul>
+<ul style="list-style-type: none; padding: 0px;">
 {foreach from=$timers key=name item=timer}
     <li style="width:100%; clear: both; padding-top: 15px; font-size: 9pt; letter-spacing: 1px; text-transform: uppercase; font-weight: bold; border-bottom: 1px solid #847864">{$name}:</li>
     <li>
-    <ul>
+    <ul style="list-style-type: none; padding: 0px;">
     {foreach from=$timer key=point item=data}
         {if $point != "start"}
         <li style="clear:left; padding: 3px 0; float: left; width: 100%;">
@@ -25,6 +25,8 @@ function load() {
     // Make div openable by click
     var opener = document.getElementById("aetherDebugBarButton");
     opener.addEventListener("click", aetherDebugPanelToggle, false);
+    if (!!localStorage.getItem("aetherDebugBar"))
+        opener.nextSibling.nextSibling.style.display = localStorage.getItem("aetherDebugBar");
 }
 function aetherDebugPanelToggle(event) {
     var div = event.target.nextSibling.nextSibling;
@@ -34,6 +36,7 @@ function aetherDebugPanelToggle(event) {
     else {
         div.style.display = "none";
     }
+    localStorage.setItem("aetherDebugBar",div.style.display);
 }
 load();
 </script>
