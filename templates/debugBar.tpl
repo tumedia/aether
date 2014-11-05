@@ -47,6 +47,7 @@ function aetherDebugPanelToggle(event) {
         setTimeout(function() {
             debugBox.style.right = "0px";
         }, 0);
+        localStorage.setItem("aetherDebugBar", 'block');
     }
     else {
         debugBox.style.right = "-240px";
@@ -54,8 +55,8 @@ function aetherDebugPanelToggle(event) {
             debugBox.style.display = 'none';
         }, 2000);
         this.style.opacity = 0;
+        localStorage.setItem("aetherDebugBar", 'none');
     }
-    localStorage.setItem("aetherDebugBar", debugBox.style.display);
 }
 load();
 </script>
