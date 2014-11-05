@@ -1,5 +1,5 @@
 <h2 id="aetherDebugBarButton" style="position: fixed; right: 0; top: 0; width: 20px; height: 20px; padding: 2px 5px; z-index: 10001; background: red; opacity: 0; color: white; margin: 0; cursor: pointer; font-size: 12px; font-weight: bold" title="Click to open">&lt;</h2>
-<div id="aetherDebugBar" class="nimbus" style="text-align: left; position: fixed; width: 240px; right: -240px; top: 0; bottom: 0; overflow-y: scroll; background: rgba(0,0,0,0.85); z-index: 10000; transition: right 1s; font-size: 8pt; padding: 10px 2px 4px; color: #fff; display: none">
+<div id="aetherDebugBar" class="nimbus" style="text-align: left; position: fixed; width: 240px; right: -240px; top: 0; bottom: 0; overflow-y: auto; background: rgba(0,0,0,0.85); z-index: 10000; transition: right 1s; font-size: 8pt; padding: 10px 2px 4px; color: #fff; display: none">
     <div style="padding: 2px 12px 40px 12px;">
         <ul style="list-style-type: none; padding: 0px;">
         {foreach from=$timers key=name item=timer}
