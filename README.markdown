@@ -1,7 +1,7 @@
 # Aether
 ## A modular PHP framework
 
-### aether.comfig.xml example
+### aether.config.xml example
 
 >        <config>
 >            <site name="www.foo.com">
