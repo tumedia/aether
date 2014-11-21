@@ -21,42 +21,50 @@
     </div>
 </div>
 <script type="text/javascript">
-function load() {
-    // Make div openable by click
-    var opener = document.getElementById("aetherDebugBarButton");
-    var debugBox = opener.nextSibling.nextSibling;
-    opener.addEventListener("click", aetherDebugPanelToggle, false);
-    opener.addEventListener("mouseover", function (evt) {
-        this.style.opacity = 1;
-    }, false);
-    if (!!localStorage.getItem("aetherDebugBar")) {
-        var display = localStorage.getItem("aetherDebugBar");
-        if (display == 'block') {
-            debugBox.style.right = 0;
+(function(window) {
+    var _debugTimeout;
+    function load() {
+        // Make div openable by click
+        var opener = document.getElementById("aetherDebugBarButton");
+        var debugBox = opener.nextSibling.nextSibling;
+        opener.addEventListener("click", aetherDebugPanelToggle, false);
+        opener.addEventListener("mouseenter", function (evt) {
+            this.style.opacity = 1;
+        }, false);
+        opener.addEventListener("mouseleave", function (evt) {
+            this.style.opacity = 0;
+        }, false);
+        if (!!localStorage.getItem("aetherDebugBar")) {
+            var display = localStorage.getItem("aetherDebugBar");
+            if (display == 'block') {
+                debugBox.style.right = 0;
+            }
+            else {
+                debugBox.style.right = "-240px";
+            }
+            debugBox.style.display = display;
+        }
+    }
+    function aetherDebugPanelToggle(event) {
+        if (_debugTimeout) {
+            clearTimeout(_debugTimeout);
+        }
+        var debugBox = event.target.nextSibling.nextSibling;
+        if (parseInt(debugBox.style.right) < 0) {
+            debugBox.style.display = 'block';
+            _debugTimeout = setTimeout(function() {
+                debugBox.style.right = "0px";
+            }, 0);
+            localStorage.setItem("aetherDebugBar", 'block');
         }
         else {
             debugBox.style.right = "-240px";
+            _debugTimeout = setTimeout(function() {
+                debugBox.style.display = 'none';
+            }, 2000);
+            localStorage.setItem("aetherDebugBar", 'none');
         }
-        debugBox.style.display = display;
     }
-}
-function aetherDebugPanelToggle(event) {
-    var debugBox = event.target.nextSibling.nextSibling;
-    if (debugBox.style.display == "none") {
-        debugBox.style.display = 'block';
-        setTimeout(function() {
-            debugBox.style.right = "0px";
-        }, 0);
-        localStorage.setItem("aetherDebugBar", 'block');
-    }
-    else {
-        debugBox.style.right = "-240px";
-        setTimeout(function() {
-            debugBox.style.display = 'none';
-        }, 2000);
-        this.style.opacity = 0;
-        localStorage.setItem("aetherDebugBar", 'none');
-    }
-}
-load();
+    load();
+})(this);
 </script>
