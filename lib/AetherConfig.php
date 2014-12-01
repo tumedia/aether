@@ -230,9 +230,6 @@ class AetherConfig {
 
     private function readMatchingConfigNode($urlRules, $path) {
         // Crawl the config hierarchy till the right node is found
-
-        $this->path = $path;
-
         // First node is urlRules xml tag
         $this->matchedNodes[] = $urlRules;
 
@@ -642,16 +639,6 @@ class AetherConfig {
     }
     public function getRoot() {
         return $this->urlRoot;
-    }
-    
-    /**
-     * Fetch whats left and "unusued" of the path originaly requested
-     *
-     * @access public
-     * @return array
-     */
-    public function getPathLeftOvers() {
-        return $this->path;
     }
     
     /**
