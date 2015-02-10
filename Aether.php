@@ -213,6 +213,10 @@ class Aether {
              * # _esi=<providerName> to render one module with settings of the url path
              */
             if (strlen($_GET['_esi']) > 0) {
+                $locale = (isset($options['locale'])) ? $options['locale'] : "nb_NO.UTF-8";
+                setlocale(LC_ALL, $locale);
+                $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
+                setlocale(LC_NUMERIC, $lc_numeric);
                 $this->section->renderProviderWithCacheHeaders($_GET['_esi']);
             }
             else {
