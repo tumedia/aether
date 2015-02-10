@@ -183,6 +183,11 @@ class AetherConfig {
         }
     }
     
+    // Get config root node
+    public function getRootNode(AetherUrlParser $url) {
+        return $this->getSiteConfig($url)['rules'];
+    }
+    
     private function containsRules($node) {
         foreach ($node->childNodes as $c) {
             if ($c->nodeName === 'rule')
