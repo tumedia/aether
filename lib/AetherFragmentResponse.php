@@ -29,7 +29,7 @@ class AetherFragmentResponse extends AetherResponse {
      * @param AetherServiceLocator $sl
      */
     public function draw($sl) {
-        header("Content-Type: application/json");
+        header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($this->get());
     }
     

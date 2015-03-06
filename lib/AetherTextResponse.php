@@ -15,6 +15,7 @@ class AetherTextResponse extends AetherResponse {
      * @var string
      */
     private $out = '';
+    private $contentType;
     
     /**
      * Constructor
@@ -23,8 +24,9 @@ class AetherTextResponse extends AetherResponse {
      * @return AetherTextResponse
      * @param string $output
      */
-    public function __construct($output) {
+    public function __construct($output, $contentType = 'text/html') {
         $this->out = $output;
+        $this->contentType = $contentType;
     }
     
     /**
@@ -79,6 +81,7 @@ class AetherTextResponse extends AetherResponse {
             // No timing, we're in prod
             $out = $this->out;
         }
+        header("Content-Type: {$this->contentType}; charset=UTF-8");
         echo $out;
     }
     

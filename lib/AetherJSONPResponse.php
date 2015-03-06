@@ -54,6 +54,7 @@ class AetherJSONPResponse extends AetherResponse {
      * @return string
      */
     public function get() {
+        header("Content-Type: application/javascript; charset=UTF-8");
         return $this->callback . "(" . json_encode($this->struct) .")";
     }
 }

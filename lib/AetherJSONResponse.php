@@ -42,7 +42,7 @@ class AetherJSONResponse extends AetherResponse {
      */
     public function draw($sl) {
         if ($this->struct !== null) {
-            header("Content-Type: application/json");
+            header("Content-Type: application/json; charset=UTF-8");
         }
         echo json_encode($this->get());
     }

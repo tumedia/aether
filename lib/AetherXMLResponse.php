@@ -42,7 +42,7 @@ class AetherXMLResponse extends AetherResponse {
      * @param AetherServiceLocator $sl
      */
     public function draw($sl) {
-        header("Content-Type: text/xml");
+        header("Content-Type: text/xml; charset=UTF-8");
         echo $this->__toXml($this->struct)->saveXML();
     }
     
