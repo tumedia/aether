@@ -20,6 +20,6 @@ class Generic extends AetherSection {
      * @return AetherResponse
      */
     public function response() {
-        return new AetherTextResponse($this->renderModules());
+        return new AetherTextResponse($this->renderModules(), 'text/html');
     }
 }
