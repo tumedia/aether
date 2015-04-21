@@ -44,7 +44,9 @@ class AetherActionResponse extends AetherResponse {
                 break;
             case 400: // Bad Request
                 header("HTTP/1.1 400 Bad Request");
-                header("Location: {$this->data}");
+                header("Status: 400 Bad Request");
+
+                print $this->data;
                 break;
             case 401: // Unauthorized
                 header("HTTP/1.1 401 Unauthorized");
