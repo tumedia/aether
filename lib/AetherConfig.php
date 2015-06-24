@@ -217,7 +217,7 @@ class AetherConfig {
         $match = $this->findRecursive($urlRules->childNodes, $path);
 
         /**
-         * No rules matched so far, look for a default rule in the matched
+         * No complete rule matched so far, look for a default rule in the matched
          * nodes starting at the deepest match
          */
         if (!$match) {
@@ -225,7 +225,7 @@ class AetherConfig {
                 foreach ($n->childNodes as $cn) {
                     if ($cn->nodeName == 'rule' && $cn->getAttribute("default")) {
                         $match = $cn;
-                        break;
+                        break 2;
                     }
                 }
             }
