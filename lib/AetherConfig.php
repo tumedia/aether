@@ -225,6 +225,7 @@ class AetherConfig {
                 foreach ($n->childNodes as $cn) {
                     if ($cn->nodeName == 'rule' && $cn->getAttribute("default")) {
                         $match = $cn;
+                        break;
                     }
                 }
             }
