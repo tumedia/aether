@@ -125,10 +125,10 @@ class Aether {
             'cache' => 'off'
         ));
         if ($options['cache'] == 'on') {
-            if (isset($options['cacheClass']) && isset($options['cacheOptions'])) {
-                $cache = $this->getCacheObject($options['cacheClass'], $options['cacheOptions']);
-                $this->sl->set("cache", $cache);
-            }
+            $cacheClass = isset($options['cacheClass']) ? $options['cacheClass'] : 'AetherCache';
+            $cacheOptions = isset($options['cacheOptions']) ? $options['cacheOptions'] : [];
+            $cache = $this->getCacheObject($cacheClass, $cacheOptions);
+            $this->sl->set("cache", $cache);
         }
 
         /**
@@ -325,7 +325,7 @@ class Aether {
     private function getCacheObject($class, $options) {
         if (class_exists($class)) {
             $obj = new $class($options);
-            if ($obj instanceof AetherCacheInterface)
+            if ($obj instanceof AetherCache)
                 return $obj;
         }
         return false;
