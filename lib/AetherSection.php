@@ -249,6 +249,14 @@ abstract class AetherSection {
         $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
         setlocale(LC_NUMERIC, $lc_numeric);
 
+        if (isset($options['lc_messages'])) {
+            $localeDomain = "messages";
+            setlocale(LC_MESSAGES, $options['lc_messages']);
+            bindtextdomain($localeDomain, $this->sl->get('projectRoot') . "locale");
+            bind_textdomain_codeset($localeDomain, 'UTF-8');
+            textdomain($localeDomain);
+        }
+
         // Support custom searchpaths
         $searchPath = (isset($options['searchpath'])) 
             ? $options['searchpath'] : $this->sl->get("aetherPath");
