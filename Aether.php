@@ -191,20 +191,18 @@ class Aether {
         /**
          * If a service is requested simply render the service
          */
-        if (isset($_GET['service'])) {
-            if (isset($_GET['module'])) {
-                $response = $this->section->service($_GET['module'], $_GET['service']);
-                if (!is_object($response) || !($response instanceof AetherResponse)) {
-                    trigger_error("Expected " . preg_replace("/[^A-z0-9]+/", "", $_GET['module']) . "::service() to return an AetherResponse object." . (isset($_SERVER['HTTP_REFERER']) ? " Referer: " . $_SERVER['HTTP_REFERER'] : ""), E_USER_WARNING);
-                }
-                else {
-                    $response->draw($this->sl);
-                }
+        if (isset($_GET['module']) && isset($_GET['service'])) {
+            $response = $this->section->service($_GET['module'], $_GET['service']);
+            if (!is_object($response) || !($response instanceof AetherResponse)) {
+                trigger_error("Expected " . preg_replace("/[^A-z0-9]+/", "", $_GET['module']) . "::service() to return an AetherResponse object." . (isset($_SERVER['HTTP_REFERER']) ? " Referer: " . $_SERVER['HTTP_REFERER'] : ""), E_USER_WARNING);
             }
-            else if (isset($_GET['fragment'])) {
-                $response = $this->section->service($_GET['fragment'], $_GET['service'], 'fragment');
+            else {
                 $response->draw($this->sl);
             }
+        }
+        else if (isset($_GET['fragment']) && isset($_GET['service'])) {
+            $response = $this->section->service($_GET['fragment'], ($_GET['service'] !== "_esi" ? $_GET['service'] : null), 'fragment');
+            $response->draw($this->sl);
         }
         else if (isset($_GET['_esi'])) {
             /**

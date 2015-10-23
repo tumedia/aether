@@ -393,7 +393,6 @@ abstract class AetherSection {
         $modules = [];
         $configModules = $config->getModules();
         $configModuleNames = array_map(function ($mod) { return $mod['name']; }, $configModules);
-
         foreach ($moduleNames as $moduleName) {
             if (isset($configModules[$moduleName])) {
                 $module = $configModules[$moduleName];
@@ -406,6 +405,9 @@ abstract class AetherSection {
                     }
                 }
             }
+            else {
+                $module = array('name' => $moduleName);
+            }
 
             if (!isset($module['options']))
                 $module['options'] = array();
@@ -415,7 +417,7 @@ abstract class AetherSection {
                 session_start();
             }
             // Get module object
-            $mod = AetherModuleFactory::create($moduleName, $this->sl, $opts);
+            $mod = AetherModuleFactory::create($module['name'], $this->sl, $opts);
             if ($type == 'module') {
                 $modules = [ $mod ];
                 break;
@@ -431,15 +433,21 @@ abstract class AetherSection {
                 // Run service
                 if ($type == 'module') {
                     return $mod->service($serviceName);
-                }
+                }                
                 else {
-                    $moduleResponses[$id] = $mod->service($serviceName);
+                    if ($serviceName === null) {
+                        $moduleResponses[$id] = new AetherTextResponse($mod->run());
+                    }
+                    else {
+                        $moduleResponses[$id] = $mod->service($serviceName);                        
+                    }
                 }
             }
             else {
                 throw new Exception("Service run error: Failed to locate {$type} [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
             }
         }
+
         return new AetherFragmentResponse($moduleResponses);
     }
     
