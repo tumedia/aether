@@ -18,7 +18,7 @@
  * @package Aether
  */
  
-class AetherCacheMemcache implements AetherCacheInterface { 
+class AetherCacheMemcache extends AetherCache { 
 
     /**
      * Connection
