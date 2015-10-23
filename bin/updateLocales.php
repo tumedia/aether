@@ -38,7 +38,7 @@ $localeDir = $path . "/locale";
 $templateFile = $localeDir . "/messages.pot";
 
 // use xgettext to fetch translation strings and dump to stdout
-$h = popen("find . -name '*.php' -exec xgettext --no-location -o - \"{}\" \\;", "r");
+$h = popen("find \"{$path}\" -name '*.php' -exec xgettext --no-location -o - \"{}\" \\;", "r");
 $localeData = stream_get_contents($h);
 
 // header needs to have charset set or it will fail to read translations
