@@ -16,10 +16,20 @@ if (count($argv) < 2) {
     exit(-1);
 }
 
-if (!is_dir($path . "/config") || !is_dir($path . "/templates")) {
-    echo "Missing config and template dir\n";
-    echo "Run script from project root\n";
-    exit(-1);
+$pathBits = explode("/", $path);
+while (true) {
+    if (count($pathBits) === 0) {
+        echo "Missing config and template dir\n";
+        echo "Run script from project root\n";
+        exit(-1);
+    }
+    $testPath = join("/", $pathBits);
+    // Test if this seems to be a aether project root and break out if it is
+    if (is_dir($testPath . "/config") && is_dir($testPath . "/templates")) {
+        $path = $testPath;
+        break;
+    }
+    array_pop($pathBits);
 }
 
 $locales = array_slice($argv, 1);
