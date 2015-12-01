@@ -53,7 +53,7 @@ abstract class AetherSection {
                 $modules = [ $module ];
             }
             else {
-                throw new Exception("Provider \"{$providerName}\" did not match any module at {$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
+                throw new AetherServiceNotFoundException("Provider \"{$providerName}\" did not match any module at {$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
             }
         }
 
@@ -452,7 +452,7 @@ abstract class AetherSection {
                 }
             }
             else {
-                throw new Exception("Service run error: Failed to locate {$type} [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
+                throw new AetherServiceNotFoundException("Service run error: Failed to locate {$type} [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
             }
         }
 
