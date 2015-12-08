@@ -58,6 +58,12 @@ class AetherActionResponse extends AetherResponse {
 
                 print $this->data;
                 break;
+            case 410: // Gone
+                header("HTTP/1.1 410 Gone");
+                header("Status: 410 Gone");
+
+                print $this->data;
+                break;
         }
     }
     
