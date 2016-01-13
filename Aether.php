@@ -86,7 +86,8 @@ class Aether {
         $projectPath = preg_replace("/www\/?$/", "", getcwd());
 
         $this->sl->set("projectRoot", $projectPath);
-        define("PROJECT_PATH", $projectPath);
+        if (!defined("PROJECT_PATH"))
+            define("PROJECT_PATH", $projectPath);
 
         $paths = array(
             $configPath,
