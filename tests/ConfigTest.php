@@ -1,6 +1,8 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once('/home/lib/libDefines.lib.php');
+if (!defined('AETHER_PATH'))
+    define('AETHER_PATH', __DIR__ . '/../');
+
 require_once(AETHER_PATH . 'lib/AetherConfig.php');
 require_once(AETHER_PATH . 'lib/AetherUrlParser.php');
 require_once(AETHER_PATH . 'lib/AetherExceptions.php');
@@ -14,13 +16,28 @@ require_once(AETHER_PATH . 'lib/AetherExceptions.php');
 
 class AetherConfigTest extends PHPUnit_Framework_TestCase {
     private function getConfig() {
-        return new AetherConfig(AETHER_PATH . 'tests/aether.config.xml');
+        return new AetherConfig(AETHER_PATH . 'tests/fixtures/aether.config.xml');
     }
 
     public function testEnvironment() {
         $this->assertTrue(class_exists('AetherConfig'));
     }
-    
+
+    private function getLoadedConfig($url) {
+        $aetherUrl = new AetherUrlParser;
+        $aetherUrl->parse($url);
+
+        $conf = $this->getConfig();
+        $conf->matchUrl($aetherUrl);
+
+        return $conf;
+    }
+
+    private function getOptionsForUrl($url) {
+        $config = $this->getLoadedConfig($url);
+        return $config->getOptions();
+    }
+
     public function testConfigReadDefault() {
         $url = 'http://raw.no/unittest';
         $aetherUrl = new AetherUrlParser;
@@ -48,10 +65,14 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
         $conf = $this->getConfig();
         $conf->matchUrl($aetherUrl);
         $modules = $conf->getModules();
-        $module = $modules[0];
-        // Check options against the first module
+
+        // Check the module exists
+        $this->assertTrue(isset($modules['HelloWorld']));
+
+        $module = $modules['HelloWorld'];
+
+        // Check the local options for the HelloWorld module
         $this->assertEquals($module['options']['foo'], 'foobar');
-        $this->assertEquals($module['options']['bar'], 'foo');
     }
 
     public function testMultipleModulesOfSameType() {
@@ -84,23 +105,14 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testConfigFallbackToRootWhenOneMatchEmpty() {
-        $aetherUrl = new AetherUrlParser;
-        $url = 'http://raw.no/empty/fluff';
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $opts = $conf->getOptions();
-        $this->assertEquals($opts['foobar'], 'yes');
+        $opts = $this->getOptionsForUrl('http://raw.no/empty/fluff');
+        $this->assertEquals('yes', $opts['foobar']);
     }
     
     public function testConfigFallbackToRootDefault() {
-        $aetherUrl = new AetherUrlParser;
-        $url = 'http://raw.no/bar/foo/bar';
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $opts = $conf->getOptions();
-        $this->assertEquals($opts['foobar'], 'yes');
+        $opts = $this->getOptionsForUrl('http://raw.no/bar/foo/bar');
+
+        $this->assertEquals('yes', $opts['foobar']);
     }
 
     public function testConfigFallbackToDefaultSite() {
@@ -109,7 +121,8 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
         $aetherUrl->parse($url);
         $conf = $this->getConfig();
         $conf->matchUrl($aetherUrl);
-        $this->assertEquals($conf->getSection(), 'Generic');
+        $options = $conf->getOptions();
+        $this->assertEquals($options['sitename'], 'fallback-site');
     }
 
     public function testMatchWithPlusInItWorks() {
@@ -119,7 +132,7 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
         $conf = $this->getConfig();
         $conf->matchUrl($aetherUrl);
         $opts = $conf->getOptions();
-        $this->assertEquals($opts['plusm'], 'yes');
+        $this->assertEquals('yes', $opts['plusm']);
     }
 
     public function testMatchWithMinusInItWorks() {

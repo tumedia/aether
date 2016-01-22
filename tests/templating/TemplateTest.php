@@ -1,6 +1,5 @@
 <?php // 
-require_once('PHPUnit/Framework.php');
-require_once('/home/lib/libDefines.lib.php');
+require_once('PHPUnit/Autoload.php');
 require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
 /**
  * 
@@ -14,7 +13,11 @@ class AetherTemplateTest extends PHPUnit_Framework_TestCase {
     public function testGetTemplateObject() {
         $sl = new AetherServiceLocator;
         $sl->set('projectRoot', AETHER_PATH . 'tests/templating/');
-        $tpl = AetherTemplate::get('smarty',$sl);
+
+        $config = new AetherConfig('./aether.config.xml');
+        $sl->set('aetherConfig', $config);
+
+        $tpl = $sl->getTemplate();
         $this->assertTrue($tpl instanceof AetherTemplateSmarty);
     }
 }

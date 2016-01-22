@@ -1,6 +1,5 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once('/home/lib/libDefines.lib.php');
 require_once(AETHER_PATH . 'lib/AetherSectionFactory.php');
 require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
 
@@ -17,11 +16,10 @@ class AetherSectionFactoryTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testCreate() {
-        
-        $dir = dirname(__FILE__) . '/';
-        AetherSectionFactory::$strict = false;
-        AetherSectionFactory::$path = $dir;
+        AetherSectionFactory::$strict = true;
+        AetherSectionFactory::$path = __DIR__ . '/fixtures';
         $section = AetherSectionFactory::create('Testsection', new AetherServiceLocator);
-        $this->assertType('AetherSectionTestsection', $section);
+        $this->assertTrue(is_subclass_of($section, 'AetherSection'));
+        $this->assertEquals(get_class($section), 'Testsection');
     }
 }

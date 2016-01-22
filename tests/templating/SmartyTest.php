@@ -1,6 +1,5 @@
 <?php // 
-require_once('PHPUnit/Framework.php');
-require_once('/home/lib/libDefines.lib.php');
+require_once('PHPUnit/Autoload.php');
 require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
 /**
  * 
@@ -14,6 +13,10 @@ require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
 
 class SmartyIntegratesWithAetherTest extends PHPUnit_Framework_TestCase {
     public function testGetSmartyEngine() {
+        return $this->markTestIncomplete(
+            'This is supposedly not a test.'
+        );
+
         // Go through SL
         $sl = new AetherServiceLocator;
         // TODO THIS IS UGLY AND MUST BE BAD

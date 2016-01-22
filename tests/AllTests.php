@@ -1,21 +1,22 @@
 <?php // vim:set ts=4 sw=4 et:
-$path = split("/",pathinfo(__FILE__, PATHINFO_DIRNAME));
-array_pop($path);
-$path = join("/", $path) . "/";
-require_once($path . "Aether.php");
-Aether::$aetherPath = $path;
+
+if (!defined('AETHER_PATH'))
+    define('AETHER_PATH', __DIR__ . '/../');
+
+require_once(AETHER_PATH . "Aether.php");
 spl_autoload_register(array('Aether', 'autoLoad'));
 
-require_once($path . 'tests/CLITest.php');
-require_once($path . 'tests/ConfigTest.php');
-require_once($path . 'tests/JsonCommentFilteredResponseTest.php');
-require_once($path . 'tests/JsonResponseTest.php');
-require_once($path . 'tests/ModuleFactoryTest.php');
-require_once($path . 'tests/SectionFactoryTest.php');
-require_once($path . 'tests/ServiceLocatorTest.php');
-require_once($path . 'tests/UrlParserTest.php');
-require_once($path . 'tests/templating/SmartyTest.php');
-require_once($path . 'tests/templating/TemplateTest.php');
+require_once(AETHER_PATH . 'tests/CLITest.php');
+require_once(AETHER_PATH . 'tests/ConfigTest.php');
+require_once(AETHER_PATH . 'tests/JsonCommentFilteredResponseTest.php');
+require_once(AETHER_PATH . 'tests/JsonResponseTest.php');
+require_once(AETHER_PATH . 'tests/ModuleFactoryTest.php');
+require_once(AETHER_PATH . 'tests/SectionFactoryTest.php');
+require_once(AETHER_PATH . 'tests/ServiceLocatorTest.php');
+require_once(AETHER_PATH . 'tests/UrlParserTest.php');
+require_once(AETHER_PATH . 'tests/SectionTest.php');
+require_once(AETHER_PATH . 'tests/templating/SmartyTest.php');
+require_once(AETHER_PATH . 'tests/templating/TemplateTest.php');
 
 /**
  * 
@@ -37,6 +38,7 @@ class Framework_AllTests {
         $suite->addTestSuite('AetherSectionFactoryTest');
         $suite->addTestSuite('AetherServiceLocatorTest');
         $suite->addTestSuite('AetherUrlParserTest');
+        $suite->addTestSuite('AetherSectionTest');
         $suite->addTestSuite('SmartyIntegratesWithAetherTest');
         $suite->addTestSuite('AetherTemplateTest');
         return $suite;
