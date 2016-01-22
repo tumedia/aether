@@ -37,7 +37,8 @@ class AetherSectionTest extends PHPUnit_Framework_TestCase  {
 
         $response = $section->response();
         $this->assertTrue($response instanceof AetherTextResponse);
-        $this->assertEquals('404 Eg fant han ikkje', $response->get());
+        $this->assertEquals('404 Eg fant han ikkje', $response->get(), 'Response should be NotFoundSection\'s output');
+        $this->assertArrayNotHasKey('id', $response->options, 'Options should be cleared when reloading config');
     }
 
 }

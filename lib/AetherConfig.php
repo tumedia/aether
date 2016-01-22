@@ -690,10 +690,21 @@ class AetherConfig {
         return $this->configFilePath;
     }
 
+    public function resetRuleConfig() {
+        // Reset
+        $this->options = [];
+        $this->modules = [];
+        $this->fragments = [];
+        $this->urlVariables = [];
+        $this->section = null;
+        $this->template = null;
+    }
+
     public function reloadConfigFromDefaultRule() {
         if (empty($this->matchedNodes))
             throw new Exception('Cannot reload config before initial config is loaded');
 
+        $this->resetRuleConfig();
         $defaultRule = $this->getDefaultRule();
         $this->loadConfigFromConfigNode($defaultRule);
     }

@@ -110,4 +110,19 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($conf->hasUrlVar('catName'));
         $this->assertEquals($category, $conf->getUrlVariable('catName'));
     }
+
+    public function testConfigReset() {
+        $conf = $this->getLoadedConfig("http://raw.no/unittest/goodtimes");
+        $conf->resetRuleConfig();
+
+        $this->assertEmpty($conf->getOptions());
+        $this->assertNull($conf->getSection());
+    }
+
+    public function testTriggeredFallbackToDefaultRule() {
+        $conf = $this->getLoadedConfig("http://raw.no/unittest/goodtimes/nay");
+        $conf->reloadConfigFromDefaultRule();
+
+        $this->assertEquals('NotFoundSection', $conf->getSection());
+    }
 }
