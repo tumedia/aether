@@ -193,23 +193,22 @@ class AetherConfig {
                      * then try to crawl the next level aswell, see
                      * if a more exact match is possible
                      */
+                    $matchingChild = false;
                     if ($this->containsRules($node)) {
                         $matchingChild = $this->findRecursive($node->childNodes, $path);
-
-                        /**
-                         * If this node has no matches and this is
-                         * the last path part, return current node.
-                         */
-                        if ($matchingChild === false &&
-                            count($path) === 1)
-                        {
-                            return $node;
-                        }
-
-                        return $matchingChild;
                     }
 
-                    return $node;
+                    /**
+                     * If this node has no matches and this is
+                     * the last path part, return current node.
+                     */
+                    if ($matchingChild === false &&
+                        count($path) <= 1)
+                    {
+                        return $node;
+                    }
+
+                    return $matchingChild;
                 }
             }
         }
