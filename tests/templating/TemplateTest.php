@@ -1,5 +1,4 @@
 <?php // 
-require_once('PHPUnit/Autoload.php');
 require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
 /**
  * 

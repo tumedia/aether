@@ -1,6 +1,5 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once('PHPUnit/Autoload.php');
 require_once(AETHER_PATH . 'lib/AetherUrlParser.php');
 
 /**

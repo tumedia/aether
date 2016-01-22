@@ -7,7 +7,7 @@
          bootstrap="tests/bootstrap.php"
 >
     <testsuites>
-        <testsuite name="Slim Test Suite">
+        <testsuite name="Aether Test Suite">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
