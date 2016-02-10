@@ -36,7 +36,7 @@ class AetherModuleFactoryTest extends PHPUnit_Framework_TestCase {
         AetherModuleFactory::$strict = false;
         AetherModuleFactory::$path = __DIR__ . '/fixtures/modules';
 
-        $this->setExpectedException(AetherInvalidModuleNameException::class);
+        $this->setExpectedException('AetherInvalidModuleNameException');
 
         $mod = AetherModuleFactory::create(
             '../sections/Testsection',

@@ -49,11 +49,11 @@ class AetherModuleFactory {
 
             $file = $path . $moduleName . '.php';
 
+            if (!file_exists($file))
+                continue;
+
             if (substr(realpath($file), 0, strlen($path)) != $path)
                 throw new AetherInvalidModuleNameException ("Module name «{$moduleName}» is not a valid module name");
-
-            if (!file_exists($file))
-                throw new AetherModuleNotFoundException("Module '$moduleName' does not exist in path [" . join(", ", $paths) . "]");
 
             include_once($file);
             $class = pathinfo($file, PATHINFO_FILENAME);
@@ -61,5 +61,7 @@ class AetherModuleFactory {
             $module = new $class($sl, $options);
             return $module;
         }
+
+        throw new AetherModuleNotFoundException("Module '$moduleName' does not exist in path [" . join(", ", $paths) . "]");
     }
 }
