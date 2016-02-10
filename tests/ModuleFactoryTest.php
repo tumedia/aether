@@ -31,4 +31,17 @@ class AetherModuleFactoryTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals($mod->run(), 'Hello local');
     }
+
+    public function testShouldNotAcceptMaliciousModuleNames() {
+        AetherModuleFactory::$strict = false;
+        AetherModuleFactory::$path = __DIR__ . '/fixtures/modules';
+
+        $this->setExpectedException(AetherInvalidModuleNameException::class);
+
+        $mod = AetherModuleFactory::create(
+            '../sections/Testsection',
+            new AetherServiceLocator,
+            []
+        );
+    }
 }

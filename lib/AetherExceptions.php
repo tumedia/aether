@@ -16,3 +16,5 @@ class AetherMissingFileException extends AetherException {}
 class AetherFinalRuleFoundException extends AetherException {}
 class AetherConfigErrorException extends AetherException {}
 class AetherServiceNotFoundException extends AetherException {}
+class AetherModuleNotFoundException extends AetherException {}
+class AetherInvalidModuleNameException extends AetherException {}
