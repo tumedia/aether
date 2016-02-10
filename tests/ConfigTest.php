@@ -1,12 +1,14 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once('/home/lib/libDefines.lib.php');
+if (!defined('AETHER_PATH'))
+    define('AETHER_PATH', __DIR__ . '/../');
+
 require_once(AETHER_PATH . 'lib/AetherConfig.php');
 require_once(AETHER_PATH . 'lib/AetherUrlParser.php');
 require_once(AETHER_PATH . 'lib/AetherExceptions.php');
 
 /**
- * 
+ *
  * Created: 2009-02-17
  * @author Raymond Julin
  * @package aether.test
@@ -14,121 +16,113 @@ require_once(AETHER_PATH . 'lib/AetherExceptions.php');
 
 class AetherConfigTest extends PHPUnit_Framework_TestCase {
     private function getConfig() {
-        return new AetherConfig(AETHER_PATH . 'tests/aether.config.xml');
+        return new AetherConfig(AETHER_PATH . 'tests/fixtures/aether.config.xml');
     }
 
     public function testEnvironment() {
         $this->assertTrue(class_exists('AetherConfig'));
     }
-    
-    public function testConfigReadDefault() {
-        $url = 'http://raw.no/unittest';
+
+    private function getLoadedConfig($url) {
         $aetherUrl = new AetherUrlParser;
         $aetherUrl->parse($url);
+
         $conf = $this->getConfig();
         $conf->matchUrl($aetherUrl);
-        $this->assertEquals($conf->getSection(), 'Generic');
+
+        return $conf;
+    }
+
+    private function getOptionsForUrl($url) {
+        $config = $this->getLoadedConfig($url);
+        return $config->getOptions();
+    }
+
+    public function testConfigReadDefault() {
+        $conf = $this->getLoadedConfig('http://raw.no/unittest');
+        $opts = $conf->getOptions();
+        $this->assertEquals('Generic', $conf->getSection());
+        $this->assertEquals('yes', $opts['def']);
     }
 
     public function testConfigReadDefaultBase() {
-        $url = 'http://raw.no/fluff';
-        $aetherUrl = new AetherUrlParser;
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
+        $conf = $this->getLoadedConfig('http://raw.no/fluff');
         $opts = $conf->getOptions();
+
         $this->assertEquals($conf->getSection(), 'Generic');
         $this->assertEquals($opts['foobar'], 'yes');
     }
 
     public function testConfigAssembleOptionsCorrectly() {
-        $url = 'http://raw.no/unittest/foo';
-        $aetherUrl = new AetherUrlParser;
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
+        $category = 'hifi-produkter';
+        $conf = $this->getLoadedConfig('http://raw.no/unittest/foo');
+
         $modules = $conf->getModules();
-        $module = $modules[0];
-        // Check options against the first module
-        $this->assertEquals($module['options']['foo'], 'foobar');
-        $this->assertEquals($module['options']['bar'], 'foo');
+        $this->assertArrayHasKey('HelloWorld', $modules, 'Module must exist');
+
+        $module = $modules['HelloWorld'];
+        $this->assertEquals('foobar', $module['options']['foo'], 'Module\'s local options must be correct');
     }
 
     public function testMultipleModulesOfSameType() {
-        $url = 'http://raw.no/tema/Playstation 3';
-        $aetherUrl = new AetherUrlParser;
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
+        $category = 'hifi-produkter';
+        $conf = $this->getLoadedConfig('http://raw.no/tema/Playstation 3');
+
         $modules = $conf->getModules();
+
         // Check options against the first module
         $this->assertTrue(is_array($modules));
+        $this->markTestIncomplete();
     }
 
     public function testConfigFindParentDefault() {
-        $aetherUrl = new AetherUrlParser;
-        // Second
-        $url = 'http://raw.no/thisshouldgive404';
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $opts = $conf->getOptions();
-        $this->assertEquals($opts['foobar'], 'yes');
-        // Third
-        $url = 'http://raw.no/unittest/heisann00';
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $opts = $conf->getOptions();
-        $this->assertEquals($opts['def'], 'yes');
+        $firstOptions = $this->getOptionsForUrl('http://raw.no/thisshouldgive404');
+        $this->assertEquals('yes', $firstOptions['foobar']);
+
+        $secondOptions = $this->getOptionsForUrl('http://raw.no/unittest/heisann00');
+        $this->assertEquals('yes', $secondOptions['def']);
     }
 
     public function testConfigFallbackToRootWhenOneMatchEmpty() {
-        $aetherUrl = new AetherUrlParser;
-        $url = 'http://raw.no/empty/fluff';
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $opts = $conf->getOptions();
-        $this->assertEquals($opts['foobar'], 'yes');
+        $opts = $this->getOptionsForUrl('http://raw.no/empty/fluff');
+        $this->assertEquals('yes', $opts['foobar']);
     }
-    
+
     public function testConfigFallbackToRootDefault() {
-        $aetherUrl = new AetherUrlParser;
-        $url = 'http://raw.no/bar/foo/bar';
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $opts = $conf->getOptions();
-        $this->assertEquals($opts['foobar'], 'yes');
+        $opts = $this->getOptionsForUrl('http://raw.no/bar/foo/bar');
+
+        $this->assertEquals('yes', $opts['foobar']);
     }
 
     public function testConfigFallbackToDefaultSite() {
-        $aetherUrl = new AetherUrlParser;
-        $url = 'http://foo.no/unittest';
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $this->assertEquals($conf->getSection(), 'Generic');
+        $opts = $this->getOptionsForUrl('http://foo.no/unittest');
+        $this->assertEquals('fallback-site', $opts['sitename']);
     }
 
     public function testMatchWithPlusInItWorks() {
-        $aetherUrl = new AetherUrlParser;
-        $url = 'http://raw.no/unittest/foo/a+b';
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $opts = $conf->getOptions();
-        $this->assertEquals($opts['plusm'], 'yes');
+        $opts = $this->getOptionsForUrl('http://raw.no/unittest/foo/a+b');
+        $this->assertEquals('yes', $opts['plusm']);
     }
 
     public function testMatchWithMinusInItWorks() {
-        $aetherUrl = new AetherUrlParser;
-        $cat = "hifi-produkter";
-        $url = 'http://raw.no/unittest/' . $cat;
-        $aetherUrl->parse($url);
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-        $this->assertEquals($conf->getUrlVariable('catName'), $cat);
+        $category = 'hifi-produkter';
+        $conf = $this->getLoadedConfig("http://raw.no/unittest/{$category}");
+        $this->assertTrue($conf->hasUrlVar('catName'));
+        $this->assertEquals($category, $conf->getUrlVariable('catName'));
+    }
+
+    public function testConfigReset() {
+        $conf = $this->getLoadedConfig("http://raw.no/unittest/goodtimes");
+        $conf->resetRuleConfig();
+
+        $this->assertEmpty($conf->getOptions());
+        $this->assertNull($conf->getSection());
+    }
+
+    public function testTriggeredFallbackToDefaultRule() {
+        $conf = $this->getLoadedConfig("http://raw.no/unittest/goodtimes/nay");
+        $conf->reloadConfigFromDefaultRule();
+
+        $this->assertEquals('NotFoundSection', $conf->getSection());
     }
 }

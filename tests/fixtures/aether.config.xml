@@ -4,6 +4,8 @@
             <rule match="unittest">
                 <section>Generic</section>
                 <option name="foo">bar</option>
+                <option name="sitename">fallback-site</option>
+
                 <rule match="foo">
                     <module>
                         HelloWorld
@@ -34,10 +36,23 @@
                 <rule match="saveLayout">
                     <service>HelloWorld</service>
                 </rule>
+
+                <rule match="goodtimes">
+                    <section>Testsection</section>
+                    <rule match="nay">
+                        <option name="id">invalid</option>
+                    </rule>
+
+                    <rule default="true">
+                        <section>NotFoundSection</section>
+                    </rule>
+                </rule>
+
                 <rule match="" default="true">
                     <section>Generic</section>
                     <option name="def">yes</option>
                 </rule>
+
                 <rule pattern="/^[a-z\-]+$/" store="catName">
                     <rule match="$productId">
                         <section>PriceguideProduct</section>
@@ -48,6 +63,7 @@
                         <option name="minus">yes</option>
                     </rule>
                 </rule>
+
             </rule>
             <rule match="empty">
             </rule>

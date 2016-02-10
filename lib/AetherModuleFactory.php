@@ -34,7 +34,7 @@ class AetherModuleFactory {
      * @param AetherServiceLocator $sl
      * @param array $options
      */
-    public static function create($module, AetherServiceLocator $sl, $options=array()) {
+    public static function create($moduleName, AetherServiceLocator $sl, $options=array()) {
         if (!strpos(self::$path, ';'))
             $paths = array(self::$path);
         else {
@@ -45,17 +45,23 @@ class AetherModuleFactory {
                 $path .= '/';
 
             if (self::$strict)
-                $file = $path . 'modules/' . $module . '.php';
-            else
-                $file = $path . $module . '.php';
-            if (file_exists($file)) {
-                include_once($file);
-                $class = pathinfo($file, PATHINFO_FILENAME);
-                $class = ucfirst($class);
-                $mod = new $class($sl, $options);
-                return $mod;
-            }
+                $path .= 'modules/';
+
+            $file = $path . $moduleName . '.php';
+
+            if (!file_exists($file))
+                continue;
+
+            if (substr(realpath($file), 0, strlen($path)) != $path)
+                throw new AetherInvalidModuleNameException ("Module name «{$moduleName}» is not a valid module name");
+
+            include_once($file);
+            $class = pathinfo($file, PATHINFO_FILENAME);
+            $class = ucfirst($class);
+            $module = new $class($sl, $options);
+            return $module;
         }
-        throw new Exception("Module '$module' does not exist in path [" . join(", ", $paths) . "]");
+
+        throw new AetherModuleNotFoundException("Module '$moduleName' does not exist in path [" . join(", ", $paths) . "]");
     }
 }

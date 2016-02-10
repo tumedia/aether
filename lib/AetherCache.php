@@ -1,7 +1,5 @@
 <?php
 
-require_once("/home/lib/Autoload.php");
-
 /**
  * Dummy class with no caching implemented
  */

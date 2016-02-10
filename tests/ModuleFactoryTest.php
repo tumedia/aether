@@ -1,6 +1,5 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once('/home/lib/libDefines.lib.php');
 require_once(AETHER_PATH . 'lib/AetherModuleFactory.php');
 require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
 
@@ -18,17 +17,31 @@ class AetherModuleFactoryTest extends PHPUnit_Framework_TestCase {
 
     public function testCreate() {
         AetherModuleFactory::$strict = true;
+        AetherModuleFactory::$path = AETHER_PATH;
         $mod = AetherModuleFactory::create('Helloworld', 
             new AetherServiceLocator,array('foo'=>'bar'));
         $this->assertEquals($mod->run(), 'Hello world');
     }
 
     public function testCreateModuleFromCustomFolder() {
-        $dir = dirname(__FILE__) . '/';
         AetherModuleFactory::$strict = false;
-        AetherModuleFactory::$path = $dir;
-        $mod = AetherModuleFactory::create('Hellolocal', 
+        AetherModuleFactory::$path = __DIR__ . '/fixtures/modules';
+        $mod = AetherModuleFactory::create('Hellolocal',
             new AetherServiceLocator,array('foo'=>'bar'));
+
         $this->assertEquals($mod->run(), 'Hello local');
+    }
+
+    public function testShouldNotAcceptMaliciousModuleNames() {
+        AetherModuleFactory::$strict = false;
+        AetherModuleFactory::$path = __DIR__ . '/fixtures/modules';
+
+        $this->setExpectedException('AetherInvalidModuleNameException');
+
+        $mod = AetherModuleFactory::create(
+            '../sections/Testsection',
+            new AetherServiceLocator,
+            []
+        );
     }
 }

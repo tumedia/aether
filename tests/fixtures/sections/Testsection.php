@@ -1,6 +1,5 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once('/home/lib/libDefines.lib.php');
 require_once(AETHER_PATH . 'lib/AetherSection.php');
 
 /**
@@ -13,7 +12,7 @@ require_once(AETHER_PATH . 'lib/AetherSection.php');
  * @package aether.test
  */
 
-class AetherSectionTestsection extends AetherSection {
+class Testsection extends AetherSection {
     
     /**
      * Return response
@@ -22,6 +21,15 @@ class AetherSectionTestsection extends AetherSection {
      * @return AetherResponse
      */
     public function response() {
+        $config = $this->sl->get('aetherConfig');
+        $options = $config->getOptions();
+
+        if (!empty($options['id']) &&
+            $options['id'] == 'invalid')
+        {
+            return $this->triggerDefaultRule();
+        }
+
         return new AetherTextResponse($this->renderModules());
     }
 }

@@ -187,15 +187,28 @@ class AetherConfig {
             if ($node instanceof DOMElement && $node->nodeName == 'rule') {
                 if ($this->matches($current, $node)) {
                     $this->matchedNodes[] = $node;
+
                     /**
                      * If this node is a match, and has child nodes
                      * then try to crawl the next level aswell, see
                      * if a more exact match is possible
                      */
-                    if ($this->containsRules($node)) 
-                        return $this->findRecursive($node->childNodes, $path);
-                    else
+                    $matchingChild = false;
+                    if ($this->containsRules($node)) {
+                        $matchingChild = $this->findRecursive($node->childNodes, $path);
+                    }
+
+                    /**
+                     * If this node has no matches and this is
+                     * the last path part, return current node.
+                     */
+                    if ($matchingChild === false &&
+                        count($path) <= 1)
+                    {
                         return $node;
+                    }
+
+                    return $matchingChild;
                 }
             }
         }
@@ -221,17 +234,52 @@ class AetherConfig {
          * nodes starting at the deepest match
          */
         if (!$match) {
-            while ($n = array_pop($this->matchedNodes)) {
-                foreach ($n->childNodes as $cn) {
-                    if ($cn->nodeName == 'rule' && $cn->getAttribute("default")) {
-                        $match = $cn;
-                        break 2;
+            $match = $this->getDefaultRule();
+        }
+
+        return $match;
+    }
+
+    /**
+     * Finds the deepest matching default rule
+     */
+    private function getDefaultRule() {
+        if (!empty($this->matchedNodes)) {
+            while ($node = array_pop($this->matchedNodes)) {
+                foreach ($node->childNodes as $childNode) {
+                    if ($childNode->nodeName == 'rule' &&
+                        $childNode->getAttribute("default"))
+                    {
+                        return $childNode;
                     }
                 }
             }
         }
 
-        return $match;
+        throw new Exception('Missing default rule');
+    }
+
+    private function loadConfigFromConfigNode($node) {
+        // Fetch the complete path of nodes back to document
+        $n = $node;
+        $readNodes = [];
+        do {
+            if ($n->nodeName == 'rule' ||
+                $n->nodeName == 'urlRules' ||
+                $n->nodeName == 'site')
+            {
+                $readNodes[] = $n;
+            }
+        }
+        while (($n = $n->parentNode) && $n->nodeName != "#document");
+
+        // Read in the config for each node
+        while ($n = array_pop($readNodes)) {
+            $nodeConfig = $this->getNodeConfig($n);
+            $this->readNodeConfig($nodeConfig);
+        }
+
+        return true;
     }
 
     private function readMatchingConfigNode($urlRules, $path) {
@@ -242,26 +290,10 @@ class AetherConfig {
         $match = $this->findMatchingConfigNode($urlRules, $path);
 
         if ($match) {
-            // Fetch the complete path of nodes back to document
-            $n = $match;
-            $readNodes = [];
-            do {
-                if ($n->nodeName == 'rule' || $n->nodeName == 'urlRules' || $n->nodeName == 'site') {
-                    $readNodes[] = $n;
-                }
-            }
-            while (($n = $n->parentNode) && $n->nodeName != "#document");
-
-            // Read in the config for each node
-            while ($n = array_pop($readNodes)) {
-                $nodeConfig = $this->getNodeConfig($n);
-                $this->readNodeConfig($nodeConfig);
-            }
-
-            return true;
+            return $this->loadConfigFromConfigNode($match);
         }
-
-        throw new AetherNoUrlRuleMatchException("\"" . $_SERVER['REQUEST_URI'] . "\" does not match any rule, and no default rule was found");
+        else
+            throw new AetherNoUrlRuleMatchException("\"{$_SERVER['REQUEST_URI']}\" does not match any rule, and no default rule was found");
     }
     
     /**
@@ -343,6 +375,7 @@ class AetherConfig {
             foreach ($nodeConfig['modules'] as &$nc) {
                 $nc['num'] = $count++;
             }
+
             $this->modules = $nodeConfig['modules'] + ($this->modules ? $this->modules : []);
         }
         if (isset($nodeConfig['options'])) {
@@ -655,5 +688,24 @@ class AetherConfig {
      */
     public function configFilePath() {
         return $this->configFilePath;
+    }
+
+    public function resetRuleConfig() {
+        // Reset
+        $this->options = [];
+        $this->modules = [];
+        $this->fragments = [];
+        $this->urlVariables = [];
+        $this->section = null;
+        $this->template = null;
+    }
+
+    public function reloadConfigFromDefaultRule() {
+        if (empty($this->matchedNodes))
+            throw new Exception('Cannot reload config before initial config is loaded');
+
+        $this->resetRuleConfig();
+        $defaultRule = $this->getDefaultRule();
+        $this->loadConfigFromConfigNode($defaultRule);
     }
 }

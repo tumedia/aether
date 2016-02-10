@@ -18,7 +18,7 @@ class AetherJsonResponseTest extends PHPUnit_Framework_TestCase {
         $struct = array('foo'=>'bar',' bar'=>'foo');
         $res = new AetherJSONResponse($struct);
         $out = $res->get();
-        $this->assertTrue(strpos($out, '{"foo":"bar"," bar":"foo"}')!==false);
-        $this->assertFalse(strpos($out, '*/')!==false);
+
+        $this->assertEquals(json_encode($out), '{"foo":"bar"," bar":"foo"}');
     }
 }

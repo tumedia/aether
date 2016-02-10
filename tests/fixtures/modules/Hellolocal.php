@@ -1,6 +1,4 @@
 <?php
-require_once('/home/lib/libDefines.lib.php');
-require_once(AETHER_PATH . 'lib/AetherModule.php');
 
 /**
  * 
@@ -11,7 +9,7 @@ require_once(AETHER_PATH . 'lib/AetherModule.php');
  * @package aether.module
  */
 
-class AetherModuleHellolocal extends AetherModule {
+class Hellolocal extends AetherModule {
     
     /**
      * Render module

@@ -481,4 +481,14 @@ abstract class AetherSection {
     private function logerror($e) {
         trigger_error("Caught exception at " . $e->getFile() . ":" . $e->getLine() . ": " . $e->getMessage() . ", trace: " . str_replace("\n", ", ", $e->getTraceAsString()));
     }
+
+    protected function triggerDefaultRule() {
+        $config = $this->sl->get('aetherConfig');
+        $config->reloadConfigFromDefaultRule();
+        $section = AetherSectionFactory::create(
+            $config->getSection(),
+            $this->sl
+        );
+        return $section->response();
+    }
 }
