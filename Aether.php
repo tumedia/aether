@@ -65,7 +65,6 @@ class Aether {
      */
     public function __construct($configPath=false) {
         self::$aetherPath = pathinfo(__FILE__, PATHINFO_DIRNAME) . "/";
-        spl_autoload_register(array('Aether', 'autoLoad'));
         $this->sl = new AetherServiceLocator;
 
         $this->sl->set('aetherPath', self::$aetherPath);
@@ -73,9 +72,6 @@ class Aether {
         $parsedUrl = new AetherUrlParser;
         $parsedUrl->parseServerArray($_SERVER);
         $this->sl->set('parsedUrl', $parsedUrl);
-        
-        // Set autoloader
-        // TODO Make this more uesable
         
         /**
          * Find config folder for project
@@ -263,71 +259,6 @@ class Aether {
             $response = $this->section->response();
             $response->draw($this->sl);
         }
-    }
-
-    /**
-     * Used to autoload aether classes
-     *
-     * @access public
-     * @return bool
-     */
-    public static function autoLoad($class) {
-        if (class_exists($class, false))
-            return true;
-        if ($class == "Smarty") {
-            if (defined("SMARTY_PATH"))
-                require_once(SMARTY_PATH . 'libs/Smarty.class.php');
-            else
-                require_once(self::$aetherPath . 'lib/templating/smarty/libs/Smarty.class.php');
-        }
-
-        // Split up the name of the class by camel case (AetherDriver
-        $matches = preg_split('/([A-Z][^A-Z]+)/', $class, -1,
-                              PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-        if (empty($matches) || $matches[0] != 'Aether')
-            return false;
-
-        // Find the class location
-        switch ($matches[1]) {
-            case 'Template':
-                $path = self::$aetherPath . 'lib/templating/';
-                break;
-            default:
-                $path = self::$aetherPath . 'lib/';
-                break;
-        }
-
-
-        $i = 0;
-        foreach ($matches as $match) {
-            // Turn the rest of the array into a string that can be used as a filename
-            $filenameArray = array_slice($matches, $i);
-            $filename = implode('', $filenameArray);
-
-            // Check if there is a file with this name.
-            // Files have precendence over folders
-            $filename = $path . $filename . '.php';
-            if (file_exists($filename)) {
-                $filePath = $filename;
-                break;
-            }
-
-            // If there is a directory with this name add it to the dir path
-            $match = strtolower($match);
-            if (file_exists($path . $match))
-                $path = $path . $match . '/';
-            else
-                break;
-
-            $i++;
-        }
-
-        if (isset($filePath) && !empty($filePath)) {
-            require $filePath;
-            return true;
-        }
-        
-        return false;
     }
 
     private function getCacheObject($class, $options) {

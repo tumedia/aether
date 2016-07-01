@@ -1,0 +1,14 @@
+{
+    "name": "tumedia/aether",
+    "description": "Aether - A modular PHP framework",
+    "keywords": ["aether"],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "classmap": [
+            "./lib"
+        ]
+    }
+}
