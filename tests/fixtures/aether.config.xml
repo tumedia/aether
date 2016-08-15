@@ -16,6 +16,13 @@
                     </rule>
                 </rule>
             </rule>
+
+            <rule match="bool-casting">
+                <option name="shouldBeTrue" type="bool">true</option>
+                <option name="shouldBeFalse" type="bool">false</option>
+                <option name="shouldBeTrueString">true</option>
+                <option name="shouldBeFalseString">false</option>
+            </rule>
         </urlRules>
     </site>
     <site name="raw.no">

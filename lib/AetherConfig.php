@@ -475,6 +475,14 @@ class AetherConfig {
                         $mode = $child->getAttribute("mode");
                     }
                     $value = trim($child->nodeValue);
+
+                    if (
+                        $child->hasAttribute("type") &&
+                        $child->getAttribute("type") === "bool"
+                    ) {
+                        $value = filter_var($child->nodeValue, FILTER_VALIDATE_BOOLEAN);
+                    }
+
                     switch ($mode) {
                         case 'add':
                             $nodeData['optionAdd'][$name] = $value;
