@@ -1,13 +1,13 @@
 #!/usr/bin/php
 <?php // vim:set ts=4 sw=4 et:
-$path = explode("/",pathinfo(__FILE__, PATHINFO_DIRNAME));
-array_pop($path);
-$path = join("/", $path) . "/";
-require_once($path . "Aether.php");
-require_once($path . "lib/AetherConfig.php");
-Aether::$aetherPath = $path;
-spl_autoload_register(array('Aether', 'autoLoad'));
 
+if (file_exists(__DIR__.'/../vendor/autoload.php')) {
+    require __DIR__.'/../vendor/autoload.php';
+} else {
+    require __DIR__.'/../../../autoload.php';
+}
+
+Aether::$aetherPath = __DIR__;
 
 function resolveImports($doc, $prefix, $i, $configFolder) {
     $xpath = new DOMXPath($doc);
@@ -22,7 +22,7 @@ function resolveImports($doc, $prefix, $i, $configFolder) {
     echo str_repeat(" ", $i*2);
     echo "<import>\n";
     foreach ($nodelist as $node) {
-        $toImport = $filename = $node->nodeValue; 
+        $toImport = $filename = $node->nodeValue;
         $parent = $node->parentNode;
         if (strpos($toImport, "/") !== 0)
             $toImport = $configFolder . $toImport;
@@ -60,15 +60,15 @@ function resolveImports($doc, $prefix, $i, $configFolder) {
     }
 }
 /**
- * 
+ *
  * Generate compact configuration file with all import statements
  * included in final file for optimization.
- * Supports two options: 
+ * Supports two options:
  * Option 1:
  *      $mode which can be "test" or "prod"
  *      This states wether or not test-files or production-files (settings)
  *      will be used throughout the project
- * Option 2: nocache can be passed as the second argument wich removes cache 
+ * Option 2: nocache can be passed as the second argument wich removes cache
  *      from the config files
  * Created: 2007-11-13
  * @author Raymond Julin
@@ -174,7 +174,7 @@ echo "Done\n\n";
  * Loads an XML config file.
  * If "nocache" is specified as the second command argument the cache parameter
  * will be removed from the config files
- * 
+ *
  * @param mixed $file
  * @access private
  * @return Object DOMDocument object
