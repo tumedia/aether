@@ -19,5 +19,8 @@
         "classmap": [
             "./tests"
         ]
-    }
+    },
+    "bin": [
+        "./bin/generateConfig"
+    ]
 }
