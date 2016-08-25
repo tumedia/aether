@@ -1,50 +1,48 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once("AetherExceptions.php");
-
 /**
- * 
+ *
  * Read in config file for aether and make its options
  * available for the system
- * 
+ *
  * Created: 2007-02-01
  * @author Raymond Julin
  * @package aether
  */
 
 class AetherConfig {
-    
+
     /**
      * XMLDoc
      * @var DOMDocument
      */
     private $doc;
-    
+
     /**
      * Default rule
      * @var Object
      */
     private $defaultRule = false;
-    
+
     /**
      * What section was found
      * @var string
      */
     private $section;
-    
+
     /**
      * How long should this section be cached
      * @var int/false
      */
     private $cache = false;
     private $cacheas = false;
-    
+
     /**
      * What control template should be used for layout
      * @var string
      */
     private $template;
-    
+
     /**
      * What modules should be included
      * @var array
@@ -52,32 +50,32 @@ class AetherConfig {
     private $modules = array();
 
     private $fragments = array();
-    
+
     /**
      * Option settings for this section (highly optional)
      * @var array
      */
     private $options = array();
-    
+
     /**
      * Whats left of the request path when url parsing is finished
      * @var array
      */
     private $path;
-    
+
     /**
      * Variables found in the url
      * @var arra
      */
     private $urlVariables = array();
-    
+
     /**
      * If set, a specific base to be used for all urls within app
      * @var string
      */
     private $urlBase = '/';
     private $urlRoot = '/';
-    
+
     /**
      * Hold config file path
      * @var string
@@ -85,7 +83,7 @@ class AetherConfig {
     private $configFilePath;
 
     private $matchedNodes = array();
-    
+
     /**
      * Constructor.
      *
@@ -130,7 +128,7 @@ class AetherConfig {
 
         $path = $url->get('path');
         $explodedPath = explode('/', substr($path,1));
-        
+
         // Treat /foo/bar the same as /foo/bar/
         if (end($explodedPath) !== "")
             $explodedPath[] = "";
@@ -165,12 +163,12 @@ class AetherConfig {
             // Comment above was exceptionally not expected -- simeng 2011-10-10
         }
     }
-    
+
     // Get config root node
     public function getRootNode(AetherUrlParser $url) {
         return $this->getSiteConfig($url)['rules'];
     }
-    
+
     private function containsRules($node) {
         foreach ($node->childNodes as $c) {
             if ($c->nodeName === 'rule')
@@ -223,7 +221,7 @@ class AetherConfig {
      * @return node
      * @param DOMNodeList $list
      * @param array $path the/path/sliced into an array(the,path,sliced).
-     * if AetherSlashMode is "keep", then "/fragment" will be used, 
+     * if AetherSlashMode is "keep", then "/fragment" will be used,
      * else "fragment" will be used when matching nodes.
      */
     private function findMatchingConfigNode($urlRules, $path) {
@@ -295,7 +293,7 @@ class AetherConfig {
         else
             throw new AetherNoUrlRuleMatchException("\"{$_SERVER['REQUEST_URI']}\" does not match any rule, and no default rule was found");
     }
-    
+
     /**
      * Check if an url fragment matches the match or pattern
      * attribute for an url rule.
@@ -306,7 +304,7 @@ class AetherConfig {
      * Pattern: A full fledged PCRE match. Suited when you need to
      * assure the matching part only consists of numbers, or that
      * it doesnt contain special signs, or need to be a minimum length
-     * When using pattern matching you need to type a valid regex, 
+     * When using pattern matching you need to type a valid regex,
      * making it harder to use: pattern="/[0-9]+/"
      *
      * @access private
@@ -317,7 +315,7 @@ class AetherConfig {
     private function matches($check, $node) {
         $matches = false;
         if ($node->hasAttribute('match')) {
-            if ($node->getAttribute('match') == $check || 
+            if ($node->getAttribute('match') == $check ||
                     ($node->getAttribute('match') === '' && $check === null)) {
                 $matches = true;
             }
@@ -351,7 +349,7 @@ class AetherConfig {
         }
         return false;
     }
-    
+
     /**
      * Given a nodelist, read section, subsection and other data
      * from that node and store it in self
@@ -384,8 +382,8 @@ class AetherConfig {
         if (isset($nodeConfig['optionDel'])) {
             foreach ($nodeConfig['optionDel'] as $k => $v) {
                 if (isset($this->options[$k])) {
-                    $this->options[$k] = join(";", array_filter(function ($e) { 
-                        return $e != $v; 
+                    $this->options[$k] = join(";", array_filter(function ($e) {
+                        return $e != $v;
                     }, explode(";", $this->options[$k])));
                 }
             }
@@ -424,7 +422,7 @@ class AetherConfig {
             if ($child instanceof DOMText)
                 continue;
             switch ($child->nodeName) {
-                case 'section': 
+                case 'section':
                     $nodeData['section'] = $child->nodeValue;
                     break;
 
@@ -444,7 +442,7 @@ class AetherConfig {
                         if ($option->nodeName == 'option')
                             $opts[$option->getAttribute('name')] = $option->nodeValue;
                     }
-                        
+
                     // Merge options from all scopes together
                     $module = [
                         'name' => trim($text),
@@ -511,7 +509,7 @@ class AetherConfig {
 
         return $nodeData;
     }
-    
+
     /**
      * Store a variable fetched from the url
      *
@@ -523,7 +521,7 @@ class AetherConfig {
     public function storeVariable($key, $val) {
         $this->urlVariables[$key] = $val;
     }
-    
+
     /**
      * Get section
      *
@@ -533,7 +531,7 @@ class AetherConfig {
     public function getSection() {
         return $this->section;
     }
-    
+
     /**
      * Get cache time
      *
@@ -546,7 +544,7 @@ class AetherConfig {
     public function getCacheName() {
         return $this->cacheas;
     }
-    
+
     /**
      * Get requested control templates name
      *
@@ -563,7 +561,7 @@ class AetherConfig {
         else
             return isset($this->fragments[$providerName]) ? $this->fragments[$providerName] : null;
     }
-    
+
     /**
      * Get array over what modules should be used when rendering page
      *
@@ -592,14 +590,14 @@ class AetherConfig {
             if (isset($modules[$b]['priority']))
                 $bSum += intval($modules[$b]['priority']);
 
-            if ($aSum > $bSum) 
+            if ($aSum > $bSum)
                 return 1;
             else
                 return -1;
         });
         return $modules;
     }
-    
+
     /**
      * Set modules that should be used when rendering page
      *
@@ -607,9 +605,9 @@ class AetherConfig {
      * @return void
      */
     public function setModules($modules) {
-        $this->modules = $modules;    
+        $this->modules = $modules;
     }
-    
+
     /**
      * Get all options set for section
      *
@@ -628,7 +626,7 @@ class AetherConfig {
      *
      * @access public
      */
-    
+
     public function setOption($name, $value) {
         $this->options[$name] = $value;
     }
@@ -641,19 +639,19 @@ class AetherConfig {
     public function getUrlVars() {
         return $this->urlVariables;
     }
-    
+
     /**
      * Get an url variable.
      * These are the variables in a regex url ex. /ads/([0-9]+)/images
      * which are stored with the store="name"-attribute
      */
     public function getUrlVar($key) {
-        if ($this->hasUrlVar($key)) 
+        if ($this->hasUrlVar($key))
             return $this->urlVariables[$key];
         else
             throw new Exception("[$key] is not an existing variable");
     }
-    
+
     /**
      * Check if url var exists
      *
@@ -674,7 +672,7 @@ class AetherConfig {
     public function getUrlVariable($key) {
         return $this->getUrlVar($key);
     }
-    
+
     /**
      * Fetch url base
      *
@@ -687,7 +685,7 @@ class AetherConfig {
     public function getRoot() {
         return $this->urlRoot;
     }
-    
+
     /**
      * Get configuration file path
      *

@@ -6,9 +6,11 @@ class AetherSectionFactoryTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testCreate() {
-        AetherSectionFactory::$strict = true;
-        AetherSectionFactory::$path = __DIR__ . '/fixtures';
-        $section = AetherSectionFactory::create('Testsection', new AetherServiceLocator);
+        $section = AetherSectionFactory::create(
+            'Testsection',
+            new AetherServiceLocator
+        );
+
         $this->assertTrue(is_subclass_of($section, 'AetherSection'));
         $this->assertEquals(get_class($section), 'Testsection');
     }

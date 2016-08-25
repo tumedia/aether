@@ -21,8 +21,6 @@ class AetherSectionTest extends PHPUnit_Framework_TestCase  {
         $config = $this->getLoadedConfig('http://raw.no/unittest/goodtimes/nay');
         $sl->set('aetherConfig', $config);
 
-        AetherSectionFactory::$strict = true;
-        AetherSectionFactory::$path = __DIR__ . '/fixtures';
         $section = AetherSectionFactory::create(
             'Testsection',
             $sl
