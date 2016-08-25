@@ -6,4 +6,4 @@ config/test.*.xml
 templates/compiled*
 tests/templating/templates/compiled/*
 *.swp
-README.markdown
+composer.lock

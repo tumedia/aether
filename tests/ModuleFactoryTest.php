@@ -1,15 +1,5 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once(AETHER_PATH . 'lib/AetherModuleFactory.php');
-require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
-
-/**
- * 
- * Created: 2009-02-17
- * @author Raymond Julin
- * @package aether.test
- */
-
 class AetherModuleFactoryTest extends PHPUnit_Framework_TestCase {
     public function testEnvironment() {
         $this->assertTrue(class_exists('AetherModuleFactory'));
@@ -17,10 +7,10 @@ class AetherModuleFactoryTest extends PHPUnit_Framework_TestCase {
 
     public function testCreate() {
         AetherModuleFactory::$strict = true;
-        AetherModuleFactory::$path = AETHER_PATH;
-        $mod = AetherModuleFactory::create('Helloworld', 
+        AetherModuleFactory::$path = __DIR__.'/fixtures';
+        $mod = AetherModuleFactory::create('Hellolocal',
             new AetherServiceLocator,array('foo'=>'bar'));
-        $this->assertEquals($mod->run(), 'Hello world');
+        $this->assertEquals($mod->run(), 'Hello local');
     }
 
     public function testCreateModuleFromCustomFolder() {

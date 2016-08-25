@@ -1,19 +1,10 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
-
-/**
- * 
- * Created: 2009-02-17
- * @author Raymond Julin
- * @package aether.test
- */
-
 class AetherServiceLocatorTest extends PHPUnit_Framework_TestCase {
     public function testEnvironment() {
         $this->assertTrue(class_exists('AetherServiceLocator'));
     }
-    
+
     public function testCustomObjectStorage() {
         // Create a small class for testing
         $obj = new stdClass;

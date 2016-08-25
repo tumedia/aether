@@ -1,16 +1,5 @@
 <?php // vim:set ts=4 sw=4 et:
 
-require_once(AETHER_PATH . 'lib/AetherCLI.php');
-
-/**
- * 
- * Test aether cli
- * 
- * Created: 2009-02-17
- * @author Raymond Julin
- * @package aether
- */
-
 class TestCLIApp extends AetherCLI {
     protected $allowedOptions = array(
         'f' => 'foo',
@@ -52,7 +41,7 @@ class AetherCLITest extends PHPUnit_Framework_TestCase {
         $arr = array('foo'=>'bar','meh'=>'eh');
         $this->assertEquals($arr, $opts);
 
-        // Pass #3 Long opts, illegal option 
+        // Pass #3 Long opts, illegal option
         $opts = $app->getOptions(array("--foo=bar", "--bleh=eh"));
         $arr = array('foo'=>'bar');
         $this->assertEquals($arr, $opts);
@@ -110,9 +99,9 @@ class AetherCLITest extends PHPUnit_Framework_TestCase {
         $app = new TestCLIApp;
         $app->run();
         $out = ob_get_clean();
-        $this->assertEquals(strpos($out, 'Start time'), 
+        $this->assertEquals(strpos($out, 'Start time'),
             0, 'Start missing in timing');
-        #$this->assertEquals(strpos($out, 'End time'), 
+        #$this->assertEquals(strpos($out, 'End time'),
             #0, 'End missing in timing');
         $t1 = $app->getTime();
         sleep(1);

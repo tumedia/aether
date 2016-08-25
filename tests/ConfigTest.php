@@ -1,22 +1,8 @@
 <?php // vim:set ts=4 sw=4 et:
 
-if (!defined('AETHER_PATH'))
-    define('AETHER_PATH', __DIR__ . '/../');
-
-require_once(AETHER_PATH . 'lib/AetherConfig.php');
-require_once(AETHER_PATH . 'lib/AetherUrlParser.php');
-require_once(AETHER_PATH . 'lib/AetherExceptions.php');
-
-/**
- *
- * Created: 2009-02-17
- * @author Raymond Julin
- * @package aether.test
- */
-
 class AetherConfigTest extends PHPUnit_Framework_TestCase {
     private function getConfig() {
-        return new AetherConfig(AETHER_PATH . 'tests/fixtures/aether.config.xml');
+        return new AetherConfig(__DIR__.'/fixtures/aether.config.xml');
     }
 
     public function testEnvironment() {

@@ -4,11 +4,20 @@
     "keywords": ["aether"],
     "license": "MIT",
     "require": {
-        "php": ">=5.4"
+        "php": ">=5.4",
+        "smarty/smarty": "3.1.21"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.5"
     },
     "autoload": {
         "classmap": [
-            "./lib"
+            "./src"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "./tests"
         ]
     }
 }
