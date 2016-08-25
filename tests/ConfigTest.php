@@ -125,4 +125,14 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals('NotFoundSection', $conf->getSection());
     }
+
+    public function testBooleanTypeCasting() {
+        $opts = $this->getOptionsForUrl('http://foobar.com/bool-casting');
+
+        $this->assertTrue($opts['shouldBeTrue']);
+        $this->assertFalse($opts['shouldBeFalse']);
+
+        $this->assertSame($opts['shouldBeTrueString'], 'true');
+        $this->assertSame($opts['shouldBeFalseString'], 'false');
+    }
 }
