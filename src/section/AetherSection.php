@@ -1,21 +1,21 @@
 <?php // vim:set ts=4 sw=4 et:
 /**
- * 
+ *
  * Base class definition of aether sections
- * 
+ *
  * Created: 2007-02-05
  * @author Raymond Julin
  * @package aether.lib
  */
 
 abstract class AetherSection {
-    
+
     /**
      * Hold service locator
      * @var AetherServiceLocator
      */
     protected $sl = null;
-    
+
     /**
      * COnstructor. Accept subsection
      *
@@ -37,11 +37,6 @@ abstract class AetherSection {
     public function renderProviderWithCacheHeaders($providerName) {
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
-
-        // Support custom searchpaths
-        $searchPath = (isset($options['searchpath'])) 
-            ? $options['searchpath'] : $this->sl->get("aetherPath");
-        AetherModuleFactory::$path = $searchPath;
 
         $fragment = $config->getFragments($providerName);
         if ($fragment) {
@@ -66,9 +61,9 @@ abstract class AetherSection {
             foreach ($modules as $module) {
                 if (!isset($module['options']))
                     $module['options'] = array();
-                
+
                 // Get module object
-                $object = AetherModuleFactory::create($module['name'], 
+                $object = AetherModuleFactory::create($module['name'],
                         $this->sl, $module['options'] + $options);
 
                 if ($object->getCacheTime() !== null)
@@ -87,15 +82,15 @@ abstract class AetherSection {
             if (isset($fragment['template'])) {
                 $output = $tpl->fetch($fragment['template']);
             }
-            
+
             if ($maxAge > 0) {
                 header("Cache-Control: s-maxage={$maxAge}");
-            } 
+            }
             print $output;
         }
 
     }
-    
+
     private function preloadModules($modules, $options) {
         // Preload modules, set cachetime and find minimum page cache time
         foreach ($modules as &$module) {
@@ -104,9 +99,9 @@ abstract class AetherSection {
             $object = "";
             // Get module object
             try {
-                $object = AetherModuleFactory::create($module['name'], 
+                $object = AetherModuleFactory::create($module['name'],
                         $this->sl, $module['options'] + $options);
-                
+
                 // If the module, in this setting, blocks caching, accept
                 if ($this->cache && ($cachetime = $object->getCacheTime()) !== null) {
                     $module['cache'] = $cachetime;
@@ -202,7 +197,7 @@ abstract class AetherSection {
         $config = $this->sl->get('aetherConfig');
         $this->cache = $this->sl->has("cache") ? $this->sl->get("cache") : false;
         $cacheable = true;
-        /** 
+        /**
          * Decide cache name for rule based cache
          * If the option cacheas is set, we will use the cache name
          * $domainname_$cacheas
@@ -216,7 +211,7 @@ abstract class AetherSection {
                 $this->cacheName = $url->cacheName();
 
             $this->pageCacheTime = $config->getCacheTime();
-            if ($this->pageCacheTime === false) 
+            if ($this->pageCacheTime === false)
                 $this->pageCacheTime = 0;
 
             if ($url->get('query') != "")
@@ -245,7 +240,7 @@ abstract class AetherSection {
         else {
             $cachePages = true;
         }
-        
+
         $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
         setlocale(LC_NUMERIC, $lc_numeric);
 
@@ -256,11 +251,6 @@ abstract class AetherSection {
             bind_textdomain_codeset($localeDomain, 'UTF-8');
             textdomain($localeDomain);
         }
-
-        // Support custom searchpaths
-        $searchPath = (isset($options['searchpath'])) 
-            ? $options['searchpath'] : $this->sl->get("aetherPath");
-        AetherModuleFactory::$path = $searchPath;
 
         $modules = $this->preloadModules($config->getModules(), $options);
 
@@ -293,12 +283,12 @@ abstract class AetherSection {
                         continue;
 
                     /**
-                     * Support multiple modules of same type by 
+                     * Support multiple modules of same type by
                      * specificaly naming them with a surname when
                      * duplicates are encountered
                      */
                     $modId = isset($module['provides']) ? $module['provides'] : $module['name'];
-                    
+
                     $this->provide($modId, $module['output']);
                     // DEPRECATED: direct access to $ModuleName in template
                     $tpl->set($module['name'], $module['output']);
@@ -316,7 +306,7 @@ abstract class AetherSection {
             }
 
             foreach ($config->getFragments() as $frag) {
-                foreach (array_keys($frag['modules']) as $mod) 
+                foreach (array_keys($frag['modules']) as $mod)
                     $tpl->set($modules[$mod]['provides'], $modules[$mod]['output']);
                 $this->provide($frag['provides'], $tpl->fetch($frag['template']));
             }
@@ -335,7 +325,7 @@ abstract class AetherSection {
             $output = $this->cache->get($this->cacheName);
         }
 
-        // Page is cacheable even with cachePages off since we want headers for 
+        // Page is cacheable even with cachePages off since we want headers for
         // browser and ex. varnish etc.
         if (is_numeric($this->pageCacheTime)) {
             header("Cache-Control: s-maxage={$this->pageCacheTime}");
@@ -364,7 +354,7 @@ abstract class AetherSection {
      * @return AetherResponse
      */
     abstract public function response();
-    
+
     /**
      * Render service
      *
@@ -377,10 +367,6 @@ abstract class AetherSection {
         // Locate module containing service
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
-        // Support custom searchpaths
-        $searchPath = (isset($options['searchpath'])) 
-            ? $options['searchpath'] : $this->sl->get("aetherPath");
-        AetherModuleFactory::$path = $searchPath;
 
         $locale = (isset($options['locale'])) ? $options['locale'] : "nb_NO.UTF-8";
         setlocale(LC_ALL, $locale);
@@ -420,7 +406,7 @@ abstract class AetherSection {
             if (!isset($module['options']))
                 $module['options'] = array();
             $opts = $module['options'] + $options;
-            if (array_key_exists('session', $opts) 
+            if (array_key_exists('session', $opts)
                         AND $opts['session'] == 'on') {
                 session_start();
             }
@@ -441,13 +427,13 @@ abstract class AetherSection {
                 // Run service
                 if ($type == 'module') {
                     return $mod->service($serviceName);
-                }                
+                }
                 else {
                     if ($serviceName === null) {
                         $moduleResponses[$id] = new AetherTextResponse($mod->run());
                     }
                     else {
-                        $moduleResponses[$id] = $mod->service($serviceName);                        
+                        $moduleResponses[$id] = $mod->service($serviceName);
                     }
                 }
             }
@@ -458,7 +444,7 @@ abstract class AetherSection {
 
         return new AetherFragmentResponse($moduleResponses);
     }
-    
+
     /**
      * Provide the output of a module
      *
@@ -470,7 +456,7 @@ abstract class AetherSection {
         $vector = $this->sl->getVector('aetherProviders');
         $vector[$name] = $content;
     }
-    
+
     /**
      * Log an error message from an exception to error log
      *

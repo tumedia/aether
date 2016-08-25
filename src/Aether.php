@@ -157,9 +157,6 @@ class Aether {
 
         // Initiate section
         try {
-            $searchPath = (isset($options['searchpath']))
-                ? $options['searchpath'] : $projectPath;
-            AetherSectionFactory::$path = $searchPath;
             $this->section = AetherSectionFactory::create(
                 $config->getSection(),
                 $this->sl
