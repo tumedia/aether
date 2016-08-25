@@ -17,40 +17,40 @@
  * maybe some forum integration, maybe a gallery etc etc
  * All these things should in Aether be handled as separate modules
  * instead of trying to jam it into one controller.
- * 
+ *
  * Instead of bringing in a huge package of thousands of thousands of lines of code
  * containing everything from the framework, to models (orm) to templating to helpers
  * Aether focusing merely on the issue of delegating urls/resources to code
  * and in their communication in between.
- * 
- * 
+ *
+ *
  * Created: 2007-01-31
  * @author Raymond Julin
  * @package aether
  */
 
 class Aether {
-    
+
     /**
      * Hold service locator
      * @var AetherServiceLocator
      */
     private $sl = null;
-    
+
     /**
      * Section
      * @var AetherSection
      */
     private $section = null;
-    
+
     /**
      * Root folder for this project
      * @var string
      */
     private $projectRoot;
-    
+
     public static $aetherPath;
-    
+
     /**
      * Start Aether.
      * On start it will parse the projects configuration file,
@@ -72,14 +72,14 @@ class Aether {
         $parsedUrl = new AetherUrlParser;
         $parsedUrl->parseServerArray($_SERVER);
         $this->sl->set('parsedUrl', $parsedUrl);
-        
+
         /**
          * Find config folder for project
          * By convention the config folder is always placed at
          * $project/config, while using getcwd() MUST return the
-         * $project/www/ folder
+         * $project/public/ folder
          */
-        $projectPath = preg_replace("/www\/?$/", "", getcwd());
+        $projectPath = preg_replace("/public\/?$/", "", getcwd());
 
         $this->sl->set("projectRoot", $projectPath);
         if (!defined("PROJECT_PATH"))
@@ -157,15 +157,15 @@ class Aether {
 
         // Initiate section
         try {
-            $searchPath = (isset($options['searchpath'])) 
+            $searchPath = (isset($options['searchpath']))
                 ? $options['searchpath'] : $projectPath;
             AetherSectionFactory::$path = $searchPath;
             $this->section = AetherSectionFactory::create(
-                $config->getSection(), 
+                $config->getSection(),
                 $this->sl
             );
             $this->sl->set('section', $this->section);
-            if (isset($timer)) 
+            if (isset($timer))
                 $timer->tick('aether_main', 'section_initiate');
         }
         catch (Exception $e) {
@@ -173,7 +173,7 @@ class Aether {
             throw new Exception('Failed horribly: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Ask the AetherSection to render itself,
      * or if a service is requested it will try to load that service
@@ -234,8 +234,8 @@ class Aether {
                     ];
                     if (isset($m['module'])) {
                         $provider['providers'] = array_map(function ($m) {
-                            return [ 
-                                'provides' => $m['provides'], 
+                            return [
+                                'provides' => $m['provides'],
                                 'cache' => isset($m['cache']) ? $m['cache'] : false
                             ];
                         }, array_values($m['module']));
@@ -248,10 +248,10 @@ class Aether {
         }
         else {
             /**
-             * Start session if session switch is turned on in 
+             * Start session if session switch is turned on in
              * configuration file
              */
-            if (array_key_exists('session', $options) 
+            if (array_key_exists('session', $options)
                     AND $options['session'] == 'on') {
                 session_start();
             }
