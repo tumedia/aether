@@ -1,14 +1,4 @@
-<?php // 
-require_once(AETHER_PATH . 'lib/AetherServiceLocator.php');
-/**
- * 
- * THIS IS NOT A UNIT TEST
- * Verify that Smarty integrates into Aether and is useable
- * 
- * Created: 2009-04-23
- * @author Raymond Julin
- * @package aether.test
- */
+<?php //
 
 class SmartyIntegratesWithAetherTest extends PHPUnit_Framework_TestCase {
     public function testGetSmartyEngine() {
@@ -19,7 +9,7 @@ class SmartyIntegratesWithAetherTest extends PHPUnit_Framework_TestCase {
         // Go through SL
         $sl = new AetherServiceLocator;
         // TODO THIS IS UGLY AND MUST BE BAD
-        $sl->set('projectRoot', AETHER_PATH . 'tests/templating/');
+        $sl->set('projectRoot', __DIR__.'/templating/');
         // Fetch smarty
         $tpl = $sl->getTemplate();
         $tpl->set('foo',array('a'=>'hello','b'=>'world'));

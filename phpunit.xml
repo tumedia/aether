@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit
+<phpunit colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="true"
+         syntaxCheck="false"
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutChangesToGlobalState="true"
          beStrictAboutOutputDuringTests="true"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="vendor/autoload.php"
 >
     <testsuites>
         <testsuite name="Aether Test Suite">
-            <directory>./tests/</directory>
+            <directory suffix=".php">./tests/</directory>
         </testsuite>
     </testsuites>
 </phpunit>
