@@ -649,7 +649,7 @@ class AetherConfig {
         if ($this->hasUrlVar($key))
             return $this->urlVariables[$key];
         else
-            throw new Exception("[$key] is not an existing variable");
+            return null;
     }
 
     /**
