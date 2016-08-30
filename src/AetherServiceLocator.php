@@ -1,10 +1,10 @@
 <?php // vim:set ts=4 sw=4 et:
 
 /**
- * 
+ *
  * Aether service locator, an object to locate services needed
  * Gives access to database, template and other common objects
- * 
+ *
  * Created: 2007-01-31
  * @author Raymond Julin
  * @package aether
@@ -16,13 +16,13 @@ class AetherServiceLocator {
      * @var array
      */
     private $custom = array();
-    
+
     /**
      * Hold list of vectors
      * @var array
      */
     public $vectors = array();
-    
+
     /**
      * Hold template object
      * @var object
@@ -73,7 +73,7 @@ class AetherServiceLocator {
     public function set($name, $object) {
         $this->custom[$name] = $object;
     }
-    
+
     /**
      * Fetch a custom object
      *
@@ -87,7 +87,7 @@ class AetherServiceLocator {
         else
             throw new Exception('Custom object ['.$name.'] does not exist');
     }
-    
+
     /**
      * Give access to vector x
      *
@@ -106,5 +106,19 @@ class AetherServiceLocator {
     }
     public function has($name) {
         return array_key_exists($name, $this->custom);
+    }
+
+    /**
+     * Get the Laravel Blade Factory instance.
+     *
+     * @return \Illuminate\View\Factory
+     */
+    public function view()
+    {
+        if (!isset($this->custom['view'])) {
+            AetherBladeInstaller::install($this);
+        }
+
+        return $this->custom['view'];
     }
 }
