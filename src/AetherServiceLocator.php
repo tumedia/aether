@@ -24,10 +24,24 @@ class AetherServiceLocator {
     public $vectors = array();
 
     /**
-     * Hold template object
-     * @var object
+     * Get the Aether View Factory instance.
+     *
+     * @param  string|null $view
+     * @param  array       $data = []
+     * @return \AetherView
      */
-    private $template = null;
+    public function view($view = null, array $data = [])
+    {
+        if (!isset($this->custom['view'])) {
+            AetherViewInstaller::install($this);
+        }
+
+        if (!is_null($view)) {
+            return $this->custom['view']->make($view, $data);
+        }
+
+        return $this->custom['view'];
+    }
 
     /**
      * Fetch a reference to the templating object
@@ -35,17 +49,12 @@ class AetherServiceLocator {
      *
      * @access public
      * @return AetherTemplate A template object
+     *
+     * @depricated  Use `AetherServiceLocator::view`
      */
-    public function getTemplate() {
-        if ($this->template == null)
-            $this->template = AetherTemplate::get('smarty',$this);
-        // Add global stuff
-        $providers = $this->getVector('aetherProviders');
-        $globals = $this->getVector('templateGlobals')->getAsArray();
-
-        $this->template->set('aether', ['providers' => $providers] + $globals);
-
-        return $this->template;
+    public function getTemplate()
+    {
+        return $this->view();
     }
 
     /**
@@ -106,19 +115,5 @@ class AetherServiceLocator {
     }
     public function has($name) {
         return array_key_exists($name, $this->custom);
-    }
-
-    /**
-     * Get the Laravel Blade Factory instance.
-     *
-     * @return \Illuminate\View\Factory
-     */
-    public function view()
-    {
-        if (!isset($this->custom['view'])) {
-            AetherBladeInstaller::install($this);
-        }
-
-        return $this->custom['view'];
     }
 }
