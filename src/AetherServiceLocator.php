@@ -85,7 +85,7 @@ class AetherServiceLocator {
         if ($this->has($name))
             return $this->custom[$name];
         else
-            throw new Exception('Custom object ['.$name.'] does not exist');
+            return null;
     }
     
     /**
