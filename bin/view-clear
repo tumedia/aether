@@ -1,0 +1,28 @@
+#!/usr/bin/php
+<?php
+
+if (file_exists(__DIR__.'/../vendor/autoload.php')) {
+    require __DIR__.'/../vendor/autoload.php';
+} else {
+    require __DIR__.'/../../../autoload.php';
+}
+
+$path = getcwd().'/.cache/views';
+
+if (!file_exists($path)) {
+    echo "\e[31mThe path [{$path}] doesn't exist.\e[0m\n";
+
+    exit(1);
+}
+
+echo "\e[33mDeleting files [{$path}/*.php]\n";
+
+foreach (glob($path.'/*.php') as $file) {
+    unlink($file);
+
+    echo ".";
+}
+
+echo "\e[0m\n";
+
+echo "\e[32mAll done!\e[0m\n";

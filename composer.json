@@ -25,6 +25,7 @@
         ]
     },
     "bin": [
-        "./bin/generate-config"
+        "./bin/generate-config",
+        "./bin/view-clear"
     ]
 }
