@@ -25,6 +25,6 @@
         ]
     },
     "bin": [
-        "./bin/generateConfig"
+        "./bin/generate-config"
     ]
 }
