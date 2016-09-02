@@ -16,80 +16,39 @@ use Illuminate\Events\Dispatcher;
 class AetherViewInstaller
 {
     /** @var \AetherServiceLocator */
-    protected static $sl;
-
-    /** @var array */
-    protected static $paths = [];
+    protected $sl;
 
     /** @var \AetherViewFactory */
     protected $factory;
 
     /**
-     * "Install" a View Factory onto the Aether Service Locator.
+     * Constructor.
      *
      * @param \AetherServiceLocator $sl
      */
-    public static function install(AetherServiceLocator $sl)
+    public function __construct(AetherServiceLocator $sl)
     {
-        static::$sl = $sl;
-
-        // Add app view paths.
-        static::addPath(static::$sl->get('projectRoot').'resources/views');
-        static::addPath(static::$sl->get('projectRoot').'templates');
-
-        $installer = new static;
+        $this->sl = $sl;
 
         // Create a new View Factory instance and bind it to the Service
         // Locator.
-        static::$sl->set('view', $installer->makeViewFactory(static::$sl));
+        $this->sl->set('view', $this->makeViewFactory());
 
         // The following will inject the `$aether` variable into all views.
-        static::$sl->view()->share('aether', [
-            'providers' => static::$sl->getVector('aetherProviders')
-        ] + static::$sl->getVector('templateGlobals')->getAsArray());
-    }
-
-    /**
-     * Get registered paths.
-     *
-     * @return array
-     */
-    public static function getPaths()
-    {
-        return static::$paths;
-    }
-
-    /**
-     * Add a path to the thing.
-     *
-     * @param  string $path
-     * @return void
-     */
-    public static function addPath($path)
-    {
-        static::$paths[] = $path;
-    }
-
-    /**
-     * Get the cache path.
-     *
-     * @return string
-     */
-    public static function getCachePath()
-    {
-        return static::$sl->get('projectRoot').'.cache/views';
+        $this->sl->view()->share('aether', [
+            'providers' => $this->sl->getVector('aetherProviders')
+        ] + $this->sl->getVector('templateGlobals')->getAsArray());
     }
 
     /**
      * Make me a View Factory.
      *
-     * @param \AetherServiceLocator $sl
      * @return \AetherViewFactory
      */
-    protected function makeViewFactory(AetherServiceLocator $sl)
+    protected function makeViewFactory()
     {
         $factory = new AetherViewFactory(
-            $this->makeEngineResolver($sl),
+            $this->makeEngineResolver($this->sl),
             $this->makeViewFinder(),
             new Dispatcher
         );
@@ -115,7 +74,7 @@ class AetherViewInstaller
             return new CompilerEngine(
                 new BladeCompiler(
                     new Illuminate\Filesystem\Filesystem,
-                    static::getCachePath()
+                    $this->sl->get('projectRoot').'.cache/views'
                 )
             );
         });
@@ -134,7 +93,7 @@ class AetherViewInstaller
     {
         return new FileViewFinder(
             new Illuminate\Filesystem\Filesystem,
-            static::$paths
+            [$this->sl->get('projectRoot').'views']
         );
     }
 }
