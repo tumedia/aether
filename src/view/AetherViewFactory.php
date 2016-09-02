@@ -19,6 +19,15 @@ use Illuminate\View\Factory;
  * return $this->sl->view('some-template', [
  *     'some-variable' => 'some-data',
  * ]);
+ *
+ * // Or...
+ *
+ * $view = $this->sl->view('some-template');
+ *
+ * $view->with('some-variable', 'some-data');
+ * $view->with('foo', 'bar');
+ *
+ * return $view;
  * ```
  */
 class AetherViewFactory extends Factory

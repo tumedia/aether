@@ -33,7 +33,7 @@ class AetherServiceLocator {
     public function view($view = null, array $data = [])
     {
         if (!isset($this->custom['view'])) {
-            AetherViewInstaller::install($this);
+            new AetherViewInstaller($this);
         }
 
         if (!is_null($view)) {
@@ -115,5 +115,24 @@ class AetherServiceLocator {
     }
     public function has($name) {
         return array_key_exists($name, $this->custom);
+    }
+
+    /**
+     * Get the Bundle Manager instance or a Bundle instance.
+     *
+     * @param  string|null  $name
+     * @return \AetherBundleManager|\AetherBundle
+     */
+    public function bundle(string $name = null)
+    {
+        if (!isset($this->custom['bundle_manager'])) {
+            $this->custom['bundle_manager'] = new AetherBundleManager($this);
+        }
+
+        if (!is_null($name)) {
+            return $this->custom['bundle_manager']->get($name);
+        }
+
+        return $this->custom['bundle_manager'];
     }
 }

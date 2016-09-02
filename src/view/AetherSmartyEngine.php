@@ -26,23 +26,26 @@ class AetherSmartyEngine implements EngineInterface
     {
         $smarty = new Smarty;
 
-        $base = $this->sl->get('projectRoot').'templates';
-        $templatePaths[] = $base;
+        $smarty->error_reporting = E_ALL ^ E_NOTICE;
 
-        $pluginPaths = [
+        // Let's tell Smarty about the paths we've set up.
+        $smarty->setTemplateDir(array_merge(
+            $this->sl->view()->getFinder()->getPaths(),
+            array_reduce($this->sl->view()->getFinder()->getHints(), 'array_merge', [])
+        ));
+
+        // Now we'll Smarty that there might just be plugins living in the
+        // template directories.
+        $smarty->setPluginsDir(array_merge(array_map(function ($path) {
+            return $path.'plugins';
+        }, $smarty->getTemplateDir()), [
+            // Let's keep the Smarty core plugins around!
             SMARTY_SYSPLUGINS_DIR,
             SMARTY_PLUGINS_DIR,
-        ];
+        ]));
 
-        foreach (AetherViewInstaller::getPaths() as $path) {
-            $templatePaths[] = $path.'/templates';
-            $pluginPaths[] = $path.'/templates/plugins';
-        }
-
-        $smarty->error_reporting = E_ALL ^ E_NOTICE;
-        $smarty->template_dir = $templatePaths;
-        $smarty->plugins_dir = $pluginPaths;
-        $smarty->compile_dir = AetherViewInstaller::getCachePath();
+        // Tell Smarty to put compiled PHP files in the correct directory.
+        $smarty->setCompileDir($this->sl->get('projectRoot').'.cache/views');
 
         return $smarty;
     }
