@@ -68,6 +68,7 @@ class Aether {
         $this->sl = new AetherServiceLocator;
 
         $this->sl->set('aetherPath', self::$aetherPath);
+
         // Initiate all required helper objects
         $parsedUrl = new AetherUrlParser;
         $parsedUrl->parseServerArray($_SERVER);
@@ -143,6 +144,9 @@ class Aether {
         if (isset($_SERVER['HTTP_REFERER']))
             $magic['referer'] = $_SERVER['HTTP_REFERER'];
         $magic['options'] = $options;
+
+        // Load and bootstrap any Aether Bundles.
+        $this->sl->bundle()->bootstrap();
 
         /**
          * If we are in TEST mode we should prepare a timer object
