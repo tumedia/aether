@@ -30,16 +30,25 @@ class AetherSmartyEngine implements EngineInterface
 
         // Let's tell Smarty about the paths we've set up.
         $smarty->setTemplateDir(array_merge(
+            // Paths that don't have a namespace. Should only be the project's
+            // own templates.
             $this->sl->view()->getFinder()->getPaths(),
-            array_reduce($this->sl->view()->getFinder()->getHints(), 'array_merge', [])
+
+            // Map any "hints" from the Blade View Factory to be compatible
+            // with Smarty's `[key]file.tpl` syntax (where `key` is the hint.)
+            array_map(function ($array) {
+                // Note: The Smarty Engine does not support assigning multiple
+                // paths to a single hint.
+                return $array[0];
+            }, $this->sl->view()->getFinder()->getHints())
         ));
 
-        // Now we'll Smarty that there might just be plugins living in the
+        // Now we'll tell Smarty that there might just be plugins living in the
         // template directories.
         $smarty->setPluginsDir(array_merge(array_map(function ($path) {
             return $path.'plugins';
         }, $smarty->getTemplateDir()), [
-            // Let's keep the Smarty core plugins around!
+            // Let's keep the core plugins around!
             SMARTY_SYSPLUGINS_DIR,
             SMARTY_PLUGINS_DIR,
         ]));
@@ -57,6 +66,8 @@ class AetherSmartyEngine implements EngineInterface
     {
         $smarty = $this->makeSmarty();
 
+        // This will assign data from the View Factory to the Smarty instance.
+        // Will also assign shared variables, etc.
         foreach ($data as $key => $value) {
             $smarty->assign($key, $value);
         }

@@ -28,7 +28,7 @@ class AetherServiceLocator {
      *
      * @param  string|null $view
      * @param  array       $data = []
-     * @return \AetherView
+     * @return \AetherViewFactory
      */
     public function view($view = null, array $data = [])
     {
@@ -48,7 +48,7 @@ class AetherServiceLocator {
      * thats floating around in Aether
      *
      * @access public
-     * @return AetherTemplate A template object
+     * @return \AetherViewFactory
      *
      * @depricated  Use `AetherServiceLocator::view`
      */
