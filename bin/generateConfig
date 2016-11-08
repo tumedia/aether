@@ -34,7 +34,7 @@ function resolveImports($doc, $prefix, $i, $configFolder) {
         if (file_exists($prefixedFile))
             $toImport = $prefixedFile;
         elseif ($prefix == 'test' AND !file_exists($toImport))
-            $toImport = $dirname . "prod." . $filename;
+            $toImport = $dirname . "/prod." . $filename;
 
         echo str_repeat(" ", $i*2+2) . $toImport . "\n";
         // Read in import file
