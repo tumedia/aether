@@ -1,15 +1,14 @@
 <?php // 
 /**
- * 
+ *
  * Facade over Smarty templating engine
- * 
+ *
  * Created: 2009-04-23
  * @author Raymond Julin
  * @package aether
  */
 
 class AetherTemplateSmarty extends AetherTemplate {
-    
     /**
      * Construct
      *
@@ -20,13 +19,16 @@ class AetherTemplateSmarty extends AetherTemplate {
         $this->sl = $sl;
         $options = $this->sl->get('aetherConfig')->getOptions();
 
-        $base = $this->sl->get('projectRoot') . 'templates/';
+        $root = $this->sl->get('projectRoot');
+        $base = $root . 'templates/';
         // Add project root first in template search path
         $templateDirs[] = $base;
         $pluginDirs = array(SMARTY_SYSPLUGINS_DIR, SMARTY_PLUGINS_DIR, $base);
         if (isset($options['searchpath'])) {
             $search = array_map("trim", explode(";", $options['searchpath']));
             foreach ($search as $dir) {
+                if (strpos($dir, ".") === 0) 
+                    $dir = $root . $dir;
                 $templateDirs[] = $dir . "templates/";
                 $pluginDirs[] = $dir . "templates/plugins/";
             }
