@@ -27,7 +27,9 @@ function resolveImports($doc, $prefix, $i, $configFolder) {
         if (strpos($toImport, "/") !== 0)
             $toImport = $configFolder . $toImport;
         // Prefixed file
-        $prefixedFile = str_replace($filename, $prefix . "." . $filename, $toImport);
+        $dirname = dirname($toImport);
+        $filename = basename($toImport);
+        $prefixedFile = $dirname . $prefix . "." . $filename;
         // If prefixed file exists, use it
         if (file_exists($prefixedFile))
             $toImport = $prefixedFile;
