@@ -186,13 +186,10 @@ abstract class AetherSection {
      * @param array $tplVars
      */
     protected function renderModules($tplVars = array()) {
-        try {
+        $timer = $this->sl->get('timer');
+        if ($timer) {
             // Timer
-            $timer = $this->sl->get('timer');
             $timer->start('module_run');
-        }
-        catch (Exception $e) {
-            // No timing, we're in prod
         }
         $config = $this->sl->get('aetherConfig');
         $this->cache = $this->sl->has("cache") ? $this->sl->get("cache") : false;

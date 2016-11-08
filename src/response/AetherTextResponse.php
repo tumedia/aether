@@ -39,9 +39,9 @@ class AetherTextResponse extends AetherResponse {
     public function draw($sl) {
         if (session_id() !== '')
             $_SESSION['wasGoingTo'] = $_SERVER['REQUEST_URI'];
-        try {
+        $timer = $sl->get('timer');
+        if ($timer) {
             // Timer
-            $timer = $sl->get('timer');
             $timer->end('aether_main');
             // Replace into out content
             $tpl = $sl->getTemplate();
@@ -77,7 +77,7 @@ class AetherTextResponse extends AetherResponse {
                 "<!--INSERTIONPOINT-->",
                 $out, $this->out);
         }
-        catch (Exception $e) {
+        else {
             // No timing, we're in prod
             $out = $this->out;
         }
