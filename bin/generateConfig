@@ -29,7 +29,7 @@ function resolveImports($doc, $prefix, $i, $configFolder) {
         // Prefixed file
         $dirname = dirname($toImport);
         $filename = basename($toImport);
-        $prefixedFile = $dirname . $prefix . "." . $filename;
+        $prefixedFile = $dirname . "/" . $prefix . "." . $filename;
         // If prefixed file exists, use it
         if (file_exists($prefixedFile))
             $toImport = $prefixedFile;
