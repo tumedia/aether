@@ -21,6 +21,7 @@
         ]
     },
     "bin": [
-        "./bin/generateConfig"
+        "./bin/generateConfig",
+        "./bin/updateLocales"
     ]
 }
