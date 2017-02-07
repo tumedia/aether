@@ -231,12 +231,7 @@ abstract class AetherSection {
         setlocale(LC_ALL, $locale);
 
         // Cache complete pages in Aether. Does not affect module cache
-        if (isset($options['cachePages']) && $options['cachePages'] == 'false') {
-            $cachePages = false;
-        }
-        else {
-            $cachePages = true;
-        }
+        $cachePages = config('app.cache.pages', false);
 
         $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
         setlocale(LC_NUMERIC, $lc_numeric);
