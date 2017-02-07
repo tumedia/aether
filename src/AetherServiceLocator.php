@@ -1,10 +1,10 @@
 <?php // vim:set ts=4 sw=4 et:
 
 /**
- * 
+ *
  * Aether service locator, an object to locate services needed
  * Gives access to database, template and other common objects
- * 
+ *
  * Created: 2007-01-31
  * @author Raymond Julin
  * @package aether
@@ -16,13 +16,13 @@ class AetherServiceLocator {
      * @var array
      */
     private $custom = array();
-    
+
     /**
      * Hold list of vectors
      * @var array
      */
     public $vectors = array();
-    
+
     /**
      * Hold template object
      * @var object
@@ -73,7 +73,7 @@ class AetherServiceLocator {
     public function set($name, $object) {
         $this->custom[$name] = $object;
     }
-    
+
     /**
      * Fetch a custom object
      *
@@ -87,7 +87,7 @@ class AetherServiceLocator {
         else
             return null;
     }
-    
+
     /**
      * Give access to vector x
      *
@@ -106,5 +106,23 @@ class AetherServiceLocator {
     }
     public function has($name) {
         return array_key_exists($name, $this->custom);
+    }
+
+    /**
+     * Get the config repository instance, or if `$key` is set, return the
+     * corresponding config value.
+     *
+     *
+     * @param  string $key = null                   Optional
+     * @param  mixed  $default = null
+     * @return \Illuminate\Config\Repository|mixed
+     */
+    public function config(string $key = null, $default = null)
+    {
+        if ($key !== null) {
+            return $this->get('config')->get($key, $default);
+        }
+
+        return $this->get('config');
     }
 }

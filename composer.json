@@ -5,7 +5,10 @@
     "license": "MIT",
     "require": {
         "php": ">=5.4",
-        "smarty/smarty": "3.1.30"
+        "smarty/smarty": "3.1.30",
+        "vlucas/phpdotenv": "^2.4",
+        "sentry/sentry": "1.5.*",
+        "illuminate/config": "5.4.*"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.5"
@@ -13,7 +16,8 @@
     "autoload": {
         "classmap": [
             "./src"
-        ]
+        ],
+        "files": ["./src/helpers.php"]
     },
     "autoload-dev": {
         "classmap": [

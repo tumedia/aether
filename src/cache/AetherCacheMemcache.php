@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * Handle caching
@@ -17,8 +17,8 @@
  * @author Raymond Julin <raymond.julin@gmail.com>
  * @package Aether
  */
- 
-class AetherCacheMemcache extends AetherCache { 
+
+class AetherCacheMemcache extends AetherCache {
 
     /**
      * Connection
@@ -31,12 +31,12 @@ class AetherCacheMemcache extends AetherCache {
      *
      * @access public
      * @return bool
-     * @param string $serversString (list of memcache hosts <host1>:<port>;<host2>:<port>;...)
+     * @param string|array $serversString (list of memcache hosts <host1>:<port>;<host2>:<port>;...)
      */
     public function __construct($serversString="") {
-        if ($serversString != "") {
+        if ($serversString) {
             $this->con = new Memcache;
-            $tmp = explode(";", $serversString);
+            $tmp = is_array($serversString) ? $serversString : explode(";", $serversString);
             foreach ($tmp as $s) {
                 $hostInfo = explode(":",$s);
                 // Assume default port
@@ -50,7 +50,7 @@ class AetherCacheMemcache extends AetherCache {
             // Fall back to file cache or whatbnot ?
         }
     }
-    
+
     /**
      * Save some object
      *
@@ -60,7 +60,7 @@ class AetherCacheMemcache extends AetherCache {
      * @return bool
      */
     public function set($name, $data, $ttl=false) {
-        if (!is_numeric($ttl)) 
+        if (!is_numeric($ttl))
             $ttl = 0;
 
         $toSave['ttl'] = $ttl;
@@ -87,7 +87,7 @@ class AetherCacheMemcache extends AetherCache {
             return false;
 
         $ttl = ($maxAge === false) ? $cache['ttl'] : $maxAge;
-        
+
         // Check that stored data hasn't expired
         if ($ttl == 0 || ($cache['date'] + $ttl > time())) {
             // We want the cache no matter how old it is
@@ -95,8 +95,8 @@ class AetherCacheMemcache extends AetherCache {
         }
         else if (isset($cache['updateDate'])) {
             // The cache has expired but someone else is probably generating a
-            // new one. We need to check the updateDate if it should time out 
-            // the attempt or just return old cache while waiting for the 
+            // new one. We need to check the updateDate if it should time out
+            // the attempt or just return old cache while waiting for the
             // generating process to finish.
 
             if ((time() - $cache['updateDate']) > $this->updateTimeout) {
@@ -129,18 +129,18 @@ class AetherCacheMemcache extends AetherCache {
         return $this->con->delete($name);
     }
 
-    
+
     /**
      * Check if an object has been cached
      *
      * @access public
-     * @return bool 
+     * @return bool
      * @param string $name
      */
     public function has($name) {
         if ($this->get($name, false) != false)
             return true;
-        else 
+        else
             return false;
     }
-} 
+}

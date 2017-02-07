@@ -170,6 +170,34 @@ copy($saveTo, $saveTo . ".old");
 $doc->save($saveTo . ".tmp");
 rename($saveTo . ".tmp", $saveTo);
 
+// <compile config>
+if (file_exists($compiled = $configFolder.'compiled.php')) {
+    echo "Removing old compiled.php\n";
+
+    unlink($compiled);
+}
+
+if ($prefix === 'prod') {
+    echo "Creating [config/compiled.php] file\n";
+
+    $config = (new class {
+        use LoadsConfigRepository;
+    })->getConfigRepository($configFolder);
+
+    echo "Writing new compiled.php...\n";
+
+    if (empty($config->all())) {
+        echo "Config is empty. Skipping write.\n";
+    } else {
+        file_put_contents($compiled, '<?php return '.var_export($config->all(), true).';');
+    }
+
+    if ($config['app.env'] !== 'production') {
+        echo "WARNING: config('app.env') should be 'production', but is '{$config['app.env']}'\n";
+    }
+}
+// </compile config>
+
 echo "Done\n\n";
 
 /**

@@ -1,6 +1,4 @@
-<?php // vim:set ts=4 sw=4 et:
-// Default to only smarty support for now
-// The autoload fails to handle this because its smarty naming
+<?php
 
 /**
  * The Aether web framework
@@ -30,6 +28,10 @@
  */
 
 class Aether {
+    use LoadsConfigRepository;
+
+    /** @var \Aether */
+    protected static $globalInstance;
 
     /**
      * Hold service locator
@@ -52,6 +54,27 @@ class Aether {
     public static $aetherPath;
 
     /**
+     * Get the global Aether instance.
+     *
+     * @return \Aether
+     */
+    public static function getInstance(): Aether
+    {
+        return static::$globalInstance;
+    }
+
+    /**
+     * Set the global Aether instance.
+     *
+     * @param  \Aether $aether
+     * @return void
+     */
+    public static function setInstance(Aether $aether)
+    {
+        static::$globalInstance = $aether;
+    }
+
+    /**
      * Start Aether.
      * On start it will parse the projects configuration file,
      * it will try to match the presented http request to a rule
@@ -64,6 +87,8 @@ class Aether {
      * @param string $configPath Optional path to the configuration file for the project
      */
     public function __construct($configPath=false) {
+        static::setInstance($this);
+
         self::$aetherPath = pathinfo(__FILE__, PATHINFO_DIRNAME) . "/";
         $this->sl = new AetherServiceLocator;
 
@@ -82,6 +107,17 @@ class Aether {
         $projectPath = preg_replace("/public\/?$/", "", getcwd());
 
         $this->sl->set("projectRoot", $projectPath);
+
+        // Load the application config.
+        $this->sl->set('config', $this->getConfigRepository(
+            $this->sl->get('projectRoot').'config'
+        ));
+
+        // If enabled, iunstall the Sentry client.
+        if (config('app.sentry.enabled', false)) {
+            $this->installSentry();
+        }
+
         if (!defined("PROJECT_PATH"))
             define("PROJECT_PATH", $projectPath);
 
@@ -117,18 +153,21 @@ class Aether {
             throw new Exception($msg);
         }
 
-        $options = $config->getOptions(array(
-            'AetherRunningMode' => 'prod',
-            'cache' => 'off'
-        ));
-        if ($options['cache'] == 'on') {
-            $cacheClass = isset($options['cacheClass']) ? $options['cacheClass'] : 'AetherCache';
-            $cacheOptions = isset($options['cacheOptions']) ? $options['cacheOptions'] : [];
-            $cache = $this->getCacheObject($cacheClass, $cacheOptions);
-            $this->sl->set("cache", $cache);
+        // Keep AetherRunningMode & co. around for backwards compatibility.
+        // Actually, this is still read from the XML config, but whatever.
+        $options = $config->getOptions([
+            'AetherRunningMode' => in_array(config('app.env', 'production'), ['production', 'stage']) ? 'prod' : 'test',
+            'cache' => config('app.cache.enabled', true) ? 'on' : 'off',
+        ]);
+
+        if (config('app.cache.enabled')) {
+            $this->sl->set('cache', $this->getCacheObject(
+                config('app.cache.class', AetherCacheMemcache::class),
+                config('app.cache.options', $this->getDefaultCacheOptions())
+            ));
         }
 
-        /**
+        /*
          * Make sure base and root for this request is stored
          * in the service locator so it can be made available
          * to the magical $aether array in templates
@@ -144,12 +183,11 @@ class Aether {
             $magic['referer'] = $_SERVER['HTTP_REFERER'];
         $magic['options'] = $options;
 
-        /**
-         * If we are in TEST mode we should prepare a timer object
-         * and time everything that happens
+        /*
+         * If we are in local (development) mode we should prepare a timer
+         * object and time everything that happens.
          */
-        if ($options['AetherRunningMode'] == 'test') {
-            // Prepare timer
+        if (config('app.env') === 'local') {
             $timer = new AetherTimer;
             $timer->start('aether_main');
             $this->sl->set('timer', $timer);
@@ -258,6 +296,16 @@ class Aether {
         }
     }
 
+    /**
+     * Get the AetherServiceLocator instance.
+     *
+     * @return \AetherServiceLocator
+     */
+    public function getServiceLocator()
+    {
+        return $this->sl;
+    }
+
     private function getCacheObject($class, $options) {
         if (class_exists($class)) {
             $obj = new $class($options);
@@ -265,5 +313,51 @@ class Aether {
                 return $obj;
         }
         return false;
+    }
+
+    /**
+     * Set up a Sentry error logger.
+     *
+     * @return void
+     */
+    protected function installSentry()
+    {
+        $client = new Raven_Client(config('app.sentry.dsn'), [
+            'trace' => true,
+            'curl_method' => 'sync',
+            'curl_ipv4' => false,
+            'trust_x_forwarded_proto' => true,
+            'tags' => [
+                'php_version' => phpversion(),
+            ],
+        ]);
+
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $client->user_context([
+                'ip_address' => $_SERVER['HTTP_X_FORWARDED_FOR'],
+            ]);
+        }
+
+        $client->install();
+    }
+
+    /**
+     * Get the default cache options. This is provided for backwards compatiblity.
+     *
+     * @todo This can be removed once all sites have cache options defined in
+     *       `config('app.cache.options')`
+     *
+     * @return array
+     */
+    private function getDefaultCacheOptions()
+    {
+        return [
+            'auto.tu.c.bitbit.net',
+            'boss.tu.c.bitbit.net',
+            'kaos.tu.c.bitbit.net',
+            'karr.tu.c.bitbit.net',
+            'nell.tu.c.bitbit.net',
+            'wopr.tu.c.bitbit.net',
+        ];
     }
 }
