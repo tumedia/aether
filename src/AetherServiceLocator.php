@@ -107,22 +107,4 @@ class AetherServiceLocator {
     public function has($name) {
         return array_key_exists($name, $this->custom);
     }
-
-    /**
-     * Get the config repository instance, or if `$key` is set, return the
-     * corresponding config value.
-     *
-     *
-     * @param  string $key = null                   Optional
-     * @param  mixed  $default = null
-     * @return \Illuminate\Config\Repository|mixed
-     */
-    public function config(string $key = null, $default = null)
-    {
-        if ($key !== null) {
-            return $this->get('config')->get($key, $default);
-        }
-
-        return $this->get('config');
-    }
 }
