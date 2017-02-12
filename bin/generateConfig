@@ -180,9 +180,7 @@ if (file_exists($compiled = $configFolder.'compiled.php')) {
 if ($prefix === 'prod') {
     echo "Creating [config/compiled.php] file\n";
 
-    $config = (new class {
-        use LoadsConfigRepository;
-    })->getConfigRepository($configFolder);
+    $config = new AetherAppConfig(dirname($configFolder));
 
     echo "Writing new compiled.php...\n";
 

@@ -4,27 +4,41 @@ use Dotenv\Dotenv;
 use Illuminate\Config\Repository;
 use Dotenv\Exception\InvalidPathException;
 
-trait LoadsConfigRepository
+class AetherAppConfig extends Repository
 {
     /**
-     * Get a config repository instance.
+     * Create a new AetherAppConfig instance. This will automatically load the
+     * configuration from the path specified.
      *
-     * @param  string $configPath
-     * @return \Illuminate\Config\Repository
+     * @param  string $projectRoot  Trailing slash is allowed.
      */
-    public function getConfigRepository(string $configPath): Repository
+    public function __construct(string $projectRoot)
     {
+        parent::__construct($this->loadConfig($projectRoot));
+    }
+
+    /**
+     * Load the configuration.
+     *
+     * @param  string $projectRoot
+     * @return array  All config items.
+     */
+    private function loadConfig(string $projectRoot): array
+    {
+        $projectRoot = rtrim($projectRoot, '/');
+        $configPath  = $projectRoot.'/config';
+
         // If a `compiled.php` file exists, we'll use that. Should only be used
         // in a production environment.
         if (file_exists($compiled = $configPath.'/compiled.php')) {
-            return new Repository(require $compiled);
+            return require $compiled;
         }
 
         // Otherwise, we'll need to load the configuration files from the
         // `config` folder in our project.
 
         // First, we need to load the .env file.
-        $this->installDotenv(dirname($configPath));
+        $this->installDotenv($projectRoot);
 
         $config = [];
 
@@ -55,7 +69,7 @@ trait LoadsConfigRepository
             }
         }
 
-        return new Repository($config);
+        return $config;
     }
 
     /**

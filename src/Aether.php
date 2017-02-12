@@ -28,8 +28,6 @@
  */
 
 class Aether {
-    use LoadsConfigRepository;
-
     /** @var \Aether */
     protected static $globalInstance;
 
@@ -108,10 +106,13 @@ class Aether {
 
         $this->sl->set("projectRoot", $projectPath);
 
-        // Load the application config.
-        $this->sl->set('config', $this->getConfigRepository(
-            $this->sl->get('projectRoot').'config'
-        ));
+        // Load the application config and bind it to the service locator, so
+        // that we can easily access it anywhere in the code using the
+        // `config()` helper function.
+        $this->sl->set(
+            'config',
+            new AetherAppConfig($this->sl->get('projectRoot'))
+        );
 
         // If enabled, iunstall the Sentry client.
         if (config('app.sentry.enabled', false)) {
