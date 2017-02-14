@@ -114,7 +114,7 @@ class Aether {
             new AetherAppConfig($this->sl->get('projectRoot'))
         );
 
-        // If enabled, iunstall the Sentry client.
+        // If enabled, install the Sentry client.
         if (config('app.sentry.enabled', false)) {
             $this->installSentry();
         }
@@ -161,7 +161,7 @@ class Aether {
             'cache' => config('app.cache.enabled', true) ? 'on' : 'off',
         ]);
 
-        if (config('app.cache.enabled')) {
+        if ($options['cache'] == 'on') {
             $this->sl->set('cache', $this->getCacheObject(
                 config('app.cache.class', AetherCacheMemcache::class),
                 config('app.cache.options', $this->getDefaultCacheOptions())

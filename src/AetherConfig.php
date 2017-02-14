@@ -359,8 +359,9 @@ class AetherConfig {
      * @param DOMNode $node
      */
     private function readNodeConfig($nodeConfig) {
-        if (isset($nodeConfig['cache']))
+        if (isset($nodeConfig['cache'])) {
             $this->cache = $nodeConfig['cache'];
+        }
         if (isset($nodeConfig['cacheas']))
             $this->cacheas = $nodeConfig['cacheas'];
         if (isset($nodeConfig['section']))
