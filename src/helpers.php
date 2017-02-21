@@ -10,7 +10,34 @@ if (!function_exists('env')) {
      *                variable is not set.
      */
     function env(string $key, $default = null) {
-        return $_ENV[$key] ?? $default;
+        $value = getenv($key);
+
+        if ($value === false) {
+            return $default;
+        }
+
+        switch (strtolower($value)) {
+            case 'true':
+            case '(true)':
+                return true;
+            case 'false':
+            case '(false)':
+                return false;
+            case 'empty':
+            case '(empty)':
+                return '';
+            case 'null':
+            case '(null)':
+                return;
+        }
+
+        $valueLength = strlen($value);
+
+        if ($valueLength > 1 && strpos($value, '"') === 0 && strrpos($value, '"') === $valueLength - 1) {
+            return substr($value, 1, -1);
+        }
+
+        return $value;
     }
 }
 
