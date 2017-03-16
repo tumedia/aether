@@ -52,6 +52,12 @@ if (!function_exists('config')) {
      * @return \Illuminate\Config\Repository|mixed
      */
     function config(string $key = null, $default = null) {
-        return Aether::getInstance()->getServiceLocator()->get('config')->get($key, $default);
+        $config = Aether::getInstance()->getServiceLocator()->get('config');
+
+        if (is_null($key)) {
+            return $config;
+        }
+
+        return $config->get($key, $default);
     }
 }
