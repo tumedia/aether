@@ -419,9 +419,15 @@ class AetherConfig {
         else {
             $nodelist = $node;
         }
+
         foreach ($nodelist as $child) {
-            if ($child instanceof DOMText)
-                continue;
+            if ($child instanceof DOMText) {
+                if (empty($nodeData['text']))
+                    $nodeData['text'] = '';
+
+                $nodeData['text'] .= $child->nodeValue;
+            }
+
             switch ($child->nodeName) {
                 case 'section':
                     $nodeData['section'] = $child->nodeValue;
@@ -434,29 +440,26 @@ class AetherConfig {
                     break;
 
                 case 'module':
-                    // Modules can contain options, which we need to take into account
-                    $text = '';
-                    $opts = array();
-                    foreach ($child->childNodes as $option) {
-                        if ($option->nodeName == '#text')
-                            $text .= $option->nodeValue;
-                        if ($option->nodeName == 'option')
-                            $opts[$option->getAttribute('name')] = $option->nodeValue;
-                    }
-
                     // Merge options from all scopes together
                     $module = [
-                        'name' => trim($text),
-                        'options' => $opts,
+                        'name' => null,
+                        'options' => [],
                         'output' => null
                     ];
 
+                    $moduleConfig = $this->getNodeConfig($child);
+
                     if ($child->hasAttribute('priority'))
                         $module['priority'] = $child->getAttribute('priority');
-                    if ($child->hasAttribute('cache'))
-                        $module['cache'] = $child->getAttribute('cache');
-                    if ($child->hasAttribute('cacheas'))
-                        $module['cacheas'] = $child->getAttribute('cacheas');
+                    if (isset($moduleConfig['text']))
+                        $module['name'] = trim($moduleConfig['text']);
+                    if (isset($moduleConfig['cache']))
+                        $module['cache'] = $moduleConfig['cache'];
+                    if (isset($moduleConfig['cacheas']))
+                        $module['cacheas'] = $moduleConfig['cacheas'];
+                    if (isset($moduleConfig['options']))
+                        $module['options'] = $moduleConfig['options'];
+
 
                     if ($child->hasAttribute('provides'))
                         $module['provides'] = trim($child->getAttribute('provides'));

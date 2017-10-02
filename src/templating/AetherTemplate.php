@@ -46,4 +46,12 @@ abstract class AetherTemplate {
      * @param string $name
      */
     abstract public function fetch($name);
+
+    /**
+     * Check if template exists
+     *
+     * @return bool
+     * @param string $name
+     */
+    abstract public function templateExists($name);
 }

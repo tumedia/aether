@@ -85,4 +85,14 @@ class AetherTemplateSmarty extends AetherTemplate {
     public function registerPlugin($type, $name, $function) {
         $this->engine->registerPlugin($type, $name, $function);
     }
+
+    /**
+     * Check if template exists, duh
+     *
+     * @return bool
+     * @param string $name
+     */
+    public function templateExists($name) {
+        return $this->engine->templateExists($name);
+    }
 }

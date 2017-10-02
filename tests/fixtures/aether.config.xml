@@ -22,6 +22,12 @@
                 <option name="shouldBeFalse" type="bool">false</option>
                 <option name="shouldBeTrueString">true</option>
                 <option name="shouldBeFalseString">false</option>
+
+                <module>
+                    <option name="fisk" type="bool">true</option>
+                    <option name="ananas" type="bool">false</option>
+                    HelloWorld
+                </module>
             </rule>
         </urlRules>
     </site>

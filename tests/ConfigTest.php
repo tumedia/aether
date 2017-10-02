@@ -40,7 +40,6 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testConfigAssembleOptionsCorrectly() {
-        $category = 'hifi-produkter';
         $conf = $this->getLoadedConfig('http://raw.no/unittest/foo');
 
         $modules = $conf->getModules();
@@ -48,17 +47,6 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
 
         $module = $modules['HelloWorld'];
         $this->assertEquals('foobar', $module['options']['foo'], 'Module\'s local options must be correct');
-    }
-
-    public function testMultipleModulesOfSameType() {
-        $category = 'hifi-produkter';
-        $conf = $this->getLoadedConfig('http://raw.no/tema/Playstation 3');
-
-        $modules = $conf->getModules();
-
-        // Check options against the first module
-        $this->assertTrue(is_array($modules));
-        $this->markTestIncomplete();
     }
 
     public function testConfigFindParentDefault() {
@@ -120,5 +108,14 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase {
 
         $this->assertSame($opts['shouldBeTrueString'], 'true');
         $this->assertSame($opts['shouldBeFalseString'], 'false');
+    }
+
+    public function testBooleanTypeCastingInModules() {
+        $conf = $this->getLoadedConfig('http://foobar.com/bool-casting');
+        $module = current($conf->getModules());
+        $opts = $module['options'];
+
+        $this->assertTrue($opts['fisk']);
+        $this->assertFalse($opts['ananas']);
     }
 }
