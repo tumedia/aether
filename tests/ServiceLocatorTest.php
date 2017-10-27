@@ -1,11 +1,14 @@
 <?php // vim:set ts=4 sw=4 et:
 
-class AetherServiceLocatorTest extends PHPUnit_Framework_TestCase {
-    public function testEnvironment() {
+class AetherServiceLocatorTest extends PHPUnit_Framework_TestCase
+{
+    public function testEnvironment()
+    {
         $this->assertTrue(class_exists('AetherServiceLocator'));
     }
 
-    public function testCustomObjectStorage() {
+    public function testCustomObjectStorage()
+    {
         // Create a small class for testing
         $obj = new stdClass;
         $obj->foo = 'bar';
@@ -15,7 +18,8 @@ class AetherServiceLocatorTest extends PHPUnit_Framework_TestCase {
         $this->assertSame($tester, $obj);
     }
 
-    public function testArray() {
+    public function testArray()
+    {
         $asl = new AetherServiceLocator;
         $arr = $asl->getVector('foo');
         $arr['foo'] = 'bar';

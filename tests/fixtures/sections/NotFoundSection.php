@@ -1,7 +1,7 @@
 <?php
 
-class NotFoundSection extends AetherSection {
-
+class NotFoundSection extends AetherSection
+{
     public $options;
 
     /**
@@ -10,7 +10,8 @@ class NotFoundSection extends AetherSection {
      * @access public
      * @return AetherResponse
      */
-    public function response() {
+    public function response()
+    {
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
 

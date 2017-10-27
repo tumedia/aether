@@ -10,7 +10,8 @@
  * @package aether
  */
 
-class AetherConfig {
+class AetherConfig
+{
 
     /**
      * XMLDoc
@@ -91,15 +92,18 @@ class AetherConfig {
      * @return AetherConfig
      * @param string $configFilePath
      */
-    public function __construct($configFilePath) {
+    public function __construct($configFilePath)
+    {
         $this->configFilePath = $configFilePath;
     }
 
-    private function getSiteConfig($url) {
+    private function getSiteConfig($url)
+    {
         $configFilePath = $this->configFilePath;
         if (!file_exists($configFilePath)) {
             throw new AetherMissingFileException(
-                "Config file [$configFilePath] is missing.");
+                "Config file [$configFilePath] is missing."
+            );
         }
         $doc = new DOMDocument;
         $doc->preserveWhiteSpace = false;
@@ -127,11 +131,12 @@ class AetherConfig {
         $urlRules = $nodelist->item(0);
 
         $path = $url->get('path');
-        $explodedPath = explode('/', substr($path,1));
+        $explodedPath = explode('/', substr($path, 1));
 
         // Treat /foo/bar the same as /foo/bar/
-        if (end($explodedPath) !== "")
+        if (end($explodedPath) !== "") {
             $explodedPath[] = "";
+        }
 
         return [
             'rules' => $urlRules,
@@ -146,38 +151,41 @@ class AetherConfig {
      * @return bool
      * @param AetherUrlParser $url
      */
-    public function matchUrl(AetherUrlParser $url) {
+    public function matchUrl(AetherUrlParser $url)
+    {
         $config = $this->getSiteConfig($url);
         try {
             $node = $this->readMatchingConfigNode($config['rules'], $config['path']);
-        }
-        catch (AetherNoUrlRuleMatchException $e) {
+        } catch (AetherNoUrlRuleMatchException $e) {
             // No match found :( Send 404 and throw exception to logs
             header("Status: 404 Not Found");
             echo "<html><body><h1>404 Not found</h1></body></html>";
 
             throw new Exception("Technical error. No resource found on this url: " . (string)$url . ", " . $e);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             // This is expected
             // Comment above was exceptionally not expected -- simeng 2011-10-10
         }
     }
 
     // Get config root node
-    public function getRootNode(AetherUrlParser $url) {
+    public function getRootNode(AetherUrlParser $url)
+    {
         return $this->getSiteConfig($url)['rules'];
     }
 
-    private function containsRules($node) {
+    private function containsRules($node)
+    {
         foreach ($node->childNodes as $c) {
-            if ($c->nodeName === 'rule')
+            if ($c->nodeName === 'rule') {
                 return true;
+            }
         }
         return false;
     }
 
-    private function findRecursive($nodeList, $path) {
+    private function findRecursive($nodeList, $path)
+    {
         $current = array_shift($path);
 
         foreach ($nodeList as $node) {
@@ -201,8 +209,7 @@ class AetherConfig {
                      * the last path part, return current node.
                      */
                     if ($matchingChild === false &&
-                        count($path) <= 1)
-                    {
+                        count($path) <= 1) {
                         return $node;
                     }
 
@@ -224,7 +231,8 @@ class AetherConfig {
      * if AetherSlashMode is "keep", then "/fragment" will be used,
      * else "fragment" will be used when matching nodes.
      */
-    private function findMatchingConfigNode($urlRules, $path) {
+    private function findMatchingConfigNode($urlRules, $path)
+    {
         $match = $this->findRecursive($urlRules->childNodes, $path);
 
         /**
@@ -241,13 +249,13 @@ class AetherConfig {
     /**
      * Finds the deepest matching default rule
      */
-    private function getDefaultRule() {
+    private function getDefaultRule()
+    {
         if (!empty($this->matchedNodes)) {
             while ($node = array_pop($this->matchedNodes)) {
                 foreach ($node->childNodes as $childNode) {
                     if ($childNode->nodeName == 'rule' &&
-                        $childNode->getAttribute("default"))
-                    {
+                        $childNode->getAttribute("default")) {
                         return $childNode;
                     }
                 }
@@ -257,19 +265,18 @@ class AetherConfig {
         throw new Exception('Missing default rule');
     }
 
-    private function loadConfigFromConfigNode($node) {
+    private function loadConfigFromConfigNode($node)
+    {
         // Fetch the complete path of nodes back to document
         $n = $node;
         $readNodes = [];
         do {
             if ($n->nodeName == 'rule' ||
                 $n->nodeName == 'urlRules' ||
-                $n->nodeName == 'site')
-            {
+                $n->nodeName == 'site') {
                 $readNodes[] = $n;
             }
-        }
-        while (($n = $n->parentNode) && $n->nodeName != "#document");
+        } while (($n = $n->parentNode) && $n->nodeName != "#document");
 
         // Read in the config for each node
         while ($n = array_pop($readNodes)) {
@@ -280,7 +287,8 @@ class AetherConfig {
         return true;
     }
 
-    private function readMatchingConfigNode($urlRules, $path) {
+    private function readMatchingConfigNode($urlRules, $path)
+    {
         // Crawl the config hierarchy till the right node is found
         // First node is urlRules xml tag
         $this->matchedNodes[] = $urlRules;
@@ -289,9 +297,9 @@ class AetherConfig {
 
         if ($match) {
             return $this->loadConfigFromConfigNode($match);
-        }
-        else
+        } else {
             throw new AetherNoUrlRuleMatchException("\"{$_SERVER['REQUEST_URI']}\" does not match any rule, and no default rule was found");
+        }
     }
 
     /**
@@ -312,39 +320,46 @@ class AetherConfig {
      * @param string $check
      * @param object $node
      */
-    private function matches($check, $node) {
+    private function matches($check, $node)
+    {
         $matches = false;
         if ($node->hasAttribute('match')) {
             if ($node->getAttribute('match') == $check ||
                     ($node->getAttribute('match') === '' && $check === null)) {
                 $matches = true;
-            }
-            else {
+            } else {
                 $matches = false;
             }
             $store = $check;
-        }
-        elseif ($node->hasAttribute('pattern') && $check !== '') {
+        } elseif ($node->hasAttribute('pattern') && $check !== '') {
             $matches = preg_match(
-                $node->getAttribute('pattern'), $check, $captures);
+                $node->getAttribute('pattern'),
+                $check,
+                $captures
+            );
             /**
              * When using pattern based matching make sure we store
              * the last matching part of the array of regex matches
              */
-            if (is_array($captures))
+            if (is_array($captures)) {
                 $store = array_pop($captures);
+            }
         }
         if ($matches) {
             // Store value of url fragment, typical stores and id
-            if ($node->hasAttribute('store') AND isset($store)) {
+            if ($node->hasAttribute('store') and isset($store)) {
                 $this->storeVariable(
-                    $node->getAttribute('store'), $store);
+                    $node->getAttribute('store'),
+                    $store
+                );
             }
             // Remember the url base if this is it
-            if ($node->hasAttribute('isBase'))
+            if ($node->hasAttribute('isBase')) {
                 $this->urlBase .= $check.'/';
-            if ($node->hasAttribute('isRoot'))
+            }
+            if ($node->hasAttribute('isRoot')) {
                 $this->urlRoot .= $check.'/';
+            }
             return true;
         }
         return false;
@@ -358,16 +373,20 @@ class AetherConfig {
      * @return void
      * @param DOMNode $node
      */
-    private function readNodeConfig($nodeConfig) {
+    private function readNodeConfig($nodeConfig)
+    {
         if (isset($nodeConfig['cache'])) {
             $this->cache = $nodeConfig['cache'];
         }
-        if (isset($nodeConfig['cacheas']))
+        if (isset($nodeConfig['cacheas'])) {
             $this->cacheas = $nodeConfig['cacheas'];
-        if (isset($nodeConfig['section']))
+        }
+        if (isset($nodeConfig['section'])) {
             $this->section = $nodeConfig['section'];
-        if (isset($nodeConfig['template']))
+        }
+        if (isset($nodeConfig['template'])) {
             $this->template = $nodeConfig['template'];
+        }
 
         if (isset($nodeConfig['modules'])) {
             $count = count($this->modules);
@@ -393,8 +412,7 @@ class AetherConfig {
             foreach ($nodeConfig['optionAdd'] as $k => $v) {
                 if (isset($this->options[$k])) {
                     $this->options[$k] .= ";" . $v;
-                }
-                else {
+                } else {
                     $this->options[$k] = $v;
                 }
             }
@@ -407,23 +425,26 @@ class AetherConfig {
     /**
      * Fetch node config for a specific node
      */
-    private function getNodeConfig($node) {
+    private function getNodeConfig($node)
+    {
         $nodeData = [];
         if ($node instanceof DOMNode) {
-            if ($node->hasAttribute('cache'))
+            if ($node->hasAttribute('cache')) {
                 $nodeData['cache'] = $node->getAttribute('cache');
-            if ($node->hasAttribute('cacheas'))
+            }
+            if ($node->hasAttribute('cacheas')) {
                 $nodeData['cacheas'] = $node->getAttribute('cacheas');
+            }
             $nodelist = $node->childNodes;
-        }
-        else {
+        } else {
             $nodelist = $node;
         }
 
         foreach ($nodelist as $child) {
             if ($child instanceof DOMText) {
-                if (empty($nodeData['text']))
+                if (empty($nodeData['text'])) {
                     $nodeData['text'] = '';
+                }
 
                 $nodeData['text'] .= $child->nodeValue;
             }
@@ -449,20 +470,26 @@ class AetherConfig {
 
                     $moduleConfig = $this->getNodeConfig($child);
 
-                    if ($child->hasAttribute('priority'))
+                    if ($child->hasAttribute('priority')) {
                         $module['priority'] = $child->getAttribute('priority');
-                    if (isset($moduleConfig['text']))
+                    }
+                    if (isset($moduleConfig['text'])) {
                         $module['name'] = trim($moduleConfig['text']);
-                    if (isset($moduleConfig['cache']))
+                    }
+                    if (isset($moduleConfig['cache'])) {
                         $module['cache'] = $moduleConfig['cache'];
-                    if (isset($moduleConfig['cacheas']))
+                    }
+                    if (isset($moduleConfig['cacheas'])) {
                         $module['cacheas'] = $moduleConfig['cacheas'];
-                    if (isset($moduleConfig['options']))
+                    }
+                    if (isset($moduleConfig['options'])) {
                         $module['options'] = $moduleConfig['options'];
+                    }
 
 
-                    if ($child->hasAttribute('provides'))
+                    if ($child->hasAttribute('provides')) {
                         $module['provides'] = trim($child->getAttribute('provides'));
+                    }
 
                     $nodeId = isset($module['provides']) ? $module['provides'] : $module['name'];
 
@@ -522,7 +549,8 @@ class AetherConfig {
      * @param string $key
      * @param mixed $val
      */
-    public function storeVariable($key, $val) {
+    public function storeVariable($key, $val)
+    {
         $this->urlVariables[$key] = $val;
     }
 
@@ -532,7 +560,8 @@ class AetherConfig {
      * @access public
      * @return string
      */
-    public function getSection() {
+    public function getSection()
+    {
         return $this->section;
     }
 
@@ -542,10 +571,12 @@ class AetherConfig {
      * @access public
      * @return int/bool
      */
-    public function getCacheTime() {
+    public function getCacheTime()
+    {
         return $this->cache;
     }
-    public function getCacheName() {
+    public function getCacheName()
+    {
         return $this->cacheas;
     }
 
@@ -555,15 +586,18 @@ class AetherConfig {
      * @access public
      * @return string
      */
-    public function getTemplate() {
+    public function getTemplate()
+    {
         return $this->template;
     }
 
-    public function getFragments($providerName = null) {
-        if ($providerName === null)
+    public function getFragments($providerName = null)
+    {
+        if ($providerName === null) {
             return $this->fragments;
-        else
+        } else {
             return isset($this->fragments[$providerName]) ? $this->fragments[$providerName] : null;
+        }
     }
 
     /**
@@ -572,11 +606,13 @@ class AetherConfig {
      * @access public
      * @return array
      */
-    public function getModules($providerName = null) {
+    public function getModules($providerName = null)
+    {
         if ($providerName !== null) {
             foreach ($this->modules as $m) {
-                if (!empty($m['provides']) && $m['provides'] == $providerName)
+                if (!empty($m['provides']) && $m['provides'] == $providerName) {
                     return $m;
+                }
             }
             return null;
         }
@@ -585,19 +621,24 @@ class AetherConfig {
         uksort($modules, function ($a, $b) use ($modules) {
             $aSum = $modules[$a]['num'] / 100;
             $bSum = $modules[$b]['num'] / 100;
-            if (isset($modules[$a]['provides']))
+            if (isset($modules[$a]['provides'])) {
                 $aSum--;
-            if (isset($modules[$a]['priority']))
+            }
+            if (isset($modules[$a]['priority'])) {
                 $aSum += intval($modules[$a]['priority']);
-            if (isset($modules[$b]['provides']))
+            }
+            if (isset($modules[$b]['provides'])) {
                 $bSum--;
-            if (isset($modules[$b]['priority']))
+            }
+            if (isset($modules[$b]['priority'])) {
                 $bSum += intval($modules[$b]['priority']);
+            }
 
-            if ($aSum > $bSum)
+            if ($aSum > $bSum) {
                 return 1;
-            else
+            } else {
                 return -1;
+            }
         });
         return $modules;
     }
@@ -608,7 +649,8 @@ class AetherConfig {
      * @access public
      * @return void
      */
-    public function setModules($modules) {
+    public function setModules($modules)
+    {
         $this->modules = $modules;
     }
 
@@ -619,7 +661,8 @@ class AetherConfig {
      * @return array
      * @param array $defaults Provide a set of defaults to use if no value is set
      */
-    public function getOptions($defaults=array()) {
+    public function getOptions($defaults=array())
+    {
         return $this->options + $defaults;
     }
 
@@ -631,7 +674,8 @@ class AetherConfig {
      * @access public
      */
 
-    public function setOption($name, $value) {
+    public function setOption($name, $value)
+    {
         $this->options[$name] = $value;
     }
 
@@ -640,7 +684,8 @@ class AetherConfig {
      * These are the variables in a regex url ex. /ads/([0-9]+)/images
      * which are stored with the store="name"-attribute
      */
-    public function getUrlVars() {
+    public function getUrlVars()
+    {
         return $this->urlVariables;
     }
 
@@ -649,11 +694,13 @@ class AetherConfig {
      * These are the variables in a regex url ex. /ads/([0-9]+)/images
      * which are stored with the store="name"-attribute
      */
-    public function getUrlVar($key) {
-        if ($this->hasUrlVar($key))
+    public function getUrlVar($key)
+    {
+        if ($this->hasUrlVar($key)) {
             return $this->urlVariables[$key];
-        else
+        } else {
             return null;
+        }
     }
 
     /**
@@ -662,7 +709,8 @@ class AetherConfig {
      * @return bool
      * @param string $key
      */
-    public function hasUrlVar($key) {
+    public function hasUrlVar($key)
+    {
         return array_key_exists($key, $this->urlVariables);
     }
 
@@ -673,7 +721,8 @@ class AetherConfig {
      * @return mixed
      * @param string $key
      */
-    public function getUrlVariable($key) {
+    public function getUrlVariable($key)
+    {
         return $this->getUrlVar($key);
     }
 
@@ -683,10 +732,12 @@ class AetherConfig {
      * @access public
      * @return string
      */
-    public function getBase() {
+    public function getBase()
+    {
         return $this->urlBase;
     }
-    public function getRoot() {
+    public function getRoot()
+    {
         return $this->urlRoot;
     }
 
@@ -696,11 +747,13 @@ class AetherConfig {
      * @access public
      * @return string
      */
-    public function configFilePath() {
+    public function configFilePath()
+    {
         return $this->configFilePath;
     }
 
-    public function resetRuleConfig() {
+    public function resetRuleConfig()
+    {
         // Reset
         $this->options = [];
         $this->modules = [];
@@ -710,9 +763,11 @@ class AetherConfig {
         $this->template = null;
     }
 
-    public function reloadConfigFromDefaultRule() {
-        if (empty($this->matchedNodes))
+    public function reloadConfigFromDefaultRule()
+    {
+        if (empty($this->matchedNodes)) {
             throw new Exception('Cannot reload config before initial config is loaded');
+        }
 
         $this->resetRuleConfig();
         $defaultRule = $this->getDefaultRule();

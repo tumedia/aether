@@ -1,4 +1,4 @@
-<?php // 
+<?php //
 /**
  *
  * Facade over Smarty templating engine
@@ -8,13 +8,15 @@
  * @package aether
  */
 
-class AetherTemplateSmarty extends AetherTemplate {
+class AetherTemplateSmarty extends AetherTemplate
+{
     /**
      * Construct
      *
      * @param AetherServiceLocator $sl
      */
-    public function __construct(AetherServiceLocator $sl) {
+    public function __construct(AetherServiceLocator $sl)
+    {
         $this->engine = new Smarty;
         $this->sl = $sl;
         $options = $this->sl->get('aetherConfig')->getOptions();
@@ -27,8 +29,9 @@ class AetherTemplateSmarty extends AetherTemplate {
         if (isset($options['searchpath'])) {
             $search = array_map("trim", explode(";", $options['searchpath']));
             foreach ($search as $dir) {
-                if (strpos($dir, ".") === 0) 
+                if (strpos($dir, ".") === 0) {
                     $dir = $root . $dir;
+                }
                 $templateDirs[] = $dir . "templates/";
                 $pluginDirs[] = $dir . "templates/plugins/";
             }
@@ -45,17 +48,19 @@ class AetherTemplateSmarty extends AetherTemplate {
     }
 
     /**
-     * Set a template variable 
+     * Set a template variable
      *
      * @return void
      * @param string $key
      * @param mixed $value
      */
-    public function set($key,$value) {
+    public function set($key, $value)
+    {
         $this->engine->assign($key, $value);
     }
 
-    public function setAll($keyValues) {
+    public function setAll($keyValues)
+    {
         foreach ($keyValues as $key => $value) {
             $this->engine->assign($key, $value);
         }
@@ -67,7 +72,8 @@ class AetherTemplateSmarty extends AetherTemplate {
      * @return string
      * @param string $name
      */
-    public function fetch($name) {
+    public function fetch($name)
+    {
         return $this->engine->fetch($name);
     }
 
@@ -82,7 +88,8 @@ class AetherTemplateSmarty extends AetherTemplate {
      * @param string $name
      * @param mixed $function
      */
-    public function registerPlugin($type, $name, $function) {
+    public function registerPlugin($type, $name, $function)
+    {
         $this->engine->registerPlugin($type, $name, $function);
     }
 
@@ -92,7 +99,8 @@ class AetherTemplateSmarty extends AetherTemplate {
      * @return bool
      * @param string $name
      */
-    public function templateExists($name) {
+    public function templateExists($name)
+    {
         return $this->engine->templateExists($name);
     }
 }

@@ -1,14 +1,15 @@
 <?php // vim:set ts=4 sw=4 et:
 /**
- * 
+ *
  * Base class definition for aether modules
- * 
+ *
  * Created: 2007-02-06
  * @author Raymond Julin
  * @package aether.lib
  */
 
-abstract class AetherModule {
+abstract class AetherModule
+{
     
     /**
      * Hold service locator
@@ -30,7 +31,8 @@ abstract class AetherModule {
      * @param AetherServiceLocator $sl
      * @param array $options
      */
-    public function __construct(AetherServiceLocator $sl, $options=array()) {
+    public function __construct(AetherServiceLocator $sl, $options=array())
+    {
         $this->sl = $sl;
         $this->options = $options;
     }
@@ -57,7 +59,8 @@ abstract class AetherModule {
      * @access public
      * @return bool
      */
-    public function denyCache() {
+    public function denyCache()
+    {
         return false;
     }
     
@@ -67,7 +70,8 @@ abstract class AetherModule {
      * @access public
      * @return bool
      */
-    public function getCacheTime() {
+    public function getCacheTime()
+    {
         return $this->denyCache() ? 0 : null;
     }
     
@@ -77,7 +81,8 @@ abstract class AetherModule {
      * @access public
      * @return AetherResponse
      */
-    public function service($name) {
+    public function service($name)
+    {
         return null;
     }
 }

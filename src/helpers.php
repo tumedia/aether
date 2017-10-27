@@ -9,7 +9,8 @@ if (!function_exists('env')) {
      * @return mixed  Returns the value of `$default` if the environment
      *                variable is not set.
      */
-    function env(string $key, $default = null) {
+    function env(string $key, $default = null)
+    {
         $value = getenv($key);
 
         if ($value === false) {
@@ -51,7 +52,8 @@ if (!function_exists('config')) {
      * @param  mixed  $default = null
      * @return \Illuminate\Config\Repository|mixed
      */
-    function config(string $key = null, $default = null) {
+    function config(string $key = null, $default = null)
+    {
         $config = Aether::getInstance()->getServiceLocator()->get('config');
 
         if (is_null($key)) {

@@ -1,11 +1,14 @@
 <?php // vim:set ts=4 sw=4 et:
 
-class AetherSectionFactoryTest extends PHPUnit_Framework_TestCase {
-    public function testEnvironment() {
+class AetherSectionFactoryTest extends PHPUnit_Framework_TestCase
+{
+    public function testEnvironment()
+    {
         $this->assertTrue(class_exists('AetherSectionFactory'));
     }
 
-    public function testCreate() {
+    public function testCreate()
+    {
         $section = AetherSectionFactory::create(
             'Testsection',
             new AetherServiceLocator

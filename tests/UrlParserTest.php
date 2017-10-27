@@ -1,11 +1,14 @@
 <?php // vim:set ts=4 sw=4 et:
 
-class AetherUrlParserTest extends PHPUnit_Framework_TestCase {
-    public function testEnvironment() {
+class AetherUrlParserTest extends PHPUnit_Framework_TestCase
+{
+    public function testEnvironment()
+    {
         $this->assertTrue(class_exists('AetherUrlParser'));
     }
 
-    public function testParser() {
+    public function testParser()
+    {
         $url = 'http://aether.raymond.raw.no/foobar/hello?foo';
         $parser = new AetherUrlParser;
         $parser->parse($url);
@@ -24,7 +27,8 @@ class AetherUrlParserTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($parser->__toString(), preg_replace('/\?.*/', '', $url2));
     }
 
-    public function testParseServerArray() {
+    public function testParseServerArray()
+    {
         $server = array(
             'HTTP_HOST' => 'aether.raymond.raw.no',
             'SERVER_NAME' => 'aether.raymond.raw.no',

@@ -8,7 +8,8 @@
  * @package aether.lib
  */
 
-abstract class AetherSection {
+abstract class AetherSection
+{
 
     /**
      * Hold service locator
@@ -23,7 +24,8 @@ abstract class AetherSection {
      * @return AetherSection
      * @param AetherServiceLocator $sl
      */
-    public function __construct(AetherServiceLocator $sl) {
+    public function __construct(AetherServiceLocator $sl)
+    {
         $this->sl = $sl;
     }
 
@@ -34,20 +36,19 @@ abstract class AetherSection {
      * @access public
      * @param string $providerName
      */
-    public function renderProviderWithCacheHeaders($providerName) {
+    public function renderProviderWithCacheHeaders($providerName)
+    {
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
 
         $fragment = $config->getFragments($providerName);
         if ($fragment) {
             $modules = $fragment['modules'];
-        }
-        else {
+        } else {
             $module = $config->getModules($providerName);
             if ($module !== null) {
                 $modules = [ $module ];
-            }
-            else {
+            } else {
                 throw new AetherServiceNotFoundException("Provider \"{$providerName}\" did not match any module at {$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
             }
         }
@@ -59,23 +60,28 @@ abstract class AetherSection {
                 $tpl = $this->sl->getTemplate();
             }
             foreach ($modules as $module) {
-                if (!isset($module['options']))
+                if (!isset($module['options'])) {
                     $module['options'] = array();
+                }
 
                 // Get module object
-                $object = AetherModuleFactory::create($module['name'],
-                        $this->sl, $module['options'] + $options);
+                $object = AetherModuleFactory::create(
+                    $module['name'],
+                        $this->sl,
+                    $module['options'] + $options
+                );
 
-                if ($object->getCacheTime() !== null)
+                if ($object->getCacheTime() !== null) {
                     $maxAge = min($object->getCacheTime(), $maxAge);
+                }
 
-                if (isset($module['cache']))
+                if (isset($module['cache'])) {
                     $maxAge = min($module['cache'], $maxAge);
+                }
 
                 if (isset($fragment['template'])) {
                     $this->provide($module['provides'], $object->run());
-                }
-                else {
+                } else {
                     $output .= $object->run();
                 }
             }
@@ -88,19 +94,23 @@ abstract class AetherSection {
             }
             print $output;
         }
-
     }
 
-    private function preloadModules($modules, $options) {
+    private function preloadModules($modules, $options)
+    {
         // Preload modules, set cachetime and find minimum page cache time
         foreach ($modules as &$module) {
-            if (!isset($module['options']))
+            if (!isset($module['options'])) {
                 $module['options'] = array();
+            }
             $object = "";
             // Get module object
             try {
-                $object = AetherModuleFactory::create($module['name'],
-                        $this->sl, $module['options'] + $options);
+                $object = AetherModuleFactory::create(
+                    $module['name'],
+                        $this->sl,
+                    $module['options'] + $options
+                );
 
                 // If the module, in this setting, blocks caching, accept
                 if ($this->cache && ($cachetime = $object->getCacheTime()) !== null) {
@@ -112,8 +122,7 @@ abstract class AetherSection {
                 }
 
                 $module['obj'] = $object;
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $this->logerror($e);
             }
         }
@@ -121,12 +130,14 @@ abstract class AetherSection {
         return $modules;
     }
 
-    private function loadModule($module) {
+    private function loadModule($module)
+    {
         if ($this->cache && array_key_exists('cache', $module) && $module['cache'] > 0) {
             $mCacheName = $this->cacheName . $module['name'] ;
 
-            if (isset($module['provides']))
+            if (isset($module['provides'])) {
                 $mCacheName .= $module['provides'];
+            }
 
             if (array_key_exists('cacheas', $module)) {
                 $mCacheName = $url->get('host') . $module['cacheas'];
@@ -142,18 +153,15 @@ abstract class AetherSection {
                         $mOut = $mod->run();
                         if (is_numeric($mCacheTime) && $mCacheTime > 0) {
                             $this->cache->set($mCacheName, $mOut, $mCacheTime);
-                        }
-                        else {
+                        } else {
                             $this->pageCacheTime = 0;
                         }
-                    }
-                    catch (Exception $e) {
+                    } catch (Exception $e) {
                         $this->logerror($e);
                     }
                 }
             }
-        }
-        else {
+        } else {
             // Module shouldn't be cached, just render it without
             // saving to cache
             if (isset($module['obj'])) {
@@ -161,8 +169,7 @@ abstract class AetherSection {
 
                 try {
                     $mOut = $mod->run();
-                }
-                catch (Exception $e) {
+                } catch (Exception $e) {
                     $this->logerror($e);
                     return false;
                 }
@@ -185,7 +192,8 @@ abstract class AetherSection {
      * @return string
      * @param array $tplVars
      */
-    protected function renderModules($tplVars = array()) {
+    protected function renderModules($tplVars = array())
+    {
         $timer = $this->sl->get('timer');
         if ($timer) {
             // Timer
@@ -202,19 +210,21 @@ abstract class AetherSection {
         $url = $this->sl->get('parsedUrl');
         if ($this->cache) {
             $cacheas = $config->getCacheName();
-            if ($cacheas != false)
+            if ($cacheas != false) {
                 $this->cacheName = $url->get('host') . '_' . $cacheas;
-            else
+            } else {
                 $this->cacheName = $url->cacheName();
+            }
 
             $this->pageCacheTime = $config->getCacheTime();
-            if ($this->pageCacheTime === false)
+            if ($this->pageCacheTime === false) {
                 $this->pageCacheTime = 0;
+            }
 
-            if ($url->get('query') != "")
+            if ($url->get('query') != "") {
                 $cacheable = false;
-        }
-        else {
+            }
+        } else {
             $this->pageCacheTime = 0;
         }
 
@@ -251,8 +261,9 @@ abstract class AetherSection {
          * we're in test mode and thus showing timing
          * information
          */
-        if (isset($timer) AND is_object($timer))
+        if (isset($timer) and is_object($timer)) {
             $timer->tick('module_run', 'read_config');
+        }
 
         /**
          * Render page
@@ -271,8 +282,9 @@ abstract class AetherSection {
                 foreach ($modules as &$module) {
                     // If module should be cached, handle it
                     $module = $this->loadModule($module);
-                    if (!$module)
+                    if (!$module) {
                         continue;
+                    }
 
                     /**
                      * Support multiple modules of same type by
@@ -290,30 +302,28 @@ abstract class AetherSection {
                      * we're in test mode and thus showing timing
                      * information
                      */
-                    if (isset($timer) AND is_object($timer)) {
-
+                    if (isset($timer) and is_object($timer)) {
                         $timer->tick('module_run', $modId);
                     }
                 }
             }
 
             foreach ($config->getFragments() as $frag) {
-                foreach (array_keys($frag['modules']) as $mod)
+                foreach (array_keys($frag['modules']) as $mod) {
                     $tpl->set($modules[$mod]['provides'], $modules[$mod]['output']);
+                }
                 $this->provide($frag['provides'], $tpl->fetch($frag['template']));
             }
             if (!isset($tplInfo['name']) || strlen($tplInfo['name']) === 0) {
                 throw new AetherConfigErrorException("Template not specified for url: " . (string)$url);
-            }
-            else {
+            } else {
                 $output = $tpl->fetch($tplInfo['name']);
             }
 
             if ($cachePages && $cacheable && $this->pageCacheTime > 0) {
                 $this->cache->set($this->cacheName, $output, $this->pageCacheTime);
             }
-        }
-        else {
+        } else {
             $output = $this->cache->get($this->cacheName);
         }
 
@@ -328,8 +338,9 @@ abstract class AetherSection {
          * we're in test mode and thus showing timing
          * information
          */
-        if (isset($timer) AND is_object($timer))
+        if (isset($timer) and is_object($timer)) {
             $timer->end('module_run');
+        }
         // Return output
         return $output;
     }
@@ -355,7 +366,8 @@ abstract class AetherSection {
      * @param string $moduleName
      * @param string $serviceName Name of service
      */
-    public function service($name, $serviceName, $type = 'module') {
+    public function service($name, $serviceName, $type = 'module')
+    {
         // Locate module containing service
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
@@ -369,8 +381,7 @@ abstract class AetherSection {
         if ($type == 'fragment') {
             $fragment = $config->getFragments($name);
             $moduleNames = isset($fragment['modules']) ? array_keys($fragment['modules']) : [];
-        }
-        else {
+        } else {
             $moduleNames = [ $name ];
         }
 
@@ -378,28 +389,29 @@ abstract class AetherSection {
         $mod = null;
         $modules = [];
         $configModules = $config->getModules();
-        $configModuleNames = array_map(function ($mod) { return $mod['name']; }, $configModules);
+        $configModuleNames = array_map(function ($mod) {
+            return $mod['name'];
+        }, $configModules);
         foreach ($moduleNames as $moduleName) {
             if (isset($configModules[$moduleName])) {
                 $module = $configModules[$moduleName];
-            }
-            elseif (in_array($moduleName, $configModuleNames)) {
+            } elseif (in_array($moduleName, $configModuleNames)) {
                 foreach ($configModules as $m) {
                     if ($m['name'] == $moduleName) {
                         $module = $m;
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 $module = array('name' => $moduleName);
             }
 
-            if (!isset($module['options']))
+            if (!isset($module['options'])) {
                 $module['options'] = array();
+            }
             $opts = $module['options'] + $options;
             if (array_key_exists('session', $opts)
-                        AND $opts['session'] == 'on') {
+                        and $opts['session'] == 'on') {
                 session_start();
             }
             // Get module object
@@ -407,8 +419,7 @@ abstract class AetherSection {
             if ($type == 'module') {
                 $modules = [ $mod ];
                 break;
-            }
-            else {
+            } else {
                 $modules[$moduleName] = $mod;
             }
         }
@@ -419,17 +430,14 @@ abstract class AetherSection {
                 // Run service
                 if ($type == 'module') {
                     return $mod->service($serviceName);
-                }
-                else {
+                } else {
                     if ($serviceName === null) {
                         $moduleResponses[$id] = new AetherTextResponse($mod->run());
-                    }
-                    else {
+                    } else {
                         $moduleResponses[$id] = $mod->service($serviceName);
                     }
                 }
-            }
-            else {
+            } else {
                 throw new AetherServiceNotFoundException("Service run error: Failed to locate {$type} [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
             }
         }
@@ -444,7 +452,8 @@ abstract class AetherSection {
      * @param string $name
      * @param string $content
      */
-    private function provide($name, $content) {
+    private function provide($name, $content)
+    {
         $vector = $this->sl->getVector('aetherProviders');
         $vector[$name] = $content;
     }
@@ -456,11 +465,13 @@ abstract class AetherSection {
      * @return void
      * @param Exception $e
      */
-    private function logerror($e) {
+    private function logerror($e)
+    {
         trigger_error("Caught exception at " . $e->getFile() . ":" . $e->getLine() . ": " . $e->getMessage() . ", trace: " . str_replace("\n", ", ", $e->getTraceAsString()));
     }
 
-    protected function triggerDefaultRule() {
+    protected function triggerDefaultRule()
+    {
         $config = $this->sl->get('aetherConfig');
         $config->reloadConfigFromDefaultRule();
         $section = AetherSectionFactory::create(

@@ -1,13 +1,14 @@
-<?php // 
+<?php //
 /**
- * 
+ *
  * Super class for templating interface of Aether
- * 
+ *
  * Created: 2009-04-23
  * @author Raymond Julin
  * @package aether
  */
-abstract class AetherTemplate {
+abstract class AetherTemplate
+{
     private $sl = null;
     
     /**
@@ -17,11 +18,11 @@ abstract class AetherTemplate {
      * @param string $engine Name of engine to use
      * @param string AetherServiceLocator $sl
      */
-    public static function get($engine, AetherServiceLocator $sl) {
+    public static function get($engine, AetherServiceLocator $sl)
+    {
         if ($engine == 'smarty') {
             $class = 'AetherTemplateSmarty';
-        }
-        else {
+        } else {
             // Default template engine
             $class = 'AetherTemplateSmarty';
         }
@@ -29,7 +30,7 @@ abstract class AetherTemplate {
     }
     
     /**
-     * Set a template variable 
+     * Set a template variable
      *
      * @return void
      * @param string $key

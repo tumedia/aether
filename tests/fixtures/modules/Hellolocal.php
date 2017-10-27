@@ -1,6 +1,7 @@
 <?php
 
-class Hellolocal extends AetherModule {
+class Hellolocal extends AetherModule
+{
 
     /**
      * Render module
@@ -8,7 +9,8 @@ class Hellolocal extends AetherModule {
      * @access public
      * @return string
      */
-    public function run() {
+    public function run()
+    {
         return 'Hello local';
     }
 }

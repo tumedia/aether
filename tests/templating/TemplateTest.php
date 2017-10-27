@@ -1,7 +1,9 @@
 <?php //
 
-class AetherTemplateTest extends PHPUnit_Framework_TestCase {
-    public function testGetTemplateObject() {
+class AetherTemplateTest extends PHPUnit_Framework_TestCase
+{
+    public function testGetTemplateObject()
+    {
         $sl = new AetherServiceLocator;
         $sl->set('projectRoot', __DIR__.'/templating/');
 

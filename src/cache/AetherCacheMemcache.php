@@ -18,7 +18,8 @@
  * @package Aether
  */
 
-class AetherCacheMemcache extends AetherCache {
+class AetherCacheMemcache extends AetherCache
+{
 
     /**
      * Connection
@@ -33,20 +34,21 @@ class AetherCacheMemcache extends AetherCache {
      * @return bool
      * @param string|array $serversString (list of memcache hosts <host1>:<port>;<host2>:<port>;...)
      */
-    public function __construct($serversString="") {
+    public function __construct($serversString="")
+    {
         if ($serversString) {
             $this->con = new Memcache;
             $tmp = is_array($serversString) ? $serversString : explode(";", $serversString);
             foreach ($tmp as $s) {
-                $hostInfo = explode(":",$s);
+                $hostInfo = explode(":", $s);
                 // Assume default port
-                if (count($hostInfo) == 1)
+                if (count($hostInfo) == 1) {
                     $hostInfo[] = 11211;
+                }
 
                 $this->con->addServer($hostInfo[0], $hostInfo[1], true, 1);
             }
-        }
-        else {
+        } else {
             // Fall back to file cache or whatbnot ?
         }
     }
@@ -59,9 +61,11 @@ class AetherCacheMemcache extends AetherCache {
      * @param int $ttl Time to live
      * @return bool
      */
-    public function set($name, $data, $ttl=false) {
-        if (!is_numeric($ttl))
+    public function set($name, $data, $ttl=false)
+    {
+        if (!is_numeric($ttl)) {
             $ttl = 0;
+        }
 
         $toSave['ttl'] = $ttl;
         $toSave['date'] = time();
@@ -79,12 +83,14 @@ class AetherCacheMemcache extends AetherCache {
      * @param string $name Name of object to save as
      * @param int $maxAge
      */
-    public function get($name, $maxAge = false) {
+    public function get($name, $maxAge = false)
+    {
         //Get data from cache
         $cache = $this->con->get($name);
 
-        if ($cache === false)
+        if ($cache === false) {
             return false;
+        }
 
         $ttl = ($maxAge === false) ? $cache['ttl'] : $maxAge;
 
@@ -92,8 +98,7 @@ class AetherCacheMemcache extends AetherCache {
         if ($ttl == 0 || ($cache['date'] + $ttl > time())) {
             // We want the cache no matter how old it is
             return unserialize($cache['data']);
-        }
-        else if (isset($cache['updateDate'])) {
+        } elseif (isset($cache['updateDate'])) {
             // The cache has expired but someone else is probably generating a
             // new one. We need to check the updateDate if it should time out
             // the attempt or just return old cache while waiting for the
@@ -103,11 +108,10 @@ class AetherCacheMemcache extends AetherCache {
                 $cache['updateDate'] = time();
                 $this->con->set($name, $cache, 0, 0);
                 return false;
-            }
-            else
+            } else {
                 return unserialize($cache['data']);
-        }
-        else {
+            }
+        } else {
             // The cache doesn't exist so we'll assume someone will create it
             // after we return false.  We'll save the time so that this
             // attempt at creating a cache can time out.
@@ -116,7 +120,6 @@ class AetherCacheMemcache extends AetherCache {
             $this->con->set($name, $cache, 0, 0);
             return false;
         }
-
     }
 
     /*
@@ -125,7 +128,8 @@ class AetherCacheMemcache extends AetherCache {
      * @param string $name
      * @return bool
      */
-    public function rm($name) {
+    public function rm($name)
+    {
         return $this->con->delete($name);
     }
 
@@ -137,10 +141,12 @@ class AetherCacheMemcache extends AetherCache {
      * @return bool
      * @param string $name
      */
-    public function has($name) {
-        if ($this->get($name, false) != false)
+    public function has($name)
+    {
+        if ($this->get($name, false) != false) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 }

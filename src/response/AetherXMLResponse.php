@@ -1,15 +1,16 @@
 <?php // vim:set tabstop=4 shiftwidth=4 smarttab expandtab:
 
 /**
- * 
+ *
  * XML Response
- * 
+ *
  * Created: 2007-05-22
  * @author Raymond Julin
  * @package aether.lib
  */
 
-class AetherXMLResponse extends AetherResponse {
+class AetherXMLResponse extends AetherResponse
+{
     
     /**
      * Hold text string for output
@@ -30,7 +31,8 @@ class AetherXMLResponse extends AetherResponse {
      * @return AetherTextResponse
      * @param array $structure
      */
-    public function __construct($structure) {
+    public function __construct($structure)
+    {
         $this->struct = $structure;
     }
     
@@ -41,7 +43,8 @@ class AetherXMLResponse extends AetherResponse {
      * @return void
      * @param AetherServiceLocator $sl
      */
-    public function draw($sl) {
+    public function draw($sl)
+    {
         header("Content-Type: text/xml; charset=UTF-8");
         echo $this->__toXml($this->struct)->saveXML();
     }
@@ -52,7 +55,8 @@ class AetherXMLResponse extends AetherResponse {
      * @access public
      * @return string
      */
-    public function get() {
+    public function get()
+    {
         return $this->__toXml($this->struct)->saveXML();
     }
     
@@ -63,21 +67,22 @@ class AetherXMLResponse extends AetherResponse {
      * @return string
      * @param array $data
      */
-    public function __toXml($data, $element = false, $document=false) {
+    public function __toXml($data, $element = false, $document=false)
+    {
         if (!$document) {
             $document = new DOMDocument('1.0', 'UTF-8');
             $element = $document;
         }
         if (is_array($data)) {
             foreach ($data as $key => $val) {
-                if (is_numeric($key))
+                if (is_numeric($key)) {
                     $key = 'item';
+                }
                 $tmp = $document->createElement($key);
 
                 if (is_array($val)) {
                     $this->__toXml($val, $tmp, $document);
-                }
-                else {
+                } else {
                     $tmp->appendChild($document->createTextNode($val));
                 }
 

@@ -27,7 +27,8 @@
  * @package aether
  */
 
-class Aether {
+class Aether
+{
     /** @var \Aether */
     protected static $globalInstance;
 
@@ -84,7 +85,8 @@ class Aether {
      * @return Aether
      * @param string $configPath Optional path to the configuration file for the project
      */
-    public function __construct($configPath=false) {
+    public function __construct($configPath=false)
+    {
         static::setInstance($this);
 
         self::$aetherPath = pathinfo(__FILE__, PATHINFO_DIRNAME) . "/";
@@ -119,8 +121,9 @@ class Aether {
             $this->installSentry();
         }
 
-        if (!defined("PROJECT_PATH"))
+        if (!defined("PROJECT_PATH")) {
             define("PROJECT_PATH", $projectPath);
+        }
 
         $paths = array(
             $configPath,
@@ -128,23 +131,22 @@ class Aether {
             $projectPath . 'config/aether.config.xml'
         );
         foreach ($paths as $configPath) {
-            if (file_exists($configPath))
+            if (file_exists($configPath)) {
                 break;
+            }
         }
         try {
             $config = new AetherConfig($configPath);
             $config->matchUrl($parsedUrl);
             $this->sl->set('aetherConfig', $config);
-        }
-        catch (AetherMissingFileException $e) {
+        } catch (AetherMissingFileException $e) {
             /**
              * This means that someone forgot to ensure the config
              * file actually exists
              */
             $msg = "No configuration file for project found: " . $e->getMessage();
             throw new Exception($msg);
-        }
-        catch (AetherNoUrlRuleMatchException $e) {
+        } catch (AetherNoUrlRuleMatchException $e) {
             /**
              * This means parsing of configuration file failed
              * by the simple fact that no rules matches
@@ -180,8 +182,9 @@ class Aether {
         $magic['runningMode'] = $options['AetherRunningMode'];
         $magic['requestUri'] = $_SERVER['REQUEST_URI'];
         $magic['domain'] = $_SERVER['HTTP_HOST'];
-        if (isset($_SERVER['HTTP_REFERER']))
+        if (isset($_SERVER['HTTP_REFERER'])) {
             $magic['referer'] = $_SERVER['HTTP_REFERER'];
+        }
         $magic['options'] = $options;
 
         /*
@@ -201,10 +204,10 @@ class Aether {
                 $this->sl
             );
             $this->sl->set('section', $this->section);
-            if (isset($timer))
+            if (isset($timer)) {
                 $timer->tick('aether_main', 'section_initiate');
-        }
-        catch (Exception $e) {
+            }
+        } catch (Exception $e) {
             // Failed to load section, what to do?
             throw new Exception('Failed horribly: ' . $e->getMessage());
         }
@@ -217,7 +220,8 @@ class Aether {
      * @access public
      * @return string
      */
-    public function render() {
+    public function render()
+    {
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
 
@@ -228,16 +232,13 @@ class Aether {
             $response = $this->section->service($_GET['module'], $_GET['service']);
             if (!is_object($response) || !($response instanceof AetherResponse)) {
                 trigger_error("Expected " . preg_replace("/[^A-z0-9]+/", "", $_GET['module']) . "::service() to return an AetherResponse object." . (isset($_SERVER['HTTP_REFERER']) ? " Referer: " . $_SERVER['HTTP_REFERER'] : ""), E_USER_WARNING);
-            }
-            else {
+            } else {
                 $response->draw($this->sl);
             }
-        }
-        else if (isset($_GET['fragment']) && isset($_GET['service'])) {
+        } elseif (isset($_GET['fragment']) && isset($_GET['service'])) {
             $response = $this->section->service($_GET['fragment'], ($_GET['service'] !== "_esi" ? $_GET['service'] : null), 'fragment');
             $response->draw($this->sl);
-        }
-        else if (isset($_GET['_esi'])) {
+        } elseif (isset($_GET['_esi'])) {
             /**
              * ESI support and rendering of only one module by provider name
              * # _esi to list
@@ -258,8 +259,7 @@ class Aether {
                     textdomain($localeDomain);
                 }
                 $this->section->renderProviderWithCacheHeaders($_GET['_esi']);
-            }
-            else {
+            } else {
                 $modules = $config->getModules();
                 $fragments = $config->getFragments();
                 $providers = array();
@@ -281,14 +281,13 @@ class Aether {
                 $response = new AetherJSONResponse(array('providers' => $providers));
                 $response->draw($this->sl);
             }
-        }
-        else {
+        } else {
             /**
              * Start session if session switch is turned on in
              * configuration file
              */
             if (array_key_exists('session', $options)
-                    AND $options['session'] == 'on') {
+                    and $options['session'] == 'on') {
                 session_start();
             }
 
@@ -307,11 +306,13 @@ class Aether {
         return $this->sl;
     }
 
-    private function getCacheObject($class, $options) {
+    private function getCacheObject($class, $options)
+    {
         if (class_exists($class)) {
             $obj = new $class($options);
-            if ($obj instanceof AetherCache)
+            if ($obj instanceof AetherCache) {
                 return $obj;
+            }
         }
         return false;
     }

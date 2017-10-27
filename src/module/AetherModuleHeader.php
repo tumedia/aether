@@ -1,17 +1,18 @@
 <?php // vim:set tabstop=4 shiftwidth=4 smarttab expandtab:
 /**
- * 
+ *
  * Base definition of a header module
  * Theres quite a bit common code every header type module
  * would want to implement so its done here.
  * Remember to extend this class!
- * 
+ *
  * Created: 2007-05-16
  * @author Raymond Julin
  * @package aether.lib
  */
 
-abstract class AetherModuleHeader extends AetherModule {
+abstract class AetherModuleHeader extends AetherModule
+{
     /**
      * Apply common variables to the header template
      * Common variables include:
@@ -22,15 +23,17 @@ abstract class AetherModuleHeader extends AetherModule {
      * @access protected
      * @return void
      * @param Template $tpl
-     * @param boolean $options 
+     * @param boolean $options
      */
-    protected function applyCommonVariables($tpl, $options = false) {
+    protected function applyCommonVariables($tpl, $options = false)
+    {
         $config = $this->sl->get('aetherConfig');
 
-        if (!$options) 
+        if (!$options) {
             $options = $config->getOptions();
+        }
 
-        $tpl->set('urlbase', $config->getBase()); 
+        $tpl->set('urlbase', $config->getBase());
         // Stylesheets. Read from config and code
         $styles = array();
         if (array_key_exists('styles', $options)) {

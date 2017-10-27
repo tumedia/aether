@@ -1,14 +1,15 @@
 <?php // vim:set ts=4 sw=4 et:
 /**
- * 
+ *
  * Textual response
- * 
+ *
  * Created: 2007-02-05
  * @author Raymond Julin
  * @package aether.lib
  */
 
-class AetherTextResponse extends AetherResponse {
+class AetherTextResponse extends AetherResponse
+{
     
     /**
      * Hold text string for output
@@ -24,7 +25,8 @@ class AetherTextResponse extends AetherResponse {
      * @return AetherTextResponse
      * @param string $output
      */
-    public function __construct($output, $contentType = null) {
+    public function __construct($output, $contentType = null)
+    {
         $this->out = $output;
         $this->contentType = $contentType;
     }
@@ -36,9 +38,11 @@ class AetherTextResponse extends AetherResponse {
      * @return void
      * @param AetherServiceLocator $sl
      */
-    public function draw($sl) {
-        if (session_id() !== '')
+    public function draw($sl)
+    {
+        if (session_id() !== '') {
             $_SESSION['wasGoingTo'] = $_SERVER['REQUEST_URI'];
+        }
         $timer = $sl->get('timer');
         if ($timer) {
             // Timer
@@ -49,19 +53,22 @@ class AetherTextResponse extends AetherResponse {
             $timers = $timer->all();
             foreach ($timers as $key => $tr) {
                 foreach ($tr as $k => $t) {
-                    if (!array_key_exists('elapsed', $t))
+                    if (!array_key_exists('elapsed', $t)) {
                         $t['elapsed'] = 0;
+                    }
                     $timers[$key][$k]['elapsed'] = number_format($t['elapsed'], 4);
                     // Format memory
                     if (isset($t['memory'])) {
                         $memLen = strlen($t['memory']);
                         $memUse = $t['memory'];
-                        if ($memLen > 9)
-                            $memUse = round($memUse / (1000*1000*1000),1) . "GB";
-                        if ($memLen > 6)
-                            $memUse = round($memUse / (1000*1000),1) . "MB";
-                        elseif ($memLen > 3)
-                            $memUse = round($memUse / (1000),1) . "KB";
+                        if ($memLen > 9) {
+                            $memUse = round($memUse / (1000*1000*1000), 1) . "GB";
+                        }
+                        if ($memLen > 6) {
+                            $memUse = round($memUse / (1000*1000), 1) . "MB";
+                        } elseif ($memLen > 3) {
+                            $memUse = round($memUse / (1000), 1) . "KB";
+                        }
                         $timers[$key][$k]['mem_use'] = $memUse;
                     }
                 }
@@ -69,20 +76,21 @@ class AetherTextResponse extends AetherResponse {
             $tpl->set('timers', $timers);
             try {
                 $out = $tpl->fetch('debugBar.tpl');
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 echo $e;
             }
             $out = str_replace(
                 "<!--INSERTIONPOINT-->",
-                $out, $this->out);
-        }
-        else {
+                $out,
+                $this->out
+            );
+        } else {
             // No timing, we're in prod
             $out = $this->out;
         }
-        if ($this->contentType)
+        if ($this->contentType) {
             header("Content-Type: {$this->contentType}; charset=UTF-8");
+        }
         echo $out;
     }
     
@@ -92,7 +100,8 @@ class AetherTextResponse extends AetherResponse {
      * @access public
      * @return string
      */
-    public function get() {
+    public function get()
+    {
         return $this->out;
     }
 }

@@ -1,6 +1,7 @@
 <?php // vim:set ts=4 sw=4 et:
 
-class Testsection extends AetherSection {
+class Testsection extends AetherSection
+{
 
     /**
      * Return response
@@ -8,13 +9,13 @@ class Testsection extends AetherSection {
      * @access public
      * @return AetherResponse
      */
-    public function response() {
+    public function response()
+    {
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
 
         if (!empty($options['id']) &&
-            $options['id'] == 'invalid')
-        {
+            $options['id'] == 'invalid') {
             return $this->triggerDefaultRule();
         }
 

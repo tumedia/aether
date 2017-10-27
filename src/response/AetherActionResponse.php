@@ -1,14 +1,15 @@
 <?php // vim:set ts=4 sw=4 et:
 /**
- * 
+ *
  * Action response
- * 
+ *
  * Created: 2007-02-07
  * @author Raymond Julin
  * @package aether.lib
  */
 
-class AetherActionResponse extends AetherResponse {
+class AetherActionResponse extends AetherResponse
+{
     /**
      * Constructor
      *
@@ -17,7 +18,8 @@ class AetherActionResponse extends AetherResponse {
      * @param string $statusCode HTTP Status code for this response
      * @param string $data Optional text for 404 or url for redirect
      */
-    public function __construct($statusCode, $data = "") {
+    public function __construct($statusCode, $data = "")
+    {
         $this->statusCode = $statusCode;
         $this->data = $data;
     }
@@ -26,13 +28,14 @@ class AetherActionResponse extends AetherResponse {
      * Perform action response.
      * This will set a http header (301,302,401,404)
      * as well as perform a location or status response
-     * accordingly 
+     * accordingly
      *
      * @access public
      * @return void
      * @param AetherServiceLocator $sl
      */
-    public function draw($sl) {
+    public function draw($sl)
+    {
         switch ($this->statusCode) {
             case 301: // Moved permanently
                 header("HTTP/1.1 301 Moved Permanently");
@@ -73,8 +76,8 @@ class AetherActionResponse extends AetherResponse {
      * @access public
      * @return string
      */
-    public function get() {
+    public function get()
+    {
         return $this->data;
     }
 }
-

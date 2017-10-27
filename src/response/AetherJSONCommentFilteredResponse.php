@@ -1,14 +1,15 @@
 <?php // vim:set ts=4 sw=4 et:
 /**
- * 
+ *
  * JSON response
- * 
+ *
  * Created: 2008-10-23
  * @author Raymond Julin
  * @package aether.lib
  */
 
-class AetherJSONCommentFilteredResponse extends AetherResponse {
+class AetherJSONCommentFilteredResponse extends AetherResponse
+{
     
     /**
      * Hold text string for output
@@ -29,7 +30,8 @@ class AetherJSONCommentFilteredResponse extends AetherResponse {
      * @return AetherJSONResponse
      * @param array $structure
      */
-    public function __construct($structure) {
+    public function __construct($structure)
+    {
         $this->struct = $structure;
     }
     
@@ -40,7 +42,8 @@ class AetherJSONCommentFilteredResponse extends AetherResponse {
      * @return void
      * @param AetherServiceLocator $sl
      */
-    public function draw($sl) {
+    public function draw($sl)
+    {
         echo $this->get();
     }
     
@@ -50,7 +53,8 @@ class AetherJSONCommentFilteredResponse extends AetherResponse {
      * @access public
      * @return string
      */
-    public function get() {
+    public function get()
+    {
         return "/* " . json_encode($this->struct) . " */";
     }
 }

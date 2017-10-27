@@ -1,15 +1,16 @@
 
 <?php // vim:set ts=4 sw=4 et:
 /**
- * 
+ *
  * Fragment response
- * 
+ *
  * Created: 2014-06-05
  * @author Simen Graaten
  * @package aether.lib
  */
 
-class AetherFragmentResponse extends AetherResponse {
+class AetherFragmentResponse extends AetherResponse
+{
     
     /**
      * Modules in this fragment
@@ -17,7 +18,8 @@ class AetherFragmentResponse extends AetherResponse {
     private $modules;
     
     
-    public function __construct($moduleResponses) {
+    public function __construct($moduleResponses)
+    {
         $this->moduleResponses = $moduleResponses;
     }
     
@@ -28,7 +30,8 @@ class AetherFragmentResponse extends AetherResponse {
      * @return void
      * @param AetherServiceLocator $sl
      */
-    public function draw($sl) {
+    public function draw($sl)
+    {
         header("Content-Type: application/json; charset=UTF-8");
         echo json_encode($this->get());
     }
@@ -39,11 +42,14 @@ class AetherFragmentResponse extends AetherResponse {
      * @access public
      * @return string
      */
-    public function get() {
+    public function get()
+    {
         $out = [];
-        foreach ($this->moduleResponses as $id => $resp) 
-            if ($resp)
+        foreach ($this->moduleResponses as $id => $resp) {
+            if ($resp) {
                 $out[$id] = $resp->get();
+            }
+        }
         return $out;
     }
 }
