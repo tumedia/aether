@@ -1,10 +1,5 @@
 <?php
 
-$finder = PhpCsFixer\Finder::create()->in(__DIR__);
-
-/**
- * @see http://cs.sensiolabs.org/
- */
-return PhpCsFixer\Config::create()->setFinder($finder)->setRules([
-    '@PSR2' => true,
-]);
+return Tumedia\CS\Config::tap(function ($config) {
+    $config->getFinder()->in(__DIR__);
+});
