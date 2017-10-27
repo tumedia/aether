@@ -5,3 +5,4 @@ tests/templating/templates/compiled/*
 *.swp
 composer.lock
 vendor/
+.php_cs.cache
