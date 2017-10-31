@@ -1,20 +1,23 @@
-<?php // vim:set ts=4 sw=4 et:
+<?php
 
-class AetherSectionFactoryTest extends PHPUnit_Framework_TestCase
+namespace Tests;
+
+use AetherSection;
+use AetherSectionFactory;
+use AetherServiceLocator;
+use PHPUnit\Framework\TestCase;
+use Tests\Fixtures\Sections\Testsection;
+
+class SectionFactoryTest extends TestCase
 {
-    public function testEnvironment()
-    {
-        $this->assertTrue(class_exists('AetherSectionFactory'));
-    }
-
     public function testCreate()
     {
         $section = AetherSectionFactory::create(
-            'Testsection',
+            Testsection::class,
             new AetherServiceLocator
         );
 
-        $this->assertTrue(is_subclass_of($section, 'AetherSection'));
-        $this->assertEquals(get_class($section), 'Testsection');
+        $this->assertTrue(is_subclass_of($section, AetherSection::class));
+        $this->assertEquals(get_class($section), Testsection::class);
     }
 }

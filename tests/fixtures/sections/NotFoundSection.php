@@ -1,5 +1,10 @@
 <?php
 
+namespace Tests\Fixtures\Sections;
+
+use AetherSection;
+use AetherTextResponse;
+
 class NotFoundSection extends AetherSection
 {
     public $options;
@@ -7,7 +12,6 @@ class NotFoundSection extends AetherSection
     /**
      * Return response
      *
-     * @access public
      * @return AetherResponse
      */
     public function response()

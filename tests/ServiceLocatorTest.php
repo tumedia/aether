@@ -1,29 +1,33 @@
-<?php // vim:set ts=4 sw=4 et:
+<?php
 
-class AetherServiceLocatorTest extends PHPUnit_Framework_TestCase
+namespace Tests;
+
+use AetherServiceLocator;
+use PHPUnit\Framework\TestCase;
+
+class ServiceLocatorTest extends TestCase
 {
-    public function testEnvironment()
-    {
-        $this->assertTrue(class_exists('AetherServiceLocator'));
-    }
-
     public function testCustomObjectStorage()
     {
-        // Create a small class for testing
-        $obj = new stdClass;
-        $obj->foo = 'bar';
-        $asl = new AetherServiceLocator;
-        $asl->set('tester', $obj);
-        $tester = $asl->get('tester');
-        $this->assertSame($tester, $obj);
+        $object = (object)[
+            'foo' => 'bar',
+        ];
+
+        $sl = new AetherServiceLocator;
+        $sl->set('tester', $object);
+
+        $this->assertSame($object, $sl->get('tester'));
     }
 
     public function testArray()
     {
-        $asl = new AetherServiceLocator;
-        $arr = $asl->getVector('foo');
+        $sl = new AetherServiceLocator;
+
+        $arr = $sl->getVector('foo');
         $arr['foo'] = 'bar';
-        $arr2 = $asl->getVector('foo');
+
+        $arr2 = $sl->getVector('foo');
+
         $this->assertEquals($arr['foo'], $arr2['foo']);
     }
 }

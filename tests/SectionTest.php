@@ -1,10 +1,32 @@
 <?php
 
-class AetherSectionTest extends PHPUnit_Framework_TestCase
+namespace Tests;
+
+use AetherConfig;
+use AetherUrlParser;
+use AetherTextResponse;
+use AetherSectionFactory;
+use AetherServiceLocator;
+use PHPUnit\Framework\TestCase;
+use Tests\Fixtures\Sections\Testsection;
+
+class SectionTest extends TestCase
 {
-    private function getConfig()
+    public function testSectionCan404()
     {
-        return new AetherConfig(__DIR__.'/fixtures/aether.config.xml');
+        $sl = new AetherServiceLocator;
+        $config = $this->getLoadedConfig('http://raw.no/unittest/goodtimes/nay');
+        $sl->set('aetherConfig', $config);
+
+        $section = AetherSectionFactory::create(
+            Testsection::class,
+            $sl
+        );
+
+        $response = $section->response();
+        $this->assertTrue($response instanceof AetherTextResponse);
+        $this->assertEquals('404 Eg fant han ikkje', $response->get(), 'Response should be NotFoundSection\'s output');
+        $this->assertArrayNotHasKey('id', $response->options, 'Options should be cleared when reloading config');
     }
 
     private function getLoadedConfig($url)
@@ -18,20 +40,8 @@ class AetherSectionTest extends PHPUnit_Framework_TestCase
         return $conf;
     }
 
-    public function testSectionCan404()
+    private function getConfig()
     {
-        $sl = new AetherServiceLocator;
-        $config = $this->getLoadedConfig('http://raw.no/unittest/goodtimes/nay');
-        $sl->set('aetherConfig', $config);
-
-        $section = AetherSectionFactory::create(
-            'Testsection',
-            $sl
-        );
-
-        $response = $section->response();
-        $this->assertTrue($response instanceof AetherTextResponse);
-        $this->assertEquals('404 Eg fant han ikkje', $response->get(), 'Response should be NotFoundSection\'s output');
-        $this->assertArrayNotHasKey('id', $response->options, 'Options should be cleared when reloading config');
+        return new AetherConfig(__DIR__.'/Fixtures/aether.config.xml');
     }
 }

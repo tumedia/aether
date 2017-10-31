@@ -1,12 +1,14 @@
 <?php
 
+namespace Tests\Fixtures\Modules;
+
+use AetherModule;
+
 class Hellolocal extends AetherModule
 {
-
     /**
      * Render module
      *
-     * @access public
      * @return string
      */
     public function run()

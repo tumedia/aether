@@ -1,56 +1,37 @@
-<?php // vim:set ts=4 sw=4 et:
+<?php
 
-class AetherConfigTest extends PHPUnit_Framework_TestCase
+namespace Tests;
+
+use AetherConfig;
+use AetherUrlParser;
+use PHPUnit\Framework\TestCase;
+use Tests\Fixtures\Sections\NotFoundSection;
+
+class ConfigTest extends TestCase
 {
-    private function getConfig()
-    {
-        return new AetherConfig(__DIR__.'/fixtures/aether.config.xml');
-    }
-
-    public function testEnvironment()
-    {
-        $this->assertTrue(class_exists('AetherConfig'));
-    }
-
-    private function getLoadedConfig($url)
-    {
-        $aetherUrl = new AetherUrlParser;
-        $aetherUrl->parse($url);
-
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-
-        return $conf;
-    }
-
-    private function getOptionsForUrl($url)
-    {
-        $config = $this->getLoadedConfig($url);
-        return $config->getOptions();
-    }
-
     public function testConfigReadDefault()
     {
-        $conf = $this->getLoadedConfig('http://raw.no/unittest');
-        $opts = $conf->getOptions();
-        $this->assertEquals('Generic', $conf->getSection());
-        $this->assertEquals('yes', $opts['def']);
+        $config = $this->getLoadedConfig('http://raw.no/unittest');
+        $options = $config->getOptions();
+
+        $this->assertEquals('Generic', $config->getSection());
+        $this->assertEquals('yes', $options['def']);
     }
 
     public function testConfigReadDefaultBase()
     {
-        $conf = $this->getLoadedConfig('http://raw.no/fluff');
-        $opts = $conf->getOptions();
+        $config = $this->getLoadedConfig('http://raw.no/fluff');
+        $options = $config->getOptions();
 
-        $this->assertEquals($conf->getSection(), 'Generic');
-        $this->assertEquals($opts['foobar'], 'yes');
+        $this->assertEquals($config->getSection(), 'Generic');
+        $this->assertEquals($options['foobar'], 'yes');
     }
 
     public function testConfigAssembleOptionsCorrectly()
     {
-        $conf = $this->getLoadedConfig('http://raw.no/unittest/foo');
+        $config = $this->getLoadedConfig('http://raw.no/unittest/foo');
 
-        $modules = $conf->getModules();
+        $modules = $config->getModules();
         $this->assertArrayHasKey('HelloWorld', $modules, 'Module must exist');
 
         $module = $modules['HelloWorld'];
@@ -68,72 +49,93 @@ class AetherConfigTest extends PHPUnit_Framework_TestCase
 
     public function testConfigFallbackToRootWhenOneMatchEmpty()
     {
-        $opts = $this->getOptionsForUrl('http://raw.no/empty/fluff');
-        $this->assertEquals('yes', $opts['foobar']);
+        $options = $this->getOptionsForUrl('http://raw.no/empty/fluff');
+        $this->assertEquals('yes', $options['foobar']);
     }
 
     public function testConfigFallbackToRootDefault()
     {
-        $opts = $this->getOptionsForUrl('http://raw.no/bar/foo/bar');
+        $options = $this->getOptionsForUrl('http://raw.no/bar/foo/bar');
 
-        $this->assertEquals('yes', $opts['foobar']);
+        $this->assertEquals('yes', $options['foobar']);
     }
 
     public function testConfigFallbackToDefaultSite()
     {
-        $opts = $this->getOptionsForUrl('http://foo.no/unittest');
-        $this->assertEquals('fallback-site', $opts['sitename']);
+        $options = $this->getOptionsForUrl('http://foo.no/unittest');
+        $this->assertEquals('fallback-site', $options['sitename']);
     }
 
     public function testMatchWithPlusInItWorks()
     {
-        $opts = $this->getOptionsForUrl('http://raw.no/unittest/foo/a+b');
-        $this->assertEquals('yes', $opts['plusm']);
+        $options = $this->getOptionsForUrl('http://raw.no/unittest/foo/a+b');
+        $this->assertEquals('yes', $options['plusm']);
     }
 
     public function testMatchWithMinusInItWorks()
     {
         $category = 'hifi-produkter';
-        $conf = $this->getLoadedConfig("http://raw.no/unittest/{$category}");
-        $this->assertTrue($conf->hasUrlVar('catName'));
-        $this->assertEquals($category, $conf->getUrlVariable('catName'));
+        $config = $this->getLoadedConfig("http://raw.no/unittest/{$category}");
+        $this->assertTrue($config->hasUrlVar('catName'));
+        $this->assertEquals($category, $config->getUrlVariable('catName'));
     }
 
     public function testConfigReset()
     {
-        $conf = $this->getLoadedConfig("http://raw.no/unittest/goodtimes");
-        $conf->resetRuleConfig();
+        $config = $this->getLoadedConfig("http://raw.no/unittest/goodtimes");
+        $config->resetRuleConfig();
 
-        $this->assertEmpty($conf->getOptions());
-        $this->assertNull($conf->getSection());
+        $this->assertEmpty($config->getOptions());
+        $this->assertNull($config->getSection());
     }
 
     public function testTriggeredFallbackToDefaultRule()
     {
-        $conf = $this->getLoadedConfig("http://raw.no/unittest/goodtimes/nay");
-        $conf->reloadConfigFromDefaultRule();
+        $config = $this->getLoadedConfig("http://raw.no/unittest/goodtimes/nay");
+        $config->reloadConfigFromDefaultRule();
 
-        $this->assertEquals('NotFoundSection', $conf->getSection());
+        $this->assertEquals(NotFoundSection::class, $config->getSection());
     }
 
     public function testBooleanTypeCasting()
     {
-        $opts = $this->getOptionsForUrl('http://foobar.com/bool-casting');
+        $options = $this->getOptionsForUrl('http://foobar.com/bool-casting');
 
-        $this->assertTrue($opts['shouldBeTrue']);
-        $this->assertFalse($opts['shouldBeFalse']);
+        $this->assertTrue($options['shouldBeTrue']);
+        $this->assertFalse($options['shouldBeFalse']);
 
-        $this->assertSame($opts['shouldBeTrueString'], 'true');
-        $this->assertSame($opts['shouldBeFalseString'], 'false');
+        $this->assertSame($options['shouldBeTrueString'], 'true');
+        $this->assertSame($options['shouldBeFalseString'], 'false');
     }
 
     public function testBooleanTypeCastingInModules()
     {
-        $conf = $this->getLoadedConfig('http://foobar.com/bool-casting');
-        $module = current($conf->getModules());
-        $opts = $module['options'];
+        $config = $this->getLoadedConfig('http://foobar.com/bool-casting');
+        $module = current($config->getModules());
+        $options = $module['options'];
 
-        $this->assertTrue($opts['fisk']);
-        $this->assertFalse($opts['ananas']);
+        $this->assertTrue($options['fisk']);
+        $this->assertFalse($options['ananas']);
+    }
+
+    private function getConfig()
+    {
+        return new AetherConfig(__DIR__.'/Fixtures/aether.config.xml');
+    }
+
+    private function getLoadedConfig($url)
+    {
+        $aetherUrl = new AetherUrlParser;
+        $aetherUrl->parse($url);
+
+        $config = $this->getConfig();
+        $config->matchUrl($aetherUrl);
+
+        return $config;
+    }
+
+    private function getOptionsForUrl($url)
+    {
+        return $this->getLoadedConfig($url)->getOptions();
     }
 }

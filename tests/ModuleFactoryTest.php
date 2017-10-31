@@ -1,20 +1,22 @@
-<?php // vim:set ts=4 sw=4 et:
+<?php
 
-class AetherModuleFactoryTest extends PHPUnit_Framework_TestCase
+namespace Tests;
+
+use AetherModuleFactory;
+use AetherServiceLocator;
+use PHPUnit\Framework\TestCase;
+use Tests\Fixtures\Modules\Hellolocal;
+
+class ModuleFactoryTest extends TestCase
 {
-    public function testEnvironment()
-    {
-        $this->assertTrue(class_exists('AetherModuleFactory'));
-    }
-
     public function testCreate()
     {
         $mod = AetherModuleFactory::create(
-            'Hellolocal',
+            Hellolocal::class,
             new AetherServiceLocator,
             ['foo' => 'bar']
         );
 
-        $this->assertEquals($mod->run(), 'Hello local');
+        $this->assertEquals('Hello local', $mod->run());
     }
 }

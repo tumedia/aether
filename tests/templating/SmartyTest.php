@@ -1,37 +1,50 @@
-<?php //
+<?php
 
-class SmartyIntegratesWithAetherTest extends PHPUnit_Framework_TestCase
+namespace Tests\Templating;
+
+use AetherConfig;
+use AetherServiceLocator;
+use PHPUnit\Framework\TestCase;
+
+class SmartyTest extends TestCase
 {
-    public function getTemplateEngine()
+    public function testGetSmartyEngine()
     {
-        // Go through SL
+        $tpl = $this->getTemplateEngine(['foo' => [
+            'a' => 'hello',
+            'b' => 'world',
+        ]]);
+
+        $this->assertContains('hello world', $tpl->fetch('test.tpl'));
+    }
+
+    public function testTemplateExists()
+    {
+        $tpl = $this->getTemplateEngine();
+
+        $this->assertTrue($tpl->templateExists('test.tpl'));
+        $this->assertFalse($tpl->templateExists('martin.tpl'));
+    }
+
+    protected function tearDown()
+    {
+        array_map('unlink', glob(__DIR__ . '/templates/compiled/*.php'));
+    }
+
+    private function getTemplateEngine(array $data = [])
+    {
         $sl = new AetherServiceLocator;
         $sl->set('projectRoot', __DIR__ . '/');
 
         $config = new AetherConfig('./aether.config.xml');
         $sl->set('aetherConfig', $config);
 
-        // Fetch smarty
-        return $sl->getTemplate();
-    }
+        $tpl = $sl->getTemplate();
 
-    public function testGetSmartyEngine()
-    {
-        $tpl = $this->getTemplateEngine();
-        $tpl->set('foo', array('a'=>'hello','b'=>'world'));
-        $out = $tpl->fetch('test.tpl');
-        $this->assertTrue(substr_count($out, 'hello world') > 0);
-    }
+        foreach ($data as $key => $value) {
+            $tpl->set($key, $value);
+        }
 
-    public function testTemplateExists()
-    {
-        $tpl = $this->getTemplateEngine();
-        $this->assertTrue($tpl->templateExists('test.tpl'));
-        $this->assertFalse($tpl->templateExists('martin.tpl'));
-    }
-
-    public function tearDown()
-    {
-        array_map('unlink', glob(__DIR__ . '/templates/compiled/*.php'));
+        return $tpl;
     }
 }

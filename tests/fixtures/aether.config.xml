@@ -51,13 +51,13 @@
                 </rule>
 
                 <rule match="goodtimes">
-                    <section>Testsection</section>
+                    <section>Tests\Fixtures\Sections\Testsection</section>
                     <rule match="nay">
                         <option name="id">invalid</option>
                     </rule>
 
                     <rule default="true">
-                        <section>NotFoundSection</section>
+                        <section>Tests\Fixtures\Sections\NotFoundSection</section>
                     </rule>
                 </rule>
 

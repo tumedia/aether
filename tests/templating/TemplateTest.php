@@ -1,6 +1,13 @@
-<?php //
+<?php
 
-class AetherTemplateTest extends PHPUnit_Framework_TestCase
+namespace Tests\Templating;
+
+use AetherConfig;
+use AetherServiceLocator;
+use AetherTemplateSmarty;
+use PHPUnit\Framework\TestCase;
+
+class TemplateTest extends TestCase
 {
     public function testGetTemplateObject()
     {

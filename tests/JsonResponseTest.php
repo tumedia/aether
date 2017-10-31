@@ -1,18 +1,21 @@
-<?php // vim:set ts=4 sw=4 et:
+<?php
 
-class AetherJsonResponseTest extends PHPUnit_Framework_TestCase
+namespace Tests;
+
+use AetherJSONResponse;
+use PHPUnit\Framework\TestCase;
+
+class JsonResponseTest extends TestCase
 {
-    public function testEnvironment()
-    {
-        $this->assertTrue(class_exists('AetherJSONResponse'));
-    }
-
     public function testResponse()
     {
-        $struct = array('foo'=>'bar',' bar'=>'foo');
-        $res = new AetherJSONResponse($struct);
-        $out = $res->get();
+        $response = new AetherJSONResponse([
+            'foo'  => 'bar',
+            ' bar' => 'foo',
+        ]);
 
-        $this->assertEquals(json_encode($out), '{"foo":"bar"," bar":"foo"}');
+        $expected = '{"foo":"bar"," bar":"foo"}';
+
+        $this->assertEquals($expected, json_encode($response->get()));
     }
 }

@@ -1,35 +1,37 @@
-<?php // vim:set ts=4 sw=4 et:
+<?php
 
-class AetherUrlParserTest extends PHPUnit_Framework_TestCase
+namespace Tests;
+
+use AetherUrlParser;
+use PHPUnit\Framework\TestCase;
+
+class UrlParserTest extends TestCase
 {
-    public function testEnvironment()
-    {
-        $this->assertTrue(class_exists('AetherUrlParser'));
-    }
-
     public function testParser()
     {
-        $url = 'http://aether.raymond.raw.no/foobar/hello?foo';
         $parser = new AetherUrlParser;
-        $parser->parse($url);
-        $this->assertEquals($parser->get('scheme'), 'http');
+        $parser->parse('http://aether.raymond.raw.no/foobar/hello?foo');
+
+        $this->assertEquals('http', $parser->get('scheme'));
+
         $user = $parser->get('user');
-        $this->assertTrue(empty($user));
+        $this->assertEmpty($user);
 
         $url2 = 'ftp://foo:bar@hw.no/world?bar';
         $parser = new AetherUrlParser;
         $parser->parse($url2);
-        $this->assertEquals($parser->get('scheme'), 'ftp');
-        $this->assertEquals($parser->get('user'), 'foo');
-        $this->assertEquals($parser->get('pass'), 'bar');
-        $this->assertEquals($parser->get('path'), '/world');
+
+        $this->assertEquals('ftp', $parser->get('scheme'));
+        $this->assertEquals('foo', $parser->get('user'));
+        $this->assertEquals('bar', $parser->get('pass'));
+        $this->assertEquals('/world', $parser->get('path'));
 
         $this->assertEquals($parser->__toString(), preg_replace('/\?.*/', '', $url2));
     }
 
     public function testParseServerArray()
     {
-        $server = array(
+        $server = [
             'HTTP_HOST' => 'aether.raymond.raw.no',
             'SERVER_NAME' => 'aether.raymond.raw.no',
             'SERVER_PORT' => 80,
@@ -40,20 +42,23 @@ class AetherUrlParserTest extends PHPUnit_Framework_TestCase
             'REQUEST_URI' => '/foobar/hello?foo',
             'SCRIPT_NAME' => '/deployer.php',
             'PHP_SELF' => '/deployer.php',
-            'REQUEST_TIME' => 1170332549
-        );
+            'REQUEST_TIME' => 1170332549,
+        ];
+
         $parser = new AetherUrlParser;
         $parser->parseServerArray($server);
-        $this->assertEquals($parser->get('scheme'), 'http');
-        $this->assertEquals($parser->get('path'), '/foobar/hello');
+
+        $this->assertEquals('http', $parser->get('scheme'));
+        $this->assertEquals('/foobar/hello', $parser->get('path'));
 
         $server['PHP_AUTH_USER'] = 'foo';
         $server['PHP_AUTH_PW'] = 'bar';
         $parser->parseServerArray($server);
-        $this->assertEquals($parser->get('user'), 'foo');
-        $this->assertEquals($parser->get('pass'), 'bar');
+
+        $this->assertEquals('foo', $parser->get('user'));
+        $this->assertEquals('bar', $parser->get('pass'));
 
         // Get as string again
-        $this->assertEquals($parser->__toString(), 'http://foo:bar@aether.raymond.raw.no/foobar/hello');
+        $this->assertEquals('http://foo:bar@aether.raymond.raw.no/foobar/hello', $parser->__toString());
     }
 }

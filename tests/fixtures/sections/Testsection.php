@@ -1,12 +1,15 @@
-<?php // vim:set ts=4 sw=4 et:
+<?php
+
+namespace Tests\Fixtures\Sections;
+
+use AetherSection;
+use AetherTextResponse;
 
 class Testsection extends AetherSection
 {
-
     /**
      * Return response
      *
-     * @access public
      * @return AetherResponse
      */
     public function response()
