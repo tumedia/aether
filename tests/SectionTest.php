@@ -24,7 +24,7 @@ class SectionTest extends TestCase
         );
 
         $response = $section->response();
-        $this->assertTrue($response instanceof AetherTextResponse);
+        $this->assertInstanceOf(AetherTextResponse::class, $response);
         $this->assertEquals('404 Eg fant han ikkje', $response->get(), 'Response should be NotFoundSection\'s output');
         $this->assertArrayNotHasKey('id', $response->options, 'Options should be cleared when reloading config');
     }

@@ -17,7 +17,6 @@ class TemplateTest extends TestCase
         $config = new AetherConfig('./aether.config.xml');
         $sl->set('aetherConfig', $config);
 
-        $tpl = $sl->getTemplate();
-        $this->assertTrue($tpl instanceof AetherTemplateSmarty);
+        $this->assertInstanceOf(AetherTemplateSmarty::class, $sl->getTemplate());
     }
 }

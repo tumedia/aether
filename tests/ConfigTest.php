@@ -23,8 +23,8 @@ class ConfigTest extends TestCase
         $config = $this->getLoadedConfig('http://raw.no/fluff');
         $options = $config->getOptions();
 
-        $this->assertEquals($config->getSection(), 'Generic');
-        $this->assertEquals($options['foobar'], 'yes');
+        $this->assertEquals('Generic', $config->getSection());
+        $this->assertEquals('yes', $options['foobar']);
     }
 
     public function testConfigAssembleOptionsCorrectly()

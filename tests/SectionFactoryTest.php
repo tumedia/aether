@@ -17,7 +17,7 @@ class SectionFactoryTest extends TestCase
             new AetherServiceLocator
         );
 
-        $this->assertTrue(is_subclass_of($section, AetherSection::class));
-        $this->assertEquals(get_class($section), Testsection::class);
+        $this->assertInstanceOf(AetherSection::class, $section);
+        $this->assertInstanceOf(Testsection::class, $section);
     }
 }
