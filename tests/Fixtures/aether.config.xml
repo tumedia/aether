@@ -1,0 +1,110 @@
+<config>
+    <site name="*">
+        <urlRules>
+            <rule match="unittest">
+                <section>Generic</section>
+                <option name="foo">bar</option>
+                <option name="sitename">fallback-site</option>
+
+                <rule match="foo">
+                    <module>
+                        HelloWorld
+                        <option name="foo">foobar</option>
+                    </module>
+                    <rule match="a+b">
+                        <option name="plusm">yes</option>
+                    </rule>
+                </rule>
+            </rule>
+
+            <rule match="bool-casting">
+                <option name="shouldBeTrue" type="bool">true</option>
+                <option name="shouldBeFalse" type="bool">false</option>
+                <option name="shouldBeTrueString">true</option>
+                <option name="shouldBeFalseString">false</option>
+
+                <module>
+                    <option name="fisk" type="bool">true</option>
+                    <option name="ananas" type="bool">false</option>
+                    HelloWorld
+                </module>
+            </rule>
+        </urlRules>
+    </site>
+    <site name="raw.no">
+        <urlRules>
+            <rule match="unittest">
+                <section>Generic</section>
+                <option name="foo">bar</option>
+                <option name="bar">foo</option>
+                <rule match="foo">
+                    <module>
+                        HelloWorld
+                        <option name="foo">foobar</option>
+                    </module>
+                    <rule match="a+b">
+                        <option name="plusm">yes</option>
+                    </rule>
+                </rule>
+                <rule match="saveLayout">
+                    <service>HelloWorld</service>
+                </rule>
+
+                <rule match="goodtimes">
+                    <section>Tests\Fixtures\Sections\Testsection</section>
+                    <rule match="nay">
+                        <option name="id">invalid</option>
+                    </rule>
+
+                    <rule default="true">
+                        <section>Tests\Fixtures\Sections\NotFoundSection</section>
+                    </rule>
+                </rule>
+
+                <rule match="" default="true">
+                    <section>Generic</section>
+                    <option name="def">yes</option>
+                </rule>
+
+                <rule pattern="/^[a-z\-]+$/" store="catName">
+                    <rule match="$productId">
+                        <section>PriceguideProduct</section>
+                        <template>prisguide_product_default.tpl</template>
+                        <module>PriceguideProductTop</module>
+                    </rule>
+                    <rule match="">
+                        <option name="minus">yes</option>
+                    </rule>
+                </rule>
+
+            </rule>
+            <rule match="empty">
+            </rule>
+            <rule match="bar">
+                <rule match="foo">
+                </rule>
+            </rule>
+            <rule match="bar">
+                <rule match="foo">
+                </rule>
+            </rule>
+            <rule match="bar">
+                <rule match="foo">
+                </rule>
+            </rule>
+            <rule default="true">
+                <option name="plusm">no</option>
+                <option name="minus">no</option>
+                <option name="plusm">no</option>
+                <option name="minus">no</option>
+                <option name="plusm">no</option>
+                <option name="minus">no</option>
+                <option name="foobar">yes</option>
+                <option name="plusm">no</option>
+                <option name="minus">no</option>
+                <section>Generic</section>
+                <module>PageNotFound</module>
+            </rule>
+        </urlRules>
+    </site>
+</config>

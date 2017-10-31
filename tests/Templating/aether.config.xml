@@ -1,0 +1,15 @@
+<config>
+    <site name="*">
+        <urlRules>
+            <rule match="smarty">
+                <template>test.tpl</template>
+                <section>Generic</section>
+                <option name="foo">bar</option>
+                <module>
+                    HelloWorld
+                    <option name="foo">foobar</option>
+                </module>
+            </rule>
+        </urlRules>
+    </site>
+</config>
