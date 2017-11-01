@@ -28,15 +28,15 @@ class SmartyTest extends TestCase
 
     protected function tearDown()
     {
-        array_map('unlink', glob(__DIR__ . '/templates/compiled/*.php'));
+        array_map('unlink', glob(dirname(__DIR__).'/Fixtures/templates/compiled/*.php'));
     }
 
     private function getTemplateEngine(array $data = [])
     {
         $sl = new AetherServiceLocator;
-        $sl->set('projectRoot', __DIR__ . '/');
+        $sl->set('projectRoot', dirname(__DIR__).'/Fixtures/');
 
-        $config = new AetherConfig('./aether.config.xml');
+        $config = new AetherConfig(dirname(__DIR__).'/Fixtures/aether.config.xml');
         $sl->set('aetherConfig', $config);
 
         $tpl = $sl->getTemplate();
