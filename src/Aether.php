@@ -65,10 +65,10 @@ class Aether
     /**
      * Set the global Aether instance.
      *
-     * @param  \Aether $aether
+     * @param  \Aether|null $aether
      * @return void
      */
-    public static function setInstance(Aether $aether)
+    public static function setInstance(Aether $aether = null)
     {
         static::$globalInstance = $aether;
     }
@@ -304,6 +304,17 @@ class Aether
     public function getServiceLocator()
     {
         return $this->sl;
+    }
+
+    /**
+     * Set the AetherServiceLocator instance.
+     *
+     * @param  \AetherServiceLocator  $sl
+     * @return void
+     */
+    public function setServiceLocator($sl)
+    {
+        $this->sl = $sl;
     }
 
     private function getCacheObject($class, $options)

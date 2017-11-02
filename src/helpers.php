@@ -63,3 +63,18 @@ if (!function_exists('config')) {
         return $config->get($key, $default);
     }
 }
+
+if (!function_exists('module')) {
+    /**
+     * Get an "AetherModulePendingRender" instance for a given module. Useful
+     * as a shorthand for use in templates.
+     *
+     * @param  string  $module
+     * @param  array  $options
+     * @return \AetherModulePendingRender
+     */
+    function module($module, $options = [])
+    {
+        return new AetherModulePendingRender($module, $options);
+    }
+}

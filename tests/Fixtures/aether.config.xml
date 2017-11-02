@@ -43,6 +43,11 @@
     </site>
     <site name="raw.no">
         <urlRules>
+            <rule match="module-pending-render">
+                <option name="foo">bar</option>
+                <option name="baz">qux</option>
+                <option name="aether-says">hi</option>
+            </rule>
             <rule match="unittest">
                 <section>Generic</section>
                 <option name="foo">bar</option>
