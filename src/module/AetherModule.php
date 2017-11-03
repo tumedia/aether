@@ -10,19 +10,39 @@
 
 abstract class AetherModule
 {
-    
     /**
      * Hold service locator
      * @var AetherServiceLocator
      */
     protected $sl = null;
-    
+
     /**
      * Specific options for this module
      * @var array
      */
     protected $options = array();
-    
+
+    /**
+     * "Draw" an instance of `AetherModulePendingRender` for the module.
+     * Optionally specifying initial options.
+     *
+     * @param  string|array|null  $initial  If array, uses as options.
+     *                                      If string, calls merge() with the string
+     * @return \AetherModulePendingRender
+     */
+    public static function draw($initial = null)
+    {
+        $pending = new AetherModulePendingRender(static::class);
+
+        if (is_string($initial)) {
+            $pending->merge($initial);
+        } elseif (is_array($initial)) {
+            $pending->setOptions($initial);
+        }
+
+        return $pending;
+    }
+
     /**
      * Constructor. Accept service locator
      *
@@ -36,7 +56,7 @@ abstract class AetherModule
         $this->sl = $sl;
         $this->options = $options;
     }
-    
+
     /**
      * Run module.
      * Modules is only capable of returning text ouput
@@ -46,7 +66,7 @@ abstract class AetherModule
      * @return string
      */
     abstract public function run();
-    
+
     /**
      * Allow each module to decide if caching should be totaly
      * forbidden in a given context. Useful for modules
@@ -63,7 +83,7 @@ abstract class AetherModule
     {
         return false;
     }
-    
+
     /**
      * Allow each module to decide their cache time (in seconds)
      *
@@ -74,7 +94,7 @@ abstract class AetherModule
     {
         return $this->denyCache() ? 0 : null;
     }
-    
+
     /**
      * Render a given service
      *

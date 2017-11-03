@@ -21,18 +21,27 @@ class AetherModulePendingRender
      *
      * @var array
      */
-    protected $options;
+    protected $options = [];
 
     /**
      * Create a new instance.
      *
      * @param  string  $module
-     * @param  array  $options
      * @param  string
      */
-    public function __construct($module, $options)
+    public function __construct($module)
     {
         $this->module = $module;
+    }
+
+    /**
+     * Set the options property.
+     *
+     * @param  array  $options
+     * @return void
+     */
+    public function setOptions($options)
+    {
         $this->options = $options;
     }
 
