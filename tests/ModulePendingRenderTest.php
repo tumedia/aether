@@ -116,15 +116,6 @@ class ModulePendingRenderTest extends TestCase
         ], $pending);
     }
 
-    public function testConfigHelperFunction()
-    {
-        $pending = module(Hellolocal::class);
-
-        $this->assertInstanceOf(AetherModulePendingRender::class, $pending);
-
-        $this->assertSame('Hello local', (string)$pending);
-    }
-
     private function assertOptions($expected, string $renderedModule)
     {
         $this->assertSame($expected, unserialize($renderedModule));

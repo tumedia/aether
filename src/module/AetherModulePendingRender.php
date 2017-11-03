@@ -6,9 +6,6 @@
  *
  * Before the module is rendered, you may dynamically add options which will
  * be passed to the module instance at render time.
- *
- * @see module()  Use the module() helper function instead of manually
- *                instantiating this class.
  */
 class AetherModulePendingRender
 {
