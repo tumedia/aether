@@ -4,30 +4,38 @@ class AetherServiceCache extends AetherService
 {
     public function register()
     {
-        if (!config('app.cache.enabled', true)) {
-            return;
+        $driver = config('app.cache.driver', 'memcache');
+
+        $method = 'get'.ucfirst($driver).'Driver';
+
+        if (!method_exists($this, $method)) {
+            throw new InvalidArgumentException("Cache driver [{$driver}] is not supported");
         }
 
-        $this->sl->set('cache', $this->getCacheObject(
-            config('app.cache.class', AetherCacheMemcache::class),
-            config('app.cache.options', $this->getDefaultCacheOptions())
-        ));
+        $this->sl->set('cache', $this->{$method}());
     }
 
-    protected function getCacheObject($class, $options)
+    protected function getMemcacheDriver()
     {
-        return new $class($options);
+        return new AetherCacheMemcache(
+            config('app.cache.memcache_servers', $this->getDefaultMemcacheServers())
+        );
+    }
+
+    protected function getFileDriver()
+    {
+        return new AetherCacheFile($this->sl->get('projectRoot').'storage/cache');
     }
 
     /**
-     * Get the default cache options. This is provided for backwards compatiblity.
+     * Get the default Memcache servers. This is provided for backwards compatiblity.
      *
-     * @todo This can be removed once all sites have cache options defined in
-     *       `config('app.cache.options')`
+     * @todo This can be removed once all sites have defined
+     *       `config('app.cache.memcache_servers')`
      *
      * @return array
      */
-    protected function getDefaultCacheOptions()
+    protected function getDefaultMemcacheServers()
     {
         return [
             'auto.tu.c.bitbit.net',

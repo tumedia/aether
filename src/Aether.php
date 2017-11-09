@@ -55,6 +55,7 @@ class Aether
         AetherServiceConfig::class,
         AetherServiceSentry::class,
         AetherServiceCache::class,
+        AetherServiceSession::class,
         AetherServiceTemplateGlobals::class,
         AetherServiceTimer::class,
     ];
