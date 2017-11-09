@@ -53,6 +53,7 @@ class Aether
      */
     private $services = [
         AetherServiceConfig::class,
+        AetherServiceWhoops::class,
         AetherServiceSentry::class,
         AetherServiceCache::class,
         AetherServiceSession::class,
