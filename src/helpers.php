@@ -1,5 +1,7 @@
 <?php
 
+use Aether\Aether;
+
 if (!function_exists('env')) {
     /**
      * Get an environment variable.
