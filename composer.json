@@ -15,10 +15,13 @@
         "phpunit/phpunit": "^6.4"
     },
     "autoload": {
-        "classmap": [
-            "./src"
-        ],
-        "files": ["./src/helpers.php"]
+        "psr-4": {
+            "Aether\\": "./src"
+        },
+        "files": [
+            "./src/class_aliases.php",
+            "./src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

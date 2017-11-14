@@ -1,7 +1,17 @@
-<?php // vim:set ts=4 sw=4 et:
+<?php
+
+namespace Aether;
+
+use DOMNode;
+use DOMText;
+use DOMXPath;
+use Exception;
+use DOMElement;
+use DOMDocument;
+use Aether\Exceptions\MissingFile;
+use Aether\Exceptions\NoUrlRuleMatch;
 
 /**
- *
  * Read in config file for aether and make its options
  * available for the system
  *
@@ -9,13 +19,11 @@
  * @author Raymond Julin
  * @package aether
  */
-
 class AetherConfig
 {
-
     /**
      * XMLDoc
-     * @var DOMDocument
+     * @var \DOMDocument
      */
     private $doc;
 
@@ -33,7 +41,7 @@ class AetherConfig
 
     /**
      * How long should this section be cached
-     * @var int/false
+     * @var int|false
      */
     private $cache = false;
     private $cacheas = false;
@@ -89,7 +97,7 @@ class AetherConfig
      * Constructor.
      *
      * @access public
-     * @return AetherConfig
+     * @return \Aether\AetherConfig
      * @param string $configFilePath
      */
     public function __construct($configFilePath)
@@ -101,7 +109,7 @@ class AetherConfig
     {
         $configFilePath = $this->configFilePath;
         if (!file_exists($configFilePath)) {
-            throw new AetherMissingFileException(
+            throw new MissingFile(
                 "Config file [$configFilePath] is missing."
             );
         }
@@ -126,7 +134,7 @@ class AetherConfig
             $nodelist = $xpath->query($xquery);
         }
         if ($nodelist->length == 0) {
-            throw new AetherNoUrlRuleMatchException("No config entry matched site: $sitename");
+            throw new NoUrlRuleMatch("No config entry matched site: $sitename");
         }
         $urlRules = $nodelist->item(0);
 
@@ -149,14 +157,14 @@ class AetherConfig
      *
      * @access public
      * @return bool
-     * @param AetherUrlParser $url
+     * @param \Aether\UrlParser $url
      */
-    public function matchUrl(AetherUrlParser $url)
+    public function matchUrl(UrlParser $url)
     {
         $config = $this->getSiteConfig($url);
         try {
             $node = $this->readMatchingConfigNode($config['rules'], $config['path']);
-        } catch (AetherNoUrlRuleMatchException $e) {
+        } catch (NoUrlRuleMatch $e) {
             // No match found :( Send 404 and throw exception to logs
             header("Status: 404 Not Found");
             echo "<html><body><h1>404 Not found</h1></body></html>";
@@ -169,7 +177,7 @@ class AetherConfig
     }
 
     // Get config root node
-    public function getRootNode(AetherUrlParser $url)
+    public function getRootNode(UrlParser $url)
     {
         return $this->getSiteConfig($url)['rules'];
     }
@@ -298,7 +306,7 @@ class AetherConfig
         if ($match) {
             return $this->loadConfigFromConfigNode($match);
         } else {
-            throw new AetherNoUrlRuleMatchException("\"{$_SERVER['REQUEST_URI']}\" does not match any rule, and no default rule was found");
+            throw new NoUrlRuleMatch("\"{$_SERVER['REQUEST_URI']}\" does not match any rule, and no default rule was found");
         }
     }
 
