@@ -9,12 +9,17 @@ class AetherModuleFactory
      * @param  AetherServiceLocator $sl
      * @param  array $options = []
      * @return \AetherModule
+     * @throws \InvalidArgumentException
      */
     public static function create(
         $className,
         AetherServiceLocator $sl,
         $options = []
     ) {
+        if (!is_subclass_of($className, AetherModule::class)) {
+            throw new InvalidArgumentException("Module [{$className}] does not exist");
+        }
+
         return new $className($sl, $options);
     }
 }
