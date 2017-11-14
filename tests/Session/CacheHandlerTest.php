@@ -3,8 +3,8 @@
 namespace Tests;
 
 use Tests\Traits\FileCache;
+use AetherSessionHandlerCache;
 use PHPUnit\Framework\TestCase;
-use Aether\Session\CacheSessionHandler;
 
 class CacheHandlerTest extends TestCase
 {
@@ -14,7 +14,7 @@ class CacheHandlerTest extends TestCase
 
     protected function setUp()
     {
-        $this->handler = new CacheSessionHandler(
+        $this->handler = new AetherSessionHandlerCache(
             $this->setUpFileCache()
         );
     }

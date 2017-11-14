@@ -1,8 +1,5 @@
 #!/usr/bin/php
-<?php
-
-use Aether\Aether;
-use Aether\Config;
+<?php // vim:set ts=4 sw=4 et:
 
 if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     require __DIR__.'/../vendor/autoload.php';
@@ -183,7 +180,7 @@ if (file_exists($compiled = $configFolder.'compiled.php')) {
 if ($prefix === 'prod') {
     echo "Creating [config/compiled.php] file\n";
 
-    $config = new Config(dirname($configFolder));
+    $config = new AetherAppConfig(dirname($configFolder));
 
     echo "Writing new compiled.php...\n";
 

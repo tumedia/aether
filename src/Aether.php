@@ -1,11 +1,5 @@
 <?php
 
-namespace Aether;
-
-use Aether\Response\Json;
-use Aether\Response\Response;
-use Aether\Sections\SectionFactory;
-
 /**
  * The Aether web framework
  *
@@ -32,6 +26,7 @@ use Aether\Sections\SectionFactory;
  * @author Raymond Julin
  * @package aether
  */
+
 class Aether
 {
     /** @var \Aether */
@@ -39,7 +34,7 @@ class Aether
 
     /**
      * Hold service locator
-     * @var \Aether\ServiceLocator
+     * @var AetherServiceLocator
      */
     private $sl = null;
 
@@ -57,13 +52,13 @@ class Aether
      * @var array
      */
     private $services = [
-        Services\ConfigService::class,
-        Services\WhoopsService::class,
-        Services\SentryService::class,
-        Services\CacheService::class,
-        Services\SessionService::class,
-        Services\TemplateGlobalsService::class,
-        Services\TimerService::class,
+        AetherServiceConfig::class,
+        AetherServiceWhoops::class,
+        AetherServiceSentry::class,
+        AetherServiceCache::class,
+        AetherServiceSession::class,
+        AetherServiceTemplateGlobals::class,
+        AetherServiceTimer::class,
     ];
 
     public static $aetherPath;
@@ -71,7 +66,7 @@ class Aether
     /**
      * Get the global Aether instance.
      *
-     * @return \Aether\Aether
+     * @return \Aether
      */
     public static function getInstance(): Aether
     {
@@ -81,7 +76,7 @@ class Aether
     /**
      * Set the global Aether instance.
      *
-     * @param  \Aether\Aether|null $aether
+     * @param  \Aether|null $aether
      * @return void
      */
     public static function setInstance(Aether $aether = null)
@@ -105,11 +100,11 @@ class Aether
         static::setInstance($this);
 
         self::$aetherPath = pathinfo(__FILE__, PATHINFO_DIRNAME).'/';
-        $this->sl = new ServiceLocator;
+        $this->sl = new AetherServiceLocator;
 
         $this->sl->set('aetherPath', self::$aetherPath);
         // Initiate all required helper objects
-        $parsedUrl = new UrlParser;
+        $parsedUrl = new AetherUrlParser;
         $parsedUrl->parseServerArray($_SERVER);
         $this->sl->set('parsedUrl', $parsedUrl);
 
@@ -151,7 +146,7 @@ class Aether
          */
         if (isset($_GET['module']) && isset($_GET['service'])) {
             $response = $section->service($_GET['module'], $_GET['service']);
-            if (!is_object($response) || !($response instanceof Response)) {
+            if (!is_object($response) || !($response instanceof AetherResponse)) {
                 trigger_error("Expected " . preg_replace("/[^A-z0-9]+/", "", $_GET['module']) . "::service() to return an AetherResponse object." . (isset($_SERVER['HTTP_REFERER']) ? " Referer: " . $_SERVER['HTTP_REFERER'] : ""), E_USER_WARNING);
             } else {
                 $response->draw($this->sl);
@@ -199,7 +194,7 @@ class Aether
                     }
                     $providers[] = $provider;
                 }
-                $response = new Json(compact('providers'));
+                $response = new AetherJSONResponse(array('providers' => $providers));
                 $response->draw($this->sl);
             }
         } else {
@@ -220,7 +215,7 @@ class Aether
     /**
      * Get the AetherServiceLocator instance.
      *
-     * @return \Aether\ServiceLocator
+     * @return \AetherServiceLocator
      */
     public function getServiceLocator()
     {
@@ -230,7 +225,7 @@ class Aether
     /**
      * Set the AetherServiceLocator instance.
      *
-     * @param  \Aether\ServiceLocator  $sl
+     * @param  \AetherServiceLocator  $sl
      * @return void
      */
     public function setServiceLocator($sl)
@@ -257,7 +252,7 @@ class Aether
      */
     private function initiateSection()
     {
-        $this->sl->set('section', SectionFactory::create(
+        $this->sl->set('section', AetherSectionFactory::create(
             $this->sl->get('aetherConfig')->getSection(),
             $this->sl
         ));
