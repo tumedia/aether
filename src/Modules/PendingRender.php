@@ -29,6 +29,13 @@ class PendingRender
     protected $options = [];
 
     /**
+     * Whether or not options from the Aether XML config should be used.
+     *
+     * @var bool
+     */
+    protected $legacyMode = false;
+
+    /**
      * Create a new instance.
      *
      * @param  string  $module
@@ -64,6 +71,19 @@ class PendingRender
                 $this->getConfigOptionsToMerge($key)
             );
         }
+
+        return $this;
+    }
+
+    /**
+     * Whether or not options from the Aether XML config should be used.
+     *
+     * @param  bool  $value = true
+     * @return \AetherModulePendingRender  $this
+     */
+    public function legacyMode($value = true)
+    {
+        $this->legacyMode = $value;
 
         return $this;
     }
@@ -160,7 +180,7 @@ class PendingRender
      */
     protected function getAetherOptionsToMerge()
     {
-        if (!$this->getServiceLocator()->has('aetherConfig')) {
+        if (!$this->legacyMode || !$this->getServiceLocator()->has('aetherConfig')) {
             return [];
         }
 

@@ -73,17 +73,28 @@ class ModulePendingRenderTest extends TestCase
         ], $pending);
     }
 
-    public function testLoadingOptionsFromAetherConfig()
+    public function testLoadingOptionsFromAetherConfigWhenLegacyModeIsEnabled()
     {
         $this->setAetherConfigUsingUrl('http://raw.no/module-pending-render');
 
         $pending = new AetherModulePendingRender(OptionsSerializer::class);
+
+        $this->assertSame($pending, $pending->legacyMode());
 
         $this->assertOptions([
             'foo' => 'bar',
             'baz' => 'qux',
             'aether-says' => 'hi',
         ], $pending);
+    }
+
+    public function testItDoesNotLoadFromAetherConfigWhenLegacyModeIsNotEnabled()
+    {
+        $this->setAetherConfigUsingUrl('http://raw.no/module-pending-render');
+
+        $pending = new AetherModulePendingRender(OptionsSerializer::class);
+
+        $this->assertOptions([], $pending);
     }
 
     public function testAllTogetherNow()
@@ -106,6 +117,8 @@ class ModulePendingRenderTest extends TestCase
         ]);
 
         $pending->merge('note')->withBallSize('xxl');
+
+        $pending->legacyMode();
 
         $this->assertOptions([
             'foo' => 'bar',
