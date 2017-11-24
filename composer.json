@@ -5,11 +5,11 @@
     "license": "MIT",
     "require": {
         "php": ">=5.4",
-        "smarty/smarty": "3.1.30",
-        "vlucas/phpdotenv": "^2.4",
-        "sentry/sentry": "1.7.*",
+        "filp/whoops": "^2.1",
         "illuminate/config": "5.5.*",
-        "filp/whoops": "^2.1"
+        "sentry/sentry": "1.7.*",
+        "smarty/smarty": "3.1.30",
+        "vlucas/phpdotenv": "^2.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.4"
@@ -31,5 +31,8 @@
     "bin": [
         "./bin/generateConfig",
         "./bin/updateLocales"
-    ]
+    ],
+    "config": {
+        "sort-packages": true
+    }
 }
