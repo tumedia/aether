@@ -55,18 +55,6 @@ class ServiceLocator
     }
 
     /**
-     * Returns a reference to a database object
-     *
-     * @access public
-     * @return Database Requested database object
-     * @param string $name database name
-     */
-    public function getDatabase($name)
-    {
-        throw new Exception("AetherServiceLocator::getDatabase() is deprecated");
-    }
-
-    /**
      * Save a custom object to the service locators storage
      * This functionality is meant for sharing objects between
      * components (Subsection and FooComponent)
