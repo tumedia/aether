@@ -66,6 +66,8 @@ class Aether
         Services\TimerService::class,
     ];
 
+    public static $aetherPath;
+
     /**
      * Get the global Aether instance.
      *
@@ -101,14 +103,25 @@ class Aether
     public function __construct($projectRoot = null)
     {
         static::setInstance($this);
+
+        self::$aetherPath = pathinfo(__FILE__, PATHINFO_DIRNAME).'/';
         $this->sl = new ServiceLocator;
 
+        $this->sl->set('aetherPath', self::$aetherPath);
         // Initiate all required helper objects
         $parsedUrl = new UrlParser;
         $parsedUrl->parseServerArray($_SERVER);
         $this->sl->set('parsedUrl', $parsedUrl);
 
+        if (is_null($projectRoot)) {
+            $projectRoot = preg_replace('/public\/?$/', '', getcwd());
+        }
+
         $this->sl->set('projectRoot', rtrim($projectRoot, '/').'/');
+
+        if (!defined('PROJECT_PATH')) {
+            define('PROJECT_PATH', $this->sl->get('projectRoot'));
+        }
 
         $this->registerServices();
 
@@ -162,7 +175,7 @@ class Aether
                 if (isset($options['lc_messages'])) {
                     $localeDomain = "messages";
                     setlocale(LC_MESSAGES, $options['lc_messages']);
-                    bindtextdomain($localeDomain, __DIR__ . "/locales");
+                    bindtextdomain($localeDomain, self::$aetherPath . "/locales");
                     bind_textdomain_codeset($localeDomain, 'UTF-8');
                     textdomain($localeDomain);
                 }

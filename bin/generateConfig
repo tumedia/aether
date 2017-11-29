@@ -10,6 +10,8 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     require __DIR__.'/../../../autoload.php';
 }
 
+Aether::$aetherPath = __DIR__;
+
 function resolveImports($doc, $prefix, $i, $configFolder) {
     $xpath = new DOMXPath($doc);
     $xquery = "//import";
