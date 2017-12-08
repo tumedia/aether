@@ -95,6 +95,9 @@ $configFolder = preg_replace("/\/{2}/", "/", $folder);
 if (substr($configFolder, -1) != "/")
     $configFolder .= "/";
 
+global $config;
+$config = new Config(dirname($configFolder));
+
 /**
  * What mode should configuration file be generated for
  */
@@ -209,11 +212,12 @@ echo "Done\n\n";
  * @return Object DOMDocument object
  */
 function loadConfig($file) {
-    global $argv;
+    global $argv, $config;
+
     $import = new DOMDocument;
     $import->preserveWhiteSpace = false;
 
-    if (isset($argv[2]) && $argv[2] == 'nocache') {
+    if (($argv[2] ?? null) == 'nocache' || $config['app.env'] === 'local') {
         $file = file_get_contents($file);
         $file = preg_replace('/cache="[0-9]*"/', '', $file);
         $import->loadXML($file);
