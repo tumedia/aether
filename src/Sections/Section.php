@@ -2,7 +2,7 @@
 
 namespace Aether\Sections;
 
-use Exception;
+use Throwable;
 use Aether\Response\Text;
 use Aether\Modules\Module;
 use Aether\ServiceLocator;
@@ -130,7 +130,7 @@ abstract class Section
                 }
 
                 $module['obj'] = $object;
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 $this->logerror($e);
             }
         }
@@ -164,7 +164,7 @@ abstract class Section
                         } else {
                             $this->pageCacheTime = 0;
                         }
-                    } catch (Exception $e) {
+                    } catch (Throwable $e) {
                         $this->logerror($e);
                     }
                 }
@@ -177,7 +177,7 @@ abstract class Section
 
                 try {
                     $mOut = $mod->run();
-                } catch (Exception $e) {
+                } catch (Throwable $e) {
                     $this->logerror($e);
                     return false;
                 }
@@ -475,6 +475,10 @@ abstract class Section
      */
     private function logerror($e)
     {
+        if (config('app.env') !== 'production') {
+            throw $e;
+        }
+
         trigger_error("Caught exception at " . $e->getFile() . ":" . $e->getLine() . ": " . $e->getMessage() . ", trace: " . str_replace("\n", ", ", $e->getTraceAsString()));
     }
 
