@@ -131,7 +131,7 @@ abstract class Section
 
                 $module['obj'] = $object;
             } catch (Throwable $e) {
-                $this->logerror($e);
+                $this->handleModuleError($e);
             }
         }
 
@@ -165,7 +165,7 @@ abstract class Section
                             $this->pageCacheTime = 0;
                         }
                     } catch (Throwable $e) {
-                        $this->logerror($e);
+                        $this->handleModuleError($e);
                     }
                 }
             }
@@ -178,7 +178,7 @@ abstract class Section
                 try {
                     $mOut = $mod->run();
                 } catch (Throwable $e) {
-                    $this->logerror($e);
+                    $this->handleModuleError($e);
                     return false;
                 }
             }
@@ -467,13 +467,14 @@ abstract class Section
     }
 
     /**
-     * Log an error message from an exception to error log
+     * Handle exceptions thrown by modules. In production, trigger_error() is
+     * used, otherwise the exception will be re-thrown.
      *
-     * @access private
+     * @param  \Throwable  $e
      * @return void
-     * @param Exception $e
+     * @throws \Throwable
      */
-    private function logerror($e)
+    private function handleModuleError($e)
     {
         if (config('app.env') !== 'production') {
             throw $e;
