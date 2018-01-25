@@ -58,8 +58,6 @@ class AetherConfig
      */
     private $modules = array();
 
-    private $fragments = array();
-
     /**
      * Option settings for this section (highly optional)
      * @var array
@@ -425,9 +423,6 @@ class AetherConfig
                 }
             }
         }
-        if (isset($nodeConfig['fragments'])) {
-            $this->fragments = $nodeConfig['fragments'] + ($this->fragments ? $this->fragments : []);
-        }
     }
 
     /**
@@ -532,17 +527,6 @@ class AetherConfig
                             break;
                     }
                     break;
-                case 'fragment':
-                    $provides = $child->getAttribute("provides");
-                    $template = $child->getAttribute("template");
-                    $nodeConfig = $this->getNodeConfig($child);
-                    $this->readNodeConfig($nodeConfig);
-
-                    $nodeData['fragments'][$provides] = [
-                        'provides' => $provides,
-                        'template' => $template
-                    ] + $nodeConfig;
-                    break;
             }
         }
 
@@ -597,15 +581,6 @@ class AetherConfig
     public function getTemplate()
     {
         return $this->template;
-    }
-
-    public function getFragments($providerName = null)
-    {
-        if ($providerName === null) {
-            return $this->fragments;
-        } else {
-            return isset($this->fragments[$providerName]) ? $this->fragments[$providerName] : null;
-        }
     }
 
     /**
@@ -765,7 +740,6 @@ class AetherConfig
         // Reset
         $this->options = [];
         $this->modules = [];
-        $this->fragments = [];
         $this->urlVariables = [];
         $this->section = null;
         $this->template = null;

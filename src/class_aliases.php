@@ -28,7 +28,6 @@ class_alias('Aether\Modules\ModuleHeader', 'AetherModuleHeader');
 class_alias('Aether\Modules\Module', 'AetherModule');
 
 class_alias('Aether\Response\JsonCommentFiltered', 'AetherJsonCommentFilteredResponse');
-class_alias('Aether\Response\Fragment', 'AetherFragmentResponse');
 class_alias('Aether\Response\Response', 'AetherResponse');
 class_alias('Aether\Response\Action', 'AetherActionResponse');
 class_alias('Aether\Response\Jsonp', 'AetherJSONPResponse');

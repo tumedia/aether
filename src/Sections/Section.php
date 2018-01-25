@@ -6,7 +6,6 @@ use Throwable;
 use Aether\Response\Text;
 use Aether\Modules\Module;
 use Aether\ServiceLocator;
-use Aether\Response\Fragment;
 use Aether\Modules\ModuleFactory;
 use Aether\Exceptions\ConfigError;
 use Aether\Exceptions\ServiceNotFound;
@@ -49,59 +48,38 @@ abstract class Section
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
 
-        $fragment = $config->getFragments($providerName);
-        if ($fragment) {
-            $modules = $fragment['modules'];
-        } else {
-            $module = $config->getModules($providerName);
-            if ($module !== null) {
-                $modules = [ $module ];
-            } else {
-                throw new ServiceNotFound("Provider \"{$providerName}\" did not match any module at {$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
-            }
+        $module = $config->getModules($providerName);
+
+        if (! $module) {
+            throw new ServiceNotFound("Provider \"{$providerName}\" did not match any module at {$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
         }
 
-        if (isset($modules)) {
-            $output = '';
-            $maxAge = 0;
-            if (isset($fragment['template'])) {
-                $tpl = $this->sl->getTemplate();
-            }
-            foreach ($modules as $module) {
-                if (!isset($module['options'])) {
-                    $module['options'] = array();
-                }
+        $maxAge = 0;
 
-                // Get module object
-                $object = ModuleFactory::create(
-                    $module['name'],
-                        $this->sl,
-                    $module['options'] + $options
-                );
-
-                if ($object->getCacheTime() !== null) {
-                    $maxAge = min($object->getCacheTime(), $maxAge);
-                }
-
-                if (isset($module['cache'])) {
-                    $maxAge = min($module['cache'], $maxAge);
-                }
-
-                if (isset($fragment['template'])) {
-                    $this->provide($module['provides'], $object->run());
-                } else {
-                    $output .= $object->run();
-                }
-            }
-            if (isset($fragment['template'])) {
-                $output = $tpl->fetch($fragment['template']);
-            }
-
-            if ($maxAge > 0) {
-                header("Cache-Control: s-maxage={$maxAge}");
-            }
-            print $output;
+        if (!isset($module['options'])) {
+            $module['options'] = array();
         }
+
+        // Get module object
+        $object = ModuleFactory::create(
+            $module['name'],
+            $this->sl,
+            $module['options'] + $options
+        );
+
+        if ($object->getCacheTime() !== null) {
+            $maxAge = min($object->getCacheTime(), $maxAge);
+        }
+
+        if (isset($module['cache'])) {
+            $maxAge = min($module['cache'], $maxAge);
+        }
+
+        if ($maxAge > 0) {
+            header("Cache-Control: s-maxage={$maxAge}");
+        }
+
+        echo $object->run();
     }
 
     private function preloadModules($modules, $options)
@@ -316,12 +294,6 @@ abstract class Section
                 }
             }
 
-            foreach ($config->getFragments() as $frag) {
-                foreach (array_keys($frag['modules']) as $mod) {
-                    $tpl->set($modules[$mod]['provides'], $modules[$mod]['output']);
-                }
-                $this->provide($frag['provides'], $tpl->fetch($frag['template']));
-            }
             if (!isset($tplInfo['name']) || strlen($tplInfo['name']) === 0) {
                 throw new ConfigError("Template not specified for url: " . (string)$url);
             } else {
@@ -374,7 +346,7 @@ abstract class Section
      * @param string $moduleName
      * @param string $serviceName Name of service
      */
-    public function service($name, $serviceName, $type = 'module')
+    public function service($name, $serviceName)
     {
         // Locate module containing service
         $config = $this->sl->get('aetherConfig');
@@ -386,71 +358,43 @@ abstract class Section
         $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
         setlocale(LC_NUMERIC, $lc_numeric);
 
-        if ($type == 'fragment') {
-            $fragment = $config->getFragments($name);
-            $moduleNames = isset($fragment['modules']) ? array_keys($fragment['modules']) : [];
-        } else {
-            $moduleNames = [ $name ];
-        }
-
         // Create module
         $mod = null;
-        $modules = [];
         $configModules = $config->getModules();
         $configModuleNames = array_map(function ($mod) {
             return $mod['name'];
         }, $configModules);
-        foreach ($moduleNames as $moduleName) {
-            if (isset($configModules[$moduleName])) {
-                $module = $configModules[$moduleName];
-            } elseif (in_array($moduleName, $configModuleNames)) {
-                foreach ($configModules as $m) {
-                    if ($m['name'] == $moduleName) {
-                        $module = $m;
-                        break;
-                    }
-                }
-            } else {
-                $module = array('name' => $moduleName);
-            }
 
-            if (!isset($module['options'])) {
-                $module['options'] = array();
-            }
-            $opts = $module['options'] + $options;
-            if (array_key_exists('session', $opts)
-                        and $opts['session'] == 'on') {
-                session_start();
-            }
-            // Get module object
-            $mod = ModuleFactory::create($module['name'], $this->sl, $opts);
-            if ($type == 'module') {
-                $modules = [ $mod ];
-                break;
-            } else {
-                $modules[$moduleName] = $mod;
-            }
-        }
-        // Run service
-        $moduleResponses = [];
-        foreach ($modules as $id => $mod) {
-            if ($mod instanceof Module) {
-                // Run service
-                if ($type == 'module') {
-                    return $mod->service($serviceName);
-                } else {
-                    if ($serviceName === null) {
-                        $moduleResponses[$id] = new Text($mod->run());
-                    } else {
-                        $moduleResponses[$id] = $mod->service($serviceName);
-                    }
+        if (isset($configModules[$name])) {
+            $module = $configModules[$name];
+        } elseif (in_array($name, $configModuleNames)) {
+            foreach ($configModules as $m) {
+                if ($m['name'] == $name) {
+                    $module = $m;
+                    break;
                 }
-            } else {
-                throw new ServiceNotFound("Service run error: Failed to locate {$type} [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
             }
+        } else {
+            $module = array('name' => $name);
         }
 
-        return new Fragment($moduleResponses);
+        if (!isset($module['options'])) {
+            $module['options'] = array();
+        }
+        $opts = $module['options'] + $options;
+        if (array_key_exists('session', $opts)
+                    and $opts['session'] == 'on') {
+            session_start();
+        }
+
+        // Get module object
+        $mod = ModuleFactory::create($module['name'], $this->sl, $opts);
+
+        if (! $mod instanceof Module) {
+            throw new ServiceNotFound("Service run error: Failed to locate module [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
+        }
+
+        return $mod->service($serviceName);
     }
 
     /**
