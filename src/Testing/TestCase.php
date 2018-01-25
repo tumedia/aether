@@ -4,7 +4,6 @@ namespace Aether\Testing;
 
 use Aether\Aether;
 use Aether\UrlParser;
-use Tests\TestResponse;
 use Aether\AetherConfig;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
@@ -31,7 +30,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * "Visit" the URL.
      *
-     * @return \Tests\TestResponse
+     * @return \Aether\Testing\TestResponse
      */
     protected function visit($url = null)
     {

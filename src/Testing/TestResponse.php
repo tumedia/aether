@@ -1,10 +1,9 @@
 <?php
 
-namespace Tests;
+namespace Aether\Testing;
 
 use Aether\Aether;
 use RuntimeException;
-use Aether\Sections\Section;
 use PHPUnit\Framework\Assert;
 
 class TestResponse
