@@ -46,7 +46,11 @@ class Xml extends Response
     public function draw($sl)
     {
         header("Content-Type: text/xml; charset=UTF-8");
-        echo $this->__toXml($this->struct)->saveXML();
+        if ($this->struct instanceof DOMDocument) {
+            echo $this->struct->saveXML();
+        } else {
+            echo $this->__toXml($this->struct)->saveXML();
+        }
     }
 
     /**
