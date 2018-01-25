@@ -15,6 +15,7 @@ class SectionFactory
      */
     public static function create($className, ServiceLocator $sl)
     {
-        return new $className($sl);
+        // @todo: can this class be removed?
+        return $sl->make($className);
     }
 }

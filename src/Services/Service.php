@@ -6,12 +6,22 @@ use Aether\ServiceLocator;
 
 abstract class Service
 {
-    protected $sl;
+    /**
+     * The service container instance.
+     *
+     * @var \Aether\ServiceLocator
+     */
+    protected $container;
 
-    public function __construct(ServiceLocator $sl)
+    public function __construct(ServiceLocator $container)
     {
-        $this->sl = $sl;
+        $this->container = $container;
     }
 
+    /**
+     * Register the service.
+     *
+     * @return void
+     */
     abstract public function register();
 }

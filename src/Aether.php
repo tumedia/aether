@@ -2,9 +2,12 @@
 
 namespace Aether;
 
+use Exception;
 use Aether\Response\Json;
+use Aether\Sections\Section;
 use Aether\Response\Response;
 use Aether\Sections\SectionFactory;
+use Aether\Response\ResponseFactory;
 
 /**
  * The Aether web framework
@@ -32,23 +35,8 @@ use Aether\Sections\SectionFactory;
  * @author Raymond Julin
  * @package aether
  */
-class Aether
+class Aether extends ServiceLocator
 {
-    /** @var \Aether */
-    protected static $globalInstance;
-
-    /**
-     * Hold service locator
-     * @var \Aether\ServiceLocator
-     */
-    private $sl = null;
-
-    /**
-     * Root folder for this project
-     * @var string
-     */
-    private $projectRoot;
-
     /**
      * Service classes that should be registered when Aether boots. Keep in mind
      * that the order in which the services are registered highly matters, as
@@ -59,33 +47,13 @@ class Aether
     private $services = [
         Services\ConfigService::class,
         Services\WhoopsService::class,
+        Services\LocalizationService::class,
         Services\SentryService::class,
         Services\CacheService::class,
         Services\SessionService::class,
-        Services\TemplateGlobalsService::class,
+        Services\TemplateService::class,
         Services\TimerService::class,
     ];
-
-    /**
-     * Get the global Aether instance.
-     *
-     * @return \Aether\Aether
-     */
-    public static function getInstance(): Aether
-    {
-        return static::$globalInstance;
-    }
-
-    /**
-     * Set the global Aether instance.
-     *
-     * @param  \Aether\Aether|null $aether
-     * @return void
-     */
-    public static function setInstance(Aether $aether = null)
-    {
-        static::$globalInstance = $aether;
-    }
 
     /**
      * Start Aether.
@@ -100,104 +68,26 @@ class Aether
      */
     public function __construct($projectRoot = null)
     {
-        static::setInstance($this);
-        $this->sl = new ServiceLocator;
+        $this->instance('projectRoot', rtrim($projectRoot, '/').'/');
 
-        // Initiate all required helper objects
-        $parsedUrl = new UrlParser;
-        $parsedUrl->parseServerArray($_SERVER);
-        $this->sl->set('parsedUrl', $parsedUrl);
-
-        $this->sl->set('projectRoot', rtrim($projectRoot, '/').'/');
+        $this->setUpBaseBindings();
 
         $this->registerServices();
-
-        $this->initiateSection();
-
-        if ($this->sl->has('timer')) {
-            $this->sl->get('timer')->tick('aether_main', 'section_initiate');
-        }
     }
 
     /**
      * Ask the AetherSection to render itself,
      * or if a service is requested it will try to load that service
      *
-     * @access public
-     * @return string
+     * @return void
      */
     public function render()
     {
-        $config = $this->sl->get('aetherConfig');
-        $options = $config->getOptions();
+        $this->initiateSection();
 
-        $section = $this->sl->get('section');
+        $response = $this->call([ResponseFactory::createFromGlobals(), 'getResponse']);
 
-        /**
-         * If a service is requested simply render the service
-         */
-        if (isset($_GET['module']) && isset($_GET['service'])) {
-            $response = $section->service($_GET['module'], $_GET['service']);
-            if (!is_object($response) || !($response instanceof Response)) {
-                trigger_error("Expected " . preg_replace("/[^A-z0-9]+/", "", $_GET['module']) . "::service() to return an AetherResponse object." . (isset($_SERVER['HTTP_REFERER']) ? " Referer: " . $_SERVER['HTTP_REFERER'] : ""), E_USER_WARNING);
-            } else {
-                $response->draw($this->sl);
-            }
-        } elseif (isset($_GET['_esi'])) {
-            /**
-             * ESI support and rendering of only one module by provider name
-             * # _esi to list
-             * # _esi=<providerName> to render one module with settings of the url path
-             */
-            if (strlen($_GET['_esi']) > 0) {
-                $locale = (isset($options['locale'])) ? $options['locale'] : "nb_NO.UTF-8";
-                setlocale(LC_ALL, $locale);
-
-                $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
-                setlocale(LC_NUMERIC, $lc_numeric);
-
-                if (isset($options['lc_messages'])) {
-                    $localeDomain = "messages";
-                    setlocale(LC_MESSAGES, $options['lc_messages']);
-                    bindtextdomain($localeDomain, __DIR__ . "/locales");
-                    bind_textdomain_codeset($localeDomain, 'UTF-8');
-                    textdomain($localeDomain);
-                }
-                $section->renderProviderWithCacheHeaders($_GET['_esi']);
-            } else {
-                $modules = $config->getModules();
-                $providers = array();
-                foreach ($modules as $m) {
-                    $provider = [
-                        'provides' => isset($m['provides']) ? $m['provides'] : null,
-                        'cache' => isset($m['cache']) ? $m['cache'] : false
-                    ];
-                    if (isset($m['module'])) {
-                        $provider['providers'] = array_map(function ($m) {
-                            return [
-                                'provides' => $m['provides'],
-                                'cache' => isset($m['cache']) ? $m['cache'] : false
-                            ];
-                        }, array_values($m['module']));
-                    }
-                    $providers[] = $provider;
-                }
-                $response = new Json(compact('providers'));
-                $response->draw($this->sl);
-            }
-        } else {
-            /**
-             * Start session if session switch is turned on in
-             * configuration file
-             */
-            if (array_key_exists('session', $options)
-                    and $options['session'] == 'on') {
-                session_start();
-            }
-
-            $response = $section->response();
-            $response->draw($this->sl);
-        }
+        $response->draw($this);
     }
 
     /**
@@ -205,20 +95,39 @@ class Aether
      *
      * @return \Aether\ServiceLocator
      */
-    public function getServiceLocator()
+    // public function getServiceLocator()
+    // {
+    //     // @todo: can this be removeD?
+    //     return $this;
+    // }
+
+    /**
+     * Set up some important core bindings in the container.
+     *
+     * @return void
+     */
+    private function setUpBaseBindings()
     {
-        return $this->sl;
+        static::setInstance($this);
+
+        // todo: figure out how to bind and alias properly
+        $this->instance(ServiceLocator::class, $this);
+
+        if (! $this->runningInConsole()) {
+            $this->singleton('parsedUrl', function ($container) {
+                return UrlParser::createFromGlobals();
+            });
+        }
     }
 
     /**
-     * Set the AetherServiceLocator instance.
+     * Check if we're running in a command-line environment.
      *
-     * @param  \Aether\ServiceLocator  $sl
-     * @return void
+     * @return bool
      */
-    public function setServiceLocator($sl)
+    private function runningInConsole()
     {
-        $this->sl = $sl;
+        return php_sapi_name() === 'cli';
     }
 
     /**
@@ -229,7 +138,7 @@ class Aether
     private function registerServices()
     {
         foreach ($this->services as $service) {
-            (new $service($this->getServiceLocator()))->register();
+            (new $service($this))->register();
         }
     }
 
@@ -240,9 +149,16 @@ class Aether
      */
     private function initiateSection()
     {
-        $this->sl->set('section', SectionFactory::create(
-            $this->sl->get('aetherConfig')->getSection(),
-            $this->sl
+        $this->instance(Section::class, SectionFactory::create(
+            $this->make(AetherConfig::class)->getSection(),
+            $this
         ));
+
+        // @todo: is this needed?
+        $this->alias(Section::class, 'section');
+
+        if ($this->bound(Timer::class)) {
+            $this->make(Timer::class)->tick('aether_main', 'section_initiate');
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Aether\Services;
 
+use Aether\Cache\Cache;
 use Aether\Session\CacheSessionHandler;
 
 class SessionService extends Service
@@ -15,6 +16,6 @@ class SessionService extends Service
 
     protected function getCache()
     {
-        return $this->sl->get('cache');
+        return $this->container->make(Cache::class);
     }
 }

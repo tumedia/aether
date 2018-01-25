@@ -2,9 +2,8 @@
 
 namespace Tests\Templating;
 
-use AetherConfig;
-use AetherServiceLocator;
-use PHPUnit\Framework\TestCase;
+use Aether\Aether;
+use Tests\TestCase;
 
 class SmartyTest extends TestCase
 {
@@ -33,13 +32,9 @@ class SmartyTest extends TestCase
 
     private function getTemplateEngine(array $data = [])
     {
-        $sl = new AetherServiceLocator;
-        $sl->set('projectRoot', dirname(__DIR__).'/Fixtures/');
+        $this->setUrl('/');
 
-        $config = new AetherConfig(dirname(__DIR__).'/Fixtures/aether.config.xml');
-        $sl->set('aetherConfig', $config);
-
-        $tpl = $sl->getTemplate();
+        $tpl = $this->aether->getTemplate();
 
         foreach ($data as $key => $value) {
             $tpl->set($key, $value);

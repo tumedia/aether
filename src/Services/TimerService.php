@@ -15,10 +15,11 @@ class TimerService extends Service
         // If we are in local (development) mode we should prepare a timer
         // object and time everything that happens.
 
-        $timer = new Timer;
+        $this->container->instance(Timer::class, $timer = new Timer);
+
+        // Backward compatibility...
+        $this->container->alias(Timer::class, 'timer');
 
         $timer->start('aether_main');
-
-        $this->sl->set('timer', $timer);
     }
 }

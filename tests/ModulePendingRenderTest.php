@@ -3,39 +3,17 @@
 namespace Tests;
 
 use Aether;
-use AetherConfig;
-use AetherUrlParser;
 use ReflectionClass;
+use Aether\UrlParser;
+use Aether\AetherConfig;
 use AetherServiceLocator;
 use AetherModulePendingRender;
-use PHPUnit\Framework\TestCase;
 use Illuminate\Config\Repository;
 use Tests\Fixtures\Modules\Hellolocal;
 use Tests\Fixtures\Modules\OptionsSerializer;
 
 class ModulePendingRenderTest extends TestCase
 {
-    protected $sl;
-
-    protected function setUp()
-    {
-        Aether::setInstance(
-            // Because the Aether constructor is  i n s a n e .
-            $aether = (new ReflectionClass(Aether::class))->newInstanceWithoutConstructor()
-        );
-
-        $this->sl = new AetherServiceLocator;
-
-        $aether->setServiceLocator($this->sl);
-    }
-
-    protected function tearDown()
-    {
-        $this->sl = null;
-
-        Aether::setInstance(null);
-    }
-
     public function testItRendersWhenCastToString()
     {
         $pending = new AetherModulePendingRender(Hellolocal::class);
@@ -75,7 +53,7 @@ class ModulePendingRenderTest extends TestCase
 
     public function testLoadingOptionsFromAetherConfigWhenLegacyModeIsEnabled()
     {
-        $this->setAetherConfigUsingUrl('http://raw.no/module-pending-render');
+        $this->setUrl('http://raw.no/module-pending-render');
 
         $pending = new AetherModulePendingRender(OptionsSerializer::class);
 
@@ -90,7 +68,7 @@ class ModulePendingRenderTest extends TestCase
 
     public function testItDoesNotLoadFromAetherConfigWhenLegacyModeIsNotEnabled()
     {
-        $this->setAetherConfigUsingUrl('http://raw.no/module-pending-render');
+        $this->setUrl('http://raw.no/module-pending-render');
 
         $pending = new AetherModulePendingRender(OptionsSerializer::class);
 
@@ -99,7 +77,7 @@ class ModulePendingRenderTest extends TestCase
 
     public function testAllTogetherNow()
     {
-        $this->setAetherConfigUsingUrl('http://raw.no/module-pending-render');
+        $this->setUrl('http://raw.no/module-pending-render');
 
         $this->setModulesConfig([
             OptionsSerializer::class => [
@@ -167,21 +145,6 @@ class ModulePendingRenderTest extends TestCase
 
     private function setModulesConfig($config)
     {
-        $this->sl->set('config', new Repository([
-            'modules' => $config,
-        ]));
-    }
-
-    private function setAetherConfigUsingUrl($url)
-    {
-        $aetherUrl = new AetherUrlParser;
-        $aetherUrl->parse($url);
-
-        $config = new AetherConfig(__DIR__.'/Fixtures/aether.config.xml');
-        $config->matchUrl($aetherUrl);
-
-        $this->sl->set('aetherConfig', $config);
-
-        return $config;
+        config()->set('modules', $config);
     }
 }

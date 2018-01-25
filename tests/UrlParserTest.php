@@ -40,8 +40,8 @@ class UrlParserTest extends TestCase
             'SERVER_PROTOCOL' => 'HTTP/1.1',
             'REQUEST_METHOD' => 'GET',
             'REQUEST_URI' => '/foobar/hello?foo',
-            'SCRIPT_NAME' => '/deployer.php',
-            'PHP_SELF' => '/deployer.php',
+            'SCRIPT_NAME' => '/index.php',
+            'PHP_SELF' => '/index.php',
             'REQUEST_TIME' => 1170332549,
         ];
 

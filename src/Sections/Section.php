@@ -36,52 +36,6 @@ abstract class Section
         $this->sl = $sl;
     }
 
-    /**
-     * Render one module based on its provider name.
-     * Adds headers for cache time if cache attribute is specified.
-     *
-     * @access public
-     * @param string $providerName
-     */
-    public function renderProviderWithCacheHeaders($providerName)
-    {
-        $config = $this->sl->get('aetherConfig');
-        $options = $config->getOptions();
-
-        $module = $config->getModules($providerName);
-
-        if (! $module) {
-            throw new ServiceNotFound("Provider \"{$providerName}\" did not match any module at {$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
-        }
-
-        $maxAge = 0;
-
-        if (!isset($module['options'])) {
-            $module['options'] = array();
-        }
-
-        // Get module object
-        $object = ModuleFactory::create(
-            $module['name'],
-            $this->sl,
-            $module['options'] + $options
-        );
-
-        if ($object->getCacheTime() !== null) {
-            $maxAge = min($object->getCacheTime(), $maxAge);
-        }
-
-        if (isset($module['cache'])) {
-            $maxAge = min($module['cache'], $maxAge);
-        }
-
-        if ($maxAge > 0) {
-            header("Cache-Control: s-maxage={$maxAge}");
-        }
-
-        echo $object->run();
-    }
-
     private function preloadModules($modules, $options)
     {
         // Preload modules, set cachetime and find minimum page cache time
@@ -222,23 +176,9 @@ abstract class Section
          * not cached and later on displayed to an end user
          */
         $options = $config->getOptions();
-        // Support i18n
-        $locale = (isset($options['locale'])) ? $options['locale'] : "nb_NO.UTF-8";
-        setlocale(LC_ALL, $locale);
 
         // Cache complete pages in Aether. Does not affect module cache
         $cachePages = config('app.cache.pages', false);
-
-        $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
-        setlocale(LC_NUMERIC, $lc_numeric);
-
-        if (isset($options['lc_messages'])) {
-            $localeDomain = "messages";
-            setlocale(LC_MESSAGES, $options['lc_messages']);
-            bindtextdomain($localeDomain, $this->sl->get('projectRoot') . "locale");
-            bind_textdomain_codeset($localeDomain, 'UTF-8');
-            textdomain($localeDomain);
-        }
 
         $modules = $this->preloadModules($config->getModules(), $options);
 
@@ -352,12 +292,6 @@ abstract class Section
         $config = $this->sl->get('aetherConfig');
         $options = $config->getOptions();
 
-        $locale = (isset($options['locale'])) ? $options['locale'] : "nb_NO.UTF-8";
-        setlocale(LC_ALL, $locale);
-
-        $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
-        setlocale(LC_NUMERIC, $lc_numeric);
-
         // Create module
         $mod = null;
         $configModules = $config->getModules();
@@ -382,8 +316,7 @@ abstract class Section
             $module['options'] = array();
         }
         $opts = $module['options'] + $options;
-        if (array_key_exists('session', $opts)
-                    and $opts['session'] == 'on') {
+        if (isset($opts['session']) && $opts['session'] == 'on') {
             session_start();
         }
 

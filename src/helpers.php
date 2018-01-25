@@ -1,6 +1,7 @@
 <?php
 
 use Aether\Aether;
+use Aether\Config;
 
 if (!function_exists('env')) {
     /**
@@ -56,7 +57,7 @@ if (!function_exists('config')) {
      */
     function config(string $key = null, $default = null)
     {
-        $config = Aether::getInstance()->getServiceLocator()->get('config');
+        $config = Aether::getInstance()->make(Config::class);
 
         if (is_null($key)) {
             return $config;

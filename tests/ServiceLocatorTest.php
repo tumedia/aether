@@ -2,8 +2,9 @@
 
 namespace Tests;
 
+use AetherConfig;
+use AetherTemplate;
 use AetherServiceLocator;
-use PHPUnit\Framework\TestCase;
 
 class ServiceLocatorTest extends TestCase
 {
@@ -19,6 +20,34 @@ class ServiceLocatorTest extends TestCase
         $this->assertSame($object, $sl->get('tester'));
     }
 
+    public function testReturnNullIfObjectDoesNotExist()
+    {
+        $this->assertNull((new AetherServiceLocator)->get('foo'));
+    }
+
+    public function testOverwriteIfObjectAlreadyExists()
+    {
+        $sl = new AetherServiceLocator;
+
+        $sl->set('foo', 'bar');
+        $sl->set('foo', 'updated');
+
+        $this->assertSame('updated', $sl->get('foo'));
+    }
+
+    public function testHasObjectMethod()
+    {
+        $sl = new AetherServiceLocator;
+
+        $this->assertFalse($sl->has('foo'));
+        $this->assertFalse($sl->hasObject('foo'));
+
+        $sl->set('foo', 'bar');
+
+        $this->assertTrue($sl->has('foo'));
+        $this->assertTrue($sl->hasObject('foo'));
+    }
+
     public function testArray()
     {
         $sl = new AetherServiceLocator;
@@ -28,6 +57,14 @@ class ServiceLocatorTest extends TestCase
 
         $arr2 = $sl->getVector('foo');
 
-        $this->assertEquals($arr['foo'], $arr2['foo']);
+        $this->assertSame($arr, $arr2);
+    }
+
+    public function testGetTemplate()
+    {
+        $this->assertInstanceOf(
+            AetherTemplate::class,
+            $this->aether->getTemplate()
+        );
     }
 }

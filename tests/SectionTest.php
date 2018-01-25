@@ -7,15 +7,24 @@ use AetherUrlParser;
 use AetherTextResponse;
 use AetherSectionFactory;
 use AetherServiceLocator;
-use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\Sections\Testsection;
 
 class SectionTest extends TestCase
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testSectionCan404()
     {
+        $this
+            ->visit('http://raw.no/unittest/goodtimes/nay')
+            ->assertSee('404 Eg fant han ikkje')
+            ->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+
+        return;
+
         $sl = new AetherServiceLocator;
-        $config = $this->getLoadedConfig('http://raw.no/unittest/goodtimes/nay');
+        $config = $this->getLoadedConfig('');
         $sl->set('aetherConfig', $config);
 
         $section = AetherSectionFactory::create(
@@ -42,6 +51,6 @@ class SectionTest extends TestCase
 
     private function getConfig()
     {
-        return new AetherConfig(__DIR__.'/Fixtures/aether.config.xml');
+        return new AetherConfig(__DIR__.'/Fixtures/config/aether.config.xml');
     }
 }

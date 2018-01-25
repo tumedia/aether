@@ -2,7 +2,9 @@
 
 namespace Aether\Services;
 
+use Aether\Cache\Cache;
 use Aether\Cache\FileDriver;
+use Aether\Cache\ArrayDriver;
 use InvalidArgumentException;
 use Aether\Cache\MemcacheDriver;
 
@@ -18,38 +20,28 @@ class CacheService extends Service
             throw new InvalidArgumentException("Cache driver [{$driver}] is not supported");
         }
 
-        $this->sl->set('cache', $this->{$method}());
+        $this->container->singleton(Cache::class, function () use ($method) {
+            return $this->{$method}();
+        });
+
+        // Backwards compatibility...
+        $this->container->alias(Cache::class, 'cache');
     }
 
     protected function getMemcacheDriver()
     {
         return new MemcacheDriver(
-            config('app.cache.memcache_servers', $this->getDefaultMemcacheServers())
+            config('app.cache.memcache_servers', [])
         );
     }
 
     protected function getFileDriver()
     {
-        return new FileDriver($this->sl->get('projectRoot').'storage/cache');
+        return new FileDriver($this->container['projectRoot'].'storage/cache');
     }
 
-    /**
-     * Get the default Memcache servers. This is provided for backwards compatiblity.
-     *
-     * @todo This can be removed once all sites have defined
-     *       `config('app.cache.memcache_servers')`
-     *
-     * @return array
-     */
-    protected function getDefaultMemcacheServers()
+    protected function getArrayDriver()
     {
-        return [
-            'auto.tu.c.bitbit.net',
-            'boss.tu.c.bitbit.net',
-            'kaos.tu.c.bitbit.net',
-            'karr.tu.c.bitbit.net',
-            'nell.tu.c.bitbit.net',
-            'wopr.tu.c.bitbit.net',
-        ];
+        return new ArrayDriver;
     }
 }

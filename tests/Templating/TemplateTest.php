@@ -3,20 +3,20 @@
 namespace Tests\Templating;
 
 use AetherConfig;
+use Aether\Aether;
+use Tests\TestCase;
 use AetherServiceLocator;
 use AetherTemplateSmarty;
-use PHPUnit\Framework\TestCase;
 
 class TemplateTest extends TestCase
 {
     public function testGetTemplateObject()
     {
-        $sl = new AetherServiceLocator;
-        $sl->set('projectRoot', __DIR__.'/templating/');
+        $this->setUrl('/');
 
-        $config = new AetherConfig('./aether.config.xml');
-        $sl->set('aetherConfig', $config);
-
-        $this->assertInstanceOf(AetherTemplateSmarty::class, $sl->getTemplate());
+        $this->assertInstanceOf(
+            AetherTemplateSmarty::class,
+            $this->aether->getTemplate()
+        );
     }
 }
