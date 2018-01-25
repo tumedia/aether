@@ -143,9 +143,6 @@ class Aether
             } else {
                 $response->draw($this->sl);
             }
-        } elseif (isset($_GET['fragment']) && isset($_GET['service'])) {
-            $response = $section->service($_GET['fragment'], ($_GET['service'] !== "_esi" ? $_GET['service'] : null), 'fragment');
-            $response->draw($this->sl);
         } elseif (isset($_GET['_esi'])) {
             /**
              * ESI support and rendering of only one module by provider name
@@ -169,9 +166,8 @@ class Aether
                 $section->renderProviderWithCacheHeaders($_GET['_esi']);
             } else {
                 $modules = $config->getModules();
-                $fragments = $config->getFragments();
                 $providers = array();
-                foreach ($modules + $fragments as $m) {
+                foreach ($modules as $m) {
                     $provider = [
                         'provides' => isset($m['provides']) ? $m['provides'] : null,
                         'cache' => isset($m['cache']) ? $m['cache'] : false
