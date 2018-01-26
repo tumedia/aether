@@ -91,6 +91,16 @@ class Aether extends ServiceLocator
     }
 
     /**
+     * Determine if Aether is running in a production environment.
+     *
+     * @return bool
+     */
+    public function isProduction()
+    {
+        return $this[Config::class]['app.env'] === 'production';
+    }
+
+    /**
      * Get the AetherServiceLocator instance.
      *
      * @return \Aether\ServiceLocator

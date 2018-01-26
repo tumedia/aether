@@ -8,6 +8,7 @@ use DOMXPath;
 use Exception;
 use DOMElement;
 use DOMDocument;
+use Aether\Aether;
 use Aether\Exceptions\MissingFile;
 use Aether\Exceptions\NoUrlRuleMatch;
 
@@ -94,18 +95,27 @@ class AetherConfig
     /**
      * Constructor.
      *
-     * @access public
-     * @return \Aether\AetherConfig
-     * @param string $configFilePath
+     * @param  string  $configFilePath
      */
     public function __construct($configFilePath)
     {
         $this->configFilePath = $configFilePath;
     }
 
+    /**
+     * Save the entire XML document to a file.
+     *
+     * @param  string  $file
+     * @return void
+     */
+    public function saveToFile($file)
+    {
+        $this->loadDocFromFile($this->configFilePath)->save($file);
+    }
+
     private function resolveImportNode($doc, $importNode)
     {
-        $path = dirname($this->configFilePath).'/'.$importNode->nodeValue.'.config.xml';
+        $path = $this->getFileToImport($importNode->nodeValue);
         $parent = $importNode->parentNode;
 
         $importedDoc = $this->loadDocFromFile($path)->documentElement;
@@ -117,23 +127,54 @@ class AetherConfig
         $parent->removeChild($importNode);
     }
 
-    private function loadDocFromFile($file)
+    private function getFileToImport($name)
     {
-        if (! file_exists($file)) {
-            throw new MissingFile("Config file [$configFilePath] is missing.");
+        $directory = dirname($this->configFilePath).'/'.dirname($name);
+        $fileName = basename($name, '.xml').'.xml';
+
+        if (! app()->isProduction() && file_exists($path = $directory.'/test.'.$fileName)) {
+            return $path;
         }
 
+        if (file_exists($path = $directory.'/'.$fileName)) {
+            return $path;
+        }
+
+        if (file_exists($path = $directory.'/prod.'.$fileName)) {
+            return $path;
+        }
+
+        throw new MissingFile("Config named [{$name}] is missing");
+    }
+
+    private function loadDocFromFile($file)
+    {
         $doc = new DOMDocument;
         $doc->preserveWhiteSpace = false;
         $doc->load($file);
 
-        $importNodes = $doc->getElementsByTagName('import');
+        $importNodes = (new DOMXPath($doc))->query('//import');
 
         foreach ($importNodes as $importNode) {
             $this->resolveImportNode($doc, $importNode);
         }
 
+        $this->injectLegacyAetherRunningMode($doc);
+
         return $doc;
+    }
+
+    private function injectLegacyAetherRunningMode($doc)
+    {
+        $siteNodes = (new DOMXPath($doc))->query('/config/site');
+
+        $prefix = app()->isProduction() ? 'prod' : 'test';
+
+        foreach ($siteNodes as $siteNode) {
+            $option = $doc->createElement('option', $prefix);
+            $option->setAttribute('name', 'AetherRunningMode');
+            $siteNode->insertBefore($option, $siteNode->firstChild);
+        }
     }
 
     private function getSiteConfig($url)

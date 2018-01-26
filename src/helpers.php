@@ -3,6 +3,24 @@
 use Aether\Aether;
 use Aether\Config;
 
+if (!function_exists('app')) {
+    /**
+     * Get the available container instance.
+     *
+     * @param  string  $abstract
+     * @param  array   $parameters
+     * @return mixed|\Aether\Aether
+     */
+    function app($abstract = null, array $parameters = [])
+    {
+        if (is_null($abstract)) {
+            return Aether::getInstance();
+        }
+
+        return Aether::getInstance()->make($abstract, $parameters);
+    }
+}
+
 if (!function_exists('env')) {
     /**
      * Get an environment variable.
