@@ -103,19 +103,44 @@ class AetherConfig
         $this->configFilePath = $configFilePath;
     }
 
-    private function getSiteConfig($url)
+    private function resolveImportNode($doc, $importNode)
     {
-        $configFilePath = $this->configFilePath;
-        if (!file_exists($configFilePath)) {
-            throw new MissingFile(
-                "Config file [$configFilePath] is missing."
-            );
+        $path = dirname($this->configFilePath).'/'.$importNode->nodeValue.'.config.xml';
+        $parent = $importNode->parentNode;
+
+        $importedDoc = $this->loadDocFromFile($path)->documentElement;
+
+        foreach ($importedDoc->childNodes as $node) {
+            $parent->insertBefore($doc->importNode($node, true), $importNode);
         }
+
+        $parent->removeChild($importNode);
+    }
+
+    private function loadDocFromFile($file)
+    {
+        if (! file_exists($file)) {
+            throw new MissingFile("Config file [$configFilePath] is missing.");
+        }
+
         $doc = new DOMDocument;
         $doc->preserveWhiteSpace = false;
-        $doc->load($configFilePath);
-        $this->doc = $doc;
-        $xpath = new DOMXPath($doc);
+        $doc->load($file);
+
+        $importNodes = $doc->getElementsByTagName('import');
+
+        foreach ($importNodes as $importNode) {
+            $this->resolveImportNode($doc, $importNode);
+        }
+
+        return $doc;
+    }
+
+    private function getSiteConfig($url)
+    {
+        $this->doc = $this->loadDocFromFile($this->configFilePath);
+
+        $xpath = new DOMXPath($this->doc);
 
         /*
          * Find starting point of url rules, from this point on we

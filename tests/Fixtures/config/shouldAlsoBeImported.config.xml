@@ -1,0 +1,5 @@
+<config>
+    <option name="nestedImportedOption">yup</option>
+    <option name="nestedImportedOption2">yup</option>
+    <option name="nestedImportedOption3">yup</option>
+</config>

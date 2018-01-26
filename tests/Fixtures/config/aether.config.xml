@@ -92,6 +92,7 @@
                     </rule>
                 </rule>
 
+                <import>shouldBeImported</import>
             </rule>
             <rule match="empty">
             </rule>
