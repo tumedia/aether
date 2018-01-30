@@ -135,7 +135,7 @@ class Aether extends ServiceLocator
      *
      * @return bool
      */
-    private function runningInConsole()
+    public function runningInConsole()
     {
         return php_sapi_name() === 'cli';
     }

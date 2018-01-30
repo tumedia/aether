@@ -32,13 +32,12 @@ class TemplateService extends Service
         $variables['root'] = $config->getRoot();
         $variables['urlVars'] = $config->getUrlVars();
         $variables['runningMode'] = $options['AetherRunningMode'] ?? 'test';
-        // $variables['requestUri'] = $_SERVER['REQUEST_URI'];
-        // $variables['domain'] = $_SERVER['HTTP_HOST'];
 
         if ($container->bound('parsedUrl')) {
-            // $url = $container['parsedUrl'];
+            $url = $container['parsedUrl'];
 
-            // $variables['requestUri'] = $url
+            $variables['requestUri'] = $url->get('path').$url->get('query');
+            $variables['domain'] = $url->get('host');
         }
 
         if (isset($_SERVER['HTTP_REFERER'])) {
