@@ -63,6 +63,7 @@ class ModulePendingRenderTest extends TestCase
             'foo' => 'bar',
             'baz' => 'qux',
             'aether-says' => 'hi',
+            'AetherRunningMode' => 'test',
         ], $pending);
     }
 
@@ -102,6 +103,7 @@ class ModulePendingRenderTest extends TestCase
             'foo' => 'bar',
             'baz' => 'qux',
             'aether-says' => 'hi',
+            'AetherRunningMode' => 'test',
             'lorem' => 'ipsum',
             'kristoffer' => 'var',
             'her' => 'hei',

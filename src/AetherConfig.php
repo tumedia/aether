@@ -151,7 +151,14 @@ class AetherConfig
     {
         $doc = new DOMDocument;
         $doc->preserveWhiteSpace = false;
-        $doc->load($file);
+
+        if (app()->isProduction()) {
+            $doc->load($file);
+        } else {
+            $doc->loadXML(
+                preg_replace('/cache="[0-9]*"/', '', file_get_contents($file))
+            );
+        }
 
         $importNodes = (new DOMXPath($doc))->query('//import');
 
