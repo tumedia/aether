@@ -43,4 +43,19 @@ class CacheHandlerTest extends TestCase
 
         $this->assertEmpty($this->handler->read('foo'));
     }
+
+    public function testOpenMethodExistsButDoesntDoAnything()
+    {
+        $this->assertTrue($this->handler->open('foo', 'bar'));
+    }
+
+    public function testCloseMethodExistsButDoesntDoAnything()
+    {
+        $this->assertTrue($this->handler->close());
+    }
+
+    public function testGcMethodExistsButDoesntDoAnything()
+    {
+        $this->assertTrue($this->handler->gc(0));
+    }
 }

@@ -24,7 +24,6 @@ class_alias('Aether\Exceptions\MissingFile', 'AetherMissingFileException');
 
 class_alias('Aether\Modules\ModuleFactory', 'AetherModuleFactory');
 class_alias('Aether\Modules\PendingRender', 'AetherModulePendingRender');
-class_alias('Aether\Modules\ModuleHeader', 'AetherModuleHeader');
 class_alias('Aether\Modules\Module', 'AetherModule');
 
 class_alias('Aether\Response\JsonCommentFiltered', 'AetherJsonCommentFilteredResponse');

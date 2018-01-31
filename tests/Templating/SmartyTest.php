@@ -2,14 +2,27 @@
 
 namespace Tests\Templating;
 
-use Aether\Aether;
 use Tests\TestCase;
 
 class SmartyTest extends TestCase
 {
     public function testGetSmartyEngine()
     {
-        $tpl = $this->getTemplateEngine(['foo' => [
+        $tpl = $this->aether->getTemplate();
+
+        $tpl->set('foo', [
+            'a' => 'hello',
+            'b' => 'world',
+        ]);
+
+        $this->assertContains('hello world', $tpl->fetch('test.tpl'));
+    }
+
+    public function testSetAllMethod()
+    {
+        $tpl = $this->aether->getTemplate();
+
+        $tpl->setAll(['foo' => [
             'a' => 'hello',
             'b' => 'world',
         ]]);
@@ -19,27 +32,23 @@ class SmartyTest extends TestCase
 
     public function testTemplateExists()
     {
-        $tpl = $this->getTemplateEngine();
+        $tpl = $this->aether->getTemplate();
 
         $this->assertTrue($tpl->templateExists('test.tpl'));
         $this->assertFalse($tpl->templateExists('martin.tpl'));
     }
 
-    protected function tearDown()
+    public function testSearchpathIsIncluded()
     {
-        array_map('unlink', glob(dirname(__DIR__).'/Fixtures/templates/compiled/*.php'));
-    }
-
-    private function getTemplateEngine(array $data = [])
-    {
-        $this->setUrl('/');
+        $this->setUrl('http://raw.no/searchpath-test');
 
         $tpl = $this->aether->getTemplate();
 
-        foreach ($data as $key => $value) {
-            $tpl->set($key, $value);
-        }
+        $this->assertContains('Yay!', $tpl->fetch('searchpath-found.tpl'));
+    }
 
-        return $tpl;
+    protected function tearDown()
+    {
+        array_map('unlink', glob(dirname(__DIR__).'/Fixtures/templates/compiled/*.php'));
     }
 }

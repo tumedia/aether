@@ -2,22 +2,22 @@
 
 namespace Tests;
 
-use AetherSection;
-use AetherSectionFactory;
-use AetherServiceLocator;
+use Aether\ServiceLocator;
+use Aether\Sections\Section;
 use PHPUnit\Framework\TestCase;
+use Aether\Sections\SectionFactory;
 use Tests\Fixtures\Sections\Testsection;
 
 class SectionFactoryTest extends TestCase
 {
     public function testCreate()
     {
-        $section = AetherSectionFactory::create(
+        $section = SectionFactory::create(
             Testsection::class,
-            new AetherServiceLocator
+            new ServiceLocator
         );
 
-        $this->assertInstanceOf(AetherSection::class, $section);
+        $this->assertInstanceOf(Section::class, $section);
         $this->assertInstanceOf(Testsection::class, $section);
     }
 }

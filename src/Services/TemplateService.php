@@ -36,7 +36,7 @@ class TemplateService extends Service
         if ($container->bound('parsedUrl')) {
             $url = $container['parsedUrl'];
 
-            $variables['requestUri'] = $url->get('path').$url->get('query');
+            $variables['requestUri'] = $this->getRequestUri($url);
             $variables['domain'] = $url->get('host');
         }
 
@@ -47,5 +47,10 @@ class TemplateService extends Service
         $variables['options'] = $options;
 
         return $variables;
+    }
+
+    protected function getRequestUri($url)
+    {
+        return $url->get('path').($url->get('query') ? '?'.$url->get('query') : '');
     }
 }

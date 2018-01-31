@@ -43,6 +43,11 @@
     </site>
     <site name="raw.no">
         <urlRules>
+            <rule match="searchpath-test">
+                <option name="searchpath">
+                    ../TemplateSearchpathFixture/
+                </option>
+            </rule>
             <rule match="module-pending-render">
                 <option name="foo">bar</option>
                 <option name="baz">qux</option>

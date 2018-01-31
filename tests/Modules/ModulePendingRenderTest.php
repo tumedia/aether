@@ -2,13 +2,7 @@
 
 namespace Tests;
 
-use Aether;
-use ReflectionClass;
-use Aether\UrlParser;
-use Aether\AetherConfig;
-use AetherServiceLocator;
-use AetherModulePendingRender;
-use Illuminate\Config\Repository;
+use Aether\Modules\PendingRender;
 use Tests\Fixtures\Modules\Hellolocal;
 use Tests\Fixtures\Modules\OptionsSerializer;
 
@@ -16,14 +10,14 @@ class ModulePendingRenderTest extends TestCase
 {
     public function testItRendersWhenCastToString()
     {
-        $pending = new AetherModulePendingRender(Hellolocal::class);
+        $pending = new PendingRender(Hellolocal::class);
 
         $this->assertEquals('Hello local', (string)$pending);
     }
 
     public function testDynamicCallsToSetOptions()
     {
-        $pending = new AetherModulePendingRender(OptionsSerializer::class);
+        $pending = new PendingRender(OptionsSerializer::class);
 
         $pending->withFoo('bar')->withBaz('qux');
 
@@ -41,7 +35,7 @@ class ModulePendingRenderTest extends TestCase
             ],
         ]);
 
-        $pending = new AetherModulePendingRender(OptionsSerializer::class);
+        $pending = new PendingRender(OptionsSerializer::class);
 
         $pending->merge('note');
 
@@ -55,7 +49,7 @@ class ModulePendingRenderTest extends TestCase
     {
         $this->setUrl('http://raw.no/module-pending-render');
 
-        $pending = new AetherModulePendingRender(OptionsSerializer::class);
+        $pending = new PendingRender(OptionsSerializer::class);
 
         $this->assertSame($pending, $pending->legacyMode());
 
@@ -71,7 +65,7 @@ class ModulePendingRenderTest extends TestCase
     {
         $this->setUrl('http://raw.no/module-pending-render');
 
-        $pending = new AetherModulePendingRender(OptionsSerializer::class);
+        $pending = new PendingRender(OptionsSerializer::class);
 
         $this->assertOptions([], $pending);
     }
@@ -89,7 +83,7 @@ class ModulePendingRenderTest extends TestCase
             ],
         ]);
 
-        $pending = new AetherModulePendingRender(OptionsSerializer::class);
+        $pending = new PendingRender(OptionsSerializer::class);
 
         $pending->setOptions([
             'lorem' => 'ipsum',
@@ -115,7 +109,7 @@ class ModulePendingRenderTest extends TestCase
     {
         $pending = OptionsSerializer::draw();
 
-        $this->assertInstanceOf(AetherModulePendingRender::class, $pending);
+        $this->assertInstanceOf(PendingRender::class, $pending);
 
         $this->assertOptions([], $pending);
     }
@@ -138,6 +132,16 @@ class ModulePendingRenderTest extends TestCase
         ]);
 
         $this->assertOptions(['foo' => 'bar'], OptionsSerializer::draw('note'));
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testItThrowsWhenDynamicallyCallingANonExistingMethod()
+    {
+        $pending = new PendingRender(OptionsSerializer::class);
+
+        $pending->fooBar();
     }
 
     private function assertOptions($expected, string $renderedModule)

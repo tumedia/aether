@@ -2,11 +2,11 @@
 
 namespace Tests;
 
-use AetherConfig;
-use AetherUrlParser;
-use AetherTextResponse;
-use AetherSectionFactory;
-use AetherServiceLocator;
+use Aether\UrlParser;
+use Aether\AetherConfig;
+use Aether\Response\Text;
+use Aether\ServiceLocator;
+use Aether\Sections\SectionFactory;
 use Tests\Fixtures\Sections\Testsection;
 
 class SectionTest extends TestCase
@@ -23,24 +23,24 @@ class SectionTest extends TestCase
 
         return;
 
-        $sl = new AetherServiceLocator;
+        $sl = new ServiceLocator;
         $config = $this->getLoadedConfig('');
         $sl->set('aetherConfig', $config);
 
-        $section = AetherSectionFactory::create(
+        $section = SectionFactory::create(
             Testsection::class,
             $sl
         );
 
         $response = $section->response();
-        $this->assertInstanceOf(AetherTextResponse::class, $response);
+        $this->assertInstanceOf(Text::class, $response);
         $this->assertEquals('404 Eg fant han ikkje', $response->get(), 'Response should be NotFoundSection\'s output');
         $this->assertArrayNotHasKey('id', $response->options, 'Options should be cleared when reloading config');
     }
 
     private function getLoadedConfig($url)
     {
-        $aetherUrl = new AetherUrlParser;
+        $aetherUrl = new UrlParser;
         $aetherUrl->parse($url);
 
         $conf = $this->getConfig();

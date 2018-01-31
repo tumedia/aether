@@ -6,23 +6,39 @@ class ArrayDriver implements Cache
 {
     protected $store = [];
 
-    public function set($name, $data, $ttl = false)
+    public function set($name, $data, $ttl = INF)
     {
         $this->store[$name] = [
             'time' => time(),
             'ttl'  => $ttl,
             'data' => $data,
         ];
+
+        return true;
     }
 
-    public function get($name, $maxAge = false)
+    public function get($name, $maxAge = INF)
     {
-        return $this->has($name) ? $this->store[$name] : false;
+        if (! array_key_exists($name, $this->store)) {
+            return false;
+        }
+
+        $payload = $this->store[$name];
+
+        $ttl = min($payload['ttl'], $maxAge);
+
+        if ($payload['time'] + $ttl <= time()) {
+            unset($this->store[$name]);
+
+            return false;
+        }
+
+        return $this->store[$name]['data'];
     }
 
     public function has($name)
     {
-        return array_key_exists($name, $this->store);
+        return $this->get($name) !== false;
     }
 
     public function rm($name)

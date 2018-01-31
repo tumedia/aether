@@ -3,13 +3,13 @@
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
-use AetherJSONCommentFilteredResponse;
+use Aether\Response\JsonCommentFiltered;
 
 class JsonCommentFilteredResponseTest extends TestCase
 {
     public function testResponse()
     {
-        $response = new AetherJSONCommentFilteredResponse([
+        $response = new JsonCommentFiltered([
             'foo' => 'bar',
             ' bar' => 'foo',
         ]);

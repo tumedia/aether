@@ -2,14 +2,14 @@
 
 namespace Tests;
 
-use AetherJSONResponse;
+use Aether\Response\Json;
 use PHPUnit\Framework\TestCase;
 
 class JsonResponseTest extends TestCase
 {
     public function testResponse()
     {
-        $response = new AetherJSONResponse([
+        $response = new Json([
             'foo'  => 'bar',
             ' bar' => 'foo',
         ]);
