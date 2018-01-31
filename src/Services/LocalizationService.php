@@ -8,7 +8,7 @@ class LocalizationService extends Service
 {
     public function register()
     {
-        $options = $this->container[AetherConfig::class]->getOptions();
+        $options = $this->container['aetherConfig']->getOptions();
 
         setlocale(LC_ALL, $options['locale'] ?? 'nb_NO.UTF-8');
         setlocale(LC_NUMERIC, $options['lc_numeric'] ?? 'C');

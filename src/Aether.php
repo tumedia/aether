@@ -73,6 +73,8 @@ class Aether extends ServiceLocator
         $this->setUpBaseBindings();
 
         $this->registerServices();
+
+        $this->registerCoreContainerAliases();
     }
 
     /**
@@ -120,8 +122,7 @@ class Aether extends ServiceLocator
     {
         static::setInstance($this);
 
-        // todo: figure out how to bind and alias properly
-        $this->instance(ServiceLocator::class, $this);
+        $this->instance('app', $this);
 
         if (! $this->runningInConsole()) {
             $this->singleton('parsedUrl', function ($container) {
@@ -159,16 +160,31 @@ class Aether extends ServiceLocator
      */
     private function initiateSection()
     {
-        $this->instance(Section::class, SectionFactory::create(
-            $this->make(AetherConfig::class)->getSection(),
+        $this->instance('section', SectionFactory::create(
+            $this['aetherConfig']->getSection(),
             $this
         ));
 
-        // @todo: is this needed?
-        $this->alias(Section::class, 'section');
+        $this->alias('section', Section::class);
 
-        if ($this->bound(Timer::class)) {
-            $this->make(Timer::class)->tick('aether_main', 'section_initiate');
+        if ($this->bound('timer')) {
+            $this['timer']->tick('aether_main', 'section_initiate');
+        }
+    }
+
+    protected function registerCoreContainerAliases()
+    {
+        foreach ([
+            'app'          => [\Aether\Aether::class, \Aether\ServiceLocator::class, \Illuminate\Container\Container::class, \Illuminate\Contracts\Container\Container::class, \Psr\Container\ContainerInterface::class],
+            'cache'        => [\Aether\Cache\Cache::class],
+            'config'       => [\Aether\Config::class, \Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
+            'aetherConfig' => [\Aether\AetherConfig::class],
+            'template'     => [\Aether\Templating\Template::class],
+            'timer'        => [\Aether\Timer::class],
+        ] as $key => $aliases) {
+            foreach ($aliases as $alias) {
+                $this->alias($key, $alias);
+            }
         }
     }
 }

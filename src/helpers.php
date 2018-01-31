@@ -75,7 +75,7 @@ if (!function_exists('config')) {
      */
     function config(string $key = null, $default = null)
     {
-        $config = Aether::getInstance()->make(Config::class);
+        $config = app('config');
 
         if (is_null($key)) {
             return $config;

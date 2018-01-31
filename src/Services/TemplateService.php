@@ -2,14 +2,13 @@
 
 namespace Aether\Services;
 
-use Aether\Templating\Template;
 use Aether\Templating\SmartyTemplate;
 
 class TemplateService extends Service
 {
     public function register()
     {
-        $this->container->singleton(Template::class, function ($container) {
+        $this->container->singleton('template', function ($container) {
             $template = new SmartyTemplate($container);
 
             $providers = $container->getVector('aetherProviders');

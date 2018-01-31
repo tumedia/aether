@@ -2,6 +2,7 @@
 
 namespace Aether\Services;
 
+use Aether\Config;
 use Aether\ServiceLocator;
 
 abstract class Service
@@ -24,4 +25,25 @@ abstract class Service
      * @return void
      */
     abstract public function register();
+
+    /**
+     * dsfsd
+     *
+     * @param  string  $path
+     * @param  string  $key
+     * @return void
+     */
+    protected function mergeConfigFrom($path, $key)
+    {
+        $config = $this->container['config'];
+
+        if ($config->wasLoadedFromCompiled()) {
+            return;
+        }
+
+        $localConfig = $config->get($key, []);
+
+        // todo: figure out if this is a good merging strategy
+        $config->set($key, array_replace_recursive(require $path, $localConfig));
+    }
 }

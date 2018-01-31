@@ -67,6 +67,6 @@ abstract class TestCase extends BaseTestCase
 
         // Make sure to match the URL with the Aether config so everything's
         // up-to-date...
-        $this->aether[AetherConfig::class]->matchUrl($this->aether['parsedUrl']);
+        $this->aether['aetherConfig']->matchUrl($this->aether['parsedUrl']);
     }
 }

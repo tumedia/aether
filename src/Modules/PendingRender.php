@@ -172,12 +172,10 @@ class PendingRender
      */
     protected function getAetherOptionsToMerge()
     {
-        if (!$this->legacyMode || !Aether::getInstance()->bound(AetherConfig::class)) {
+        if (!$this->legacyMode || ! app()->bound('aetherConfig')) {
             return [];
         }
 
-        $config = Aether::getInstance()->make(AetherConfig::class);
-
-        return $config->getOptions();
+        return app('aetherConfig')->getOptions();
     }
 }

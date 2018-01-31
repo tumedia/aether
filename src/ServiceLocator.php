@@ -31,7 +31,7 @@ class ServiceLocator extends Container
      */
     public function getTemplate()
     {
-        return $this->make(Template::class);
+        return $this['template'];
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Aether\Services;
 
-use Aether\Cache\Cache;
 use Aether\Cache\FileDriver;
 use Aether\Cache\ArrayDriver;
 use InvalidArgumentException;
@@ -20,12 +19,9 @@ class CacheService extends Service
             throw new InvalidArgumentException("Cache driver [{$driver}] is not supported");
         }
 
-        $this->container->singleton(Cache::class, function () use ($method) {
+        $this->container->singleton('cache', function () use ($method) {
             return $this->{$method}();
         });
-
-        // Backwards compatibility...
-        $this->container->alias(Cache::class, 'cache');
     }
 
     protected function getMemcacheDriver()

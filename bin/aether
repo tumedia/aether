@@ -2,6 +2,9 @@
 <?php
 
 use Aether\Aether;
+use Aether\Console\Kernel;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 $basePath = getcwd();
 
@@ -13,6 +16,15 @@ if (! file_exists("{$basePath}/config/aether.config.xml")) {
 
 require_once $basePath.'/vendor/autoload.php';
 
-define('ARTISAN_BINARY', __FILE__);
-
 $aether = new Aether($basePath);
+
+$kernel = $aether->make(Kernel::class);
+
+$status = $kernel->handle(
+    $input = new ArgvInput,
+    new ConsoleOutput
+);
+
+$kernel->terminate($input, $status);
+
+exit($status);
