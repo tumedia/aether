@@ -47,31 +47,17 @@ class Config extends Repository
         foreach (glob($configPath.'/*.php') as $path) {
             @list($configName, $matchEnv) = explode('.', basename($path, '.php'), 2);
 
-            // If the `compiled.php` file is listed, skip it.
-            if ($configName === 'compiled') {
-                continue;
+            // If the config file is *not* targeting an environment, go ahead
+            // and load it.
+            if (! $matchEnv) {
+                $config[$configName] = require "{$configPath}/{$configName}.php";
             }
-
-            if (! isset($config[$configName])) {
-                // Check if the file exists before requiring it. This edge case
-                // can occur if for instance "foo.someEnv.php" is present, but
-                // "foo.php" is not.
-                $config[$configName] = file_exists($file = "{$configPath}/{$configName}.php")
-                    ? require $file
-                    : [];
-            }
-
-            // If the config file is targeting a specific environment (using the
-            // "{$config}.{$environment}.php" syntax), we'll use
-            // `array_replace_recursive` to merge it into the base config.
-            if (
-                $matchEnv &&
-                $matchEnv === env('APP_ENV') &&
-                file_exists($envConfig = "{$configPath}/{$configName}.{$matchEnv}.php")
-            ) {
+            // Otherwise, we'll check if the target environment matches the
+            // actual environment before merging it in.
+            elseif ($matchEnv === env('APP_ENV')) {
                 $config[$configName] = array_replace_recursive(
-                    $config[$configName],
-                    require $envConfig
+                    $config[$configName] ?? [],
+                    require "{$configPath}/{$configName}.{$matchEnv}.php"
                 );
             }
         }
