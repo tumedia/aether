@@ -3,7 +3,9 @@
 namespace Aether\Console;
 
 use Aether\Aether;
-use Aether\Console\Commands\GenerateConfigCommand;
+use Aether\Console\Commands\TinkerCommand;
+use Aether\Console\Commands\ConfigClearCommand;
+use Aether\Console\Commands\ConfigGenerateCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application as SymfonyApplication;
@@ -19,7 +21,16 @@ class Application extends SymfonyApplication
 
         $this->aether = $aether;
 
-        $this->add(new GenerateConfigCommand);
+        // $this->setAutoExit(false);
+        // $this->setCatchExceptions(false);
+
+        // todo: something related to errors isn't working properly.
+        // should probably fix
+
+        // todo: move this
+        $this->add(new ConfigClearCommand);
+        $this->add(new ConfigGenerateCommand);
+        $this->add(new TinkerCommand);
     }
 
     public function add(SymfonyCommand $command)

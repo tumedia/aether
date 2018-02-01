@@ -10,6 +10,7 @@
         "illuminate/console": "5.5.*",
         "illuminate/container": "5.5.*",
         "illuminate/contracts": "5.5.*",
+        "psy/psysh": "^0.8",
         "sentry/sentry": "1.7.*",
         "smarty/smarty": "3.1.30",
         "vlucas/phpdotenv": "^2.4"
@@ -32,7 +33,6 @@
         }
     },
     "bin": [
-        "./bin/generateConfig",
         "./bin/updateLocales",
         "./bin/aether"
     ],

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 $basePath = getcwd();
 
 if (! file_exists("{$basePath}/config/aether.config.xml")) {
-    echo "Failed to detect Aether project.\n";
+    echo "Failed to detect Aether project in working directory.\n";
 
     exit(1);
 }
