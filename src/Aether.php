@@ -71,7 +71,7 @@ class Aether
      *
      * @return \Aether\Aether
      */
-    public static function getInstance(): Aether
+    public static function getInstance()
     {
         return static::$globalInstance;
     }
