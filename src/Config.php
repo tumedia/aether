@@ -52,8 +52,13 @@ class Config extends Repository
                 continue;
             }
 
-            if (!isset($config[$configName])) {
-                $config[$configName] = require "{$configPath}/{$configName}.php";
+            if (! isset($config[$configName])) {
+                // Check if the file exists before requiring it. This edge case
+                // can occur if for instance "foo.someEnv.php" is present, but
+                // "foo.php" is not.
+                $config[$configName] = file_exists($file = "{$configPath}/{$configName}.php")
+                    ? require $file
+                    : [];
             }
 
             // If the config file is targeting a specific environment (using the
