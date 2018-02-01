@@ -99,7 +99,7 @@ class Aether extends ServiceLocator
      */
     public function isProduction()
     {
-        return $this[Config::class]['app.env'] === 'production';
+        return $this['config']['app.env'] === 'production';
     }
 
     /**
