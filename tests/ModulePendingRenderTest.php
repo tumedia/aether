@@ -154,10 +154,18 @@ class ModulePendingRenderTest extends TestCase
                 'note' => [
                     'foo' => 'bar',
                 ],
+                'another-one' => [
+                    'another-one' => 'hell yes',
+                ],
             ],
         ]);
 
         $this->assertOptions(['foo' => 'bar'], OptionsSerializer::draw('note'));
+
+        $this->assertOptions([
+            'foo' => 'bar',
+            'another-one' => 'hell yes',
+        ], OptionsSerializer::draw('note', 'another-one'));
     }
 
     private function assertOptions($expected, string $renderedModule)
