@@ -21,6 +21,19 @@ if (!function_exists('app')) {
     }
 }
 
+if (!function_exists('resolve')) {
+    /**
+     * Resolve a service from the container.
+     *
+     * @param  string  $name
+     * @return mixed
+     */
+    function resolve($name)
+    {
+        return app($abstract);
+    }
+}
+
 if (!function_exists('env')) {
     /**
      * Get an environment variable.
