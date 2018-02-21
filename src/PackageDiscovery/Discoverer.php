@@ -55,8 +55,7 @@ class Discoverer
 
     protected function getPackageReference($package)
     {
-        $ref = object_get($package, 'dist.reference')
-            ?: object_get($package, 'source.reference');
+        $ref = $package->{$package->{'installation-source'}}->reference;
 
         return substr($ref, 0, 12);
     }
