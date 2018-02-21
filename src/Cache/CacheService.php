@@ -1,11 +1,9 @@
 <?php
 
-namespace Aether\Services;
+namespace Aether\Cache;
 
-use Aether\Cache\FileDriver;
-use Aether\Cache\ArrayDriver;
+use Aether\Services\Service;
 use InvalidArgumentException;
-use Aether\Cache\MemcacheDriver;
 
 class CacheService extends Service
 {

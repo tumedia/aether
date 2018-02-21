@@ -8,7 +8,7 @@ class SentryService extends Service
 {
     public function register()
     {
-        if (!config('app.sentry.enabled', false)) {
+        if (! config('app.sentry.enabled', false)) {
             return;
         }
 

@@ -8,17 +8,19 @@ class LocalizationService extends Service
 {
     public function register()
     {
-        $options = $this->container['aetherConfig']->getOptions();
+        $this->container->booted(function ($container) {
+            $options = $container['aetherConfig']->getOptions();
 
-        setlocale(LC_ALL, $options['locale'] ?? 'nb_NO.UTF-8');
-        setlocale(LC_NUMERIC, $options['lc_numeric'] ?? 'C');
+            setlocale(LC_ALL, $options['locale'] ?? 'nb_NO.UTF-8');
+            setlocale(LC_NUMERIC, $options['lc_numeric'] ?? 'C');
 
-        if (isset($options['lc_messages'])) {
-            setlocale(LC_MESSAGES, $options['lc_messages']);
+            if (isset($options['lc_messages'])) {
+                setlocale(LC_MESSAGES, $options['lc_messages']);
 
-            bindtextdomain('messages', $this->container['projectRoot'].'locale');
-            bind_textdomain_codeset('messages', 'UTF-8');
-            textdomain('messages');
-        }
+                bindtextdomain('messages', $container['projectRoot'].'locale');
+                bind_textdomain_codeset('messages', 'UTF-8');
+                textdomain('messages');
+            }
+        });
     }
 }

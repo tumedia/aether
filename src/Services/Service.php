@@ -33,7 +33,7 @@ abstract class Service
      * @param  string  $key
      * @return void
      */
-    protected function mergeConfigFrom($path, $key)
+    protected function loadConfigFrom($path, $key)
     {
         $config = $this->container['config'];
 

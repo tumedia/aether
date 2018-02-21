@@ -44,16 +44,24 @@ class Aether extends ServiceLocator
      *
      * @var array
      */
-    private $services = [
+    private $coreServices = [
         Services\ConfigService::class,
         Services\WhoopsService::class,
         Services\LocalizationService::class,
         Services\SentryService::class,
-        Services\CacheService::class,
-        Services\SessionService::class,
-        Services\TemplateService::class,
+        Services\EventService::class,
+        Cache\CacheService::class,
+        Session\SessionService::class,
+        Templating\TemplateService::class,
         Services\TimerService::class,
+        Services\DatabaseService::class,
+        PackageDiscovery\PackageDiscoveryService::class,
     ];
+
+    /**
+     * @var array
+     */
+    private $bootedCallbacks = [];
 
     /**
      * Start Aether.
@@ -72,9 +80,20 @@ class Aether extends ServiceLocator
 
         $this->setUpBaseBindings();
 
-        $this->registerServices();
+        $this->registerCoreServices();
 
         $this->registerCoreContainerAliases();
+
+        $this->registerAppServices();
+
+        foreach ($this->bootedCallbacks as $callback) {
+            $callback($this);
+        }
+    }
+
+    public function booted($callback)
+    {
+        $this->bootedCallbacks[] = $callback;
     }
 
     /**
@@ -101,17 +120,6 @@ class Aether extends ServiceLocator
     {
         return $this['config']['app.env'] === 'production';
     }
-
-    /**
-     * Get the AetherServiceLocator instance.
-     *
-     * @return \Aether\ServiceLocator
-     */
-    // public function getServiceLocator()
-    // {
-    //     // @todo: can this be removeD?
-    //     return $this;
-    // }
 
     /**
      * Set up some important core bindings in the container.
@@ -141,16 +149,23 @@ class Aether extends ServiceLocator
         return php_sapi_name() === 'cli';
     }
 
-    /**
-     * Register services.
-     *
-     * @return void
-     */
-    private function registerServices()
+    private function registerCoreServices()
     {
-        foreach ($this->services as $service) {
-            (new $service($this))->register();
+        foreach ($this->coreServices as $service) {
+            $this->register($service);
         }
+    }
+
+    private function registerAppServices()
+    {
+        foreach ($this['config']->get('app.services') as $service) {
+            $this->register($service);
+        }
+    }
+
+    private function register($serviceClass)
+    {
+        (new $serviceClass($this))->register();
     }
 
     /**
@@ -176,9 +191,11 @@ class Aether extends ServiceLocator
     {
         foreach ([
             'app'          => [\Aether\Aether::class, \Aether\ServiceLocator::class, \Illuminate\Container\Container::class, \Illuminate\Contracts\Container\Container::class, \Psr\Container\ContainerInterface::class],
+            'aetherConfig' => [\Aether\AetherConfig::class],
             'cache'        => [\Aether\Cache\Cache::class],
             'config'       => [\Aether\Config::class, \Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
-            'aetherConfig' => [\Aether\AetherConfig::class],
+            'db'           => [\Illuminate\Database\DatabaseManager::class],
+            'events'       => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
             'template'     => [\Aether\Templating\Template::class],
             'timer'        => [\Aether\Timer::class],
         ] as $key => $aliases) {

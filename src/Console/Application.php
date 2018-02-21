@@ -6,8 +6,6 @@ use Aether\Aether;
 use Aether\Console\Commands\TinkerCommand;
 use Aether\Console\Commands\ConfigClearCommand;
 use Aether\Console\Commands\ConfigGenerateCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 

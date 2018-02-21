@@ -15,8 +15,6 @@ class ConfigService extends Service
         $this->registerAppConfig();
 
         $this->registerAetherConfig();
-
-        $this->mergeConfigFrom(dirname(__DIR__).'/baseAppConfig.php', 'app');
     }
 
     protected function registerAppConfig()

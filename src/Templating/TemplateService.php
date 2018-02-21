@@ -1,8 +1,8 @@
 <?php
 
-namespace Aether\Services;
+namespace Aether\Templating;
 
-use Aether\Templating\SmartyTemplate;
+use Aether\Services\Service;
 
 class TemplateService extends Service
 {

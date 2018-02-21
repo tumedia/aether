@@ -1,8 +1,8 @@
 <?php
 
-namespace Aether\Services;
+namespace Aether\Session;
 
-use Aether\Session\CacheSessionHandler;
+use Aether\Services\Service;
 
 class SessionService extends Service
 {
