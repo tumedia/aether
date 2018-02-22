@@ -15,7 +15,7 @@ class Discoverer
 
     public function getServicesFromInstalledPackages()
     {
-        return Arr::flatten($this->mapInstalledPackages(function ($package) {
+        return Arr::collapse($this->mapInstalledPackages(function ($package) {
             return $package->extra->aether->services ?? [];
         }));
     }

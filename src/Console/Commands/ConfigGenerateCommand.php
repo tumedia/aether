@@ -41,11 +41,9 @@ class ConfigGenerateCommand extends Command
 
     protected function writeCompiledConfig($aether)
     {
-        $file = "{$this->aether['projectRoot']}config/compiled.php";
-
-        $data = '<?php return '.var_export($aether['config']->all(), true).';';
-
-        file_put_contents($file, $data);
+        $aether['config']->saveToFile(
+            "{$this->aether['projectRoot']}config/compiled.php"
+        );
     }
 
     protected function writeAetherConfig($aether)

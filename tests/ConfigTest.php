@@ -7,17 +7,41 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
 {
+    protected $expectedConfig = [
+        'bar' => [
+            'foo' => 'bar',
+        ],
+        'foo' => [
+            'lorem' => 'ipsum',
+        ]
+    ];
+
     public function testLoadingConfigFromProjectRoot()
     {
-        $config = new Config(__DIR__.'/Fixtures');
+        $config = $this->getConfig();
 
-        $this->assertSame([
-            'bar' => [
-                'foo' => 'bar',
-            ],
-            'foo' => [
-                'lorem' => 'ipsum',
-            ],
-        ], $config->all());
+        $this->assertSame($this->expectedConfig, $config->all());
+    }
+
+    public function testCompilingTheConfig()
+    {
+        $config = $this->getConfig();
+
+        $this->assertFalse($config->wasLoadedFromCompiled());
+
+        $config->saveToFile($file = __DIR__.'/Fixtures/config/compiled.php');
+
+        $config = $this->getConfig();
+
+        $this->assertTrue($config->wasLoadedFromCompiled());
+
+        $this->assertSame($this->expectedConfig, $config->all());
+
+        unlink($file);
+    }
+
+    protected function getConfig()
+    {
+        return new Config(__DIR__.'/Fixtures');
     }
 }

@@ -38,6 +38,19 @@ class Config extends Repository
     }
 
     /**
+     * Save the entire configuration array to a file.
+     *
+     * @param  string  $file
+     * @return void
+     */
+    public function saveToFile($file)
+    {
+        $data = '<?php return '.var_export($this->all(), true).';';
+
+        file_put_contents($file, $data);
+    }
+
+    /**
      * Load the configuration.
      *
      * @param  string $projectRoot
@@ -51,7 +64,7 @@ class Config extends Repository
         // If a `compiled.php` file exists, we'll use that. Should only be used
         // in a production environment.
         if (file_exists($compiled = $configPath.'/compiled.php')) {
-            $this->loadedCompiled = true;
+            $this->loadedFromCompiled = true;
 
             return require $compiled;
         }
