@@ -10,21 +10,25 @@ class PackageDiscoveryService extends Service
     {
         $config = $this->container['config'];
 
-        if ($config->wasLoadedFromCompiled()) {
-            return;
-        }
+        $this->container->bind(Discoverer::class, function ($app) {
+            return new Discoverer($app['projectRoot']);
+        });
 
+        if (! $config->wasLoadedFromCompiled()) {
+            $this->addPackageServicesToConfig($config);
+        }
+    }
+
+    protected function addPackageServicesToConfig($config)
+    {
         if (! $config->has('app.services')) {
             $config->set('app.services', []);
         }
 
-        foreach ($this->getDiscoverer()->getServicesFromInstalledPackages() as $service) {
+        $discoverer = $this->container[Discoverer::class];
+
+        foreach ($discoverer->getServicesFromInstalledPackages() as $service) {
             $config->push('app.services', $service);
         }
-    }
-
-    protected function getDiscoverer()
-    {
-        return new Discoverer($this->container['projectRoot']);
     }
 }

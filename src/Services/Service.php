@@ -27,13 +27,16 @@ abstract class Service
     abstract public function register();
 
     /**
-     * dsfsd
+     * Load base configuration from a given file. If the local app config
+     * already contains data under the given key, this method will not
+     * overwrite any existing values, it will simply fill in the blanks.
+     * Perfect for a package to load its base config.
      *
      * @param  string  $path
      * @param  string  $key
      * @return void
      */
-    protected function loadConfigFrom($path, $key)
+    protected function fillConfigFrom($path, $key)
     {
         $config = $this->container['config'];
 
@@ -43,7 +46,6 @@ abstract class Service
 
         $localConfig = $config->get($key, []);
 
-        // todo: figure out if this is a good merging strategy
         $config->set($key, array_replace_recursive(require $path, $localConfig));
     }
 }
