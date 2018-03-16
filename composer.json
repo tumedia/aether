@@ -7,7 +7,7 @@
         "php": ">=5.4",
         "filp/whoops": "^2.1",
         "illuminate/config": "5.5.*",
-        "sentry/sentry": "1.7.*",
+        "sentry/sentry": "1.8.*",
         "smarty/smarty": "3.1.30",
         "vlucas/phpdotenv": "^2.4"
     },
