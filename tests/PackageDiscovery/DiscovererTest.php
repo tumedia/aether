@@ -20,7 +20,7 @@ class DiscovererTest extends TestCase
 
     public function testItReturnsEmptyArrayIfComposerIsNotInstalled()
     {
-        $discoverer = $this->getDiscoverer('i-do-not-exist');
+        $discoverer = $this->getDiscoverer('i-do-not-exist/');
 
         $this->assertEquals([], $discoverer->getPackageVersions());
         $this->assertEquals([], $discoverer->getServicesFromInstalledPackages());
@@ -37,8 +37,8 @@ class DiscovererTest extends TestCase
         ], $discoverer->getServicesFromInstalledPackages());
     }
 
-    protected function getDiscoverer($path = '/Fixtures/package-discovery/')
+    protected function getDiscoverer($path = 'fixtures/')
     {
-        return new Discoverer(dirname(__DIR__).$path);
+        return new Discoverer(__DIR__.'/'.$path);
     }
 }
