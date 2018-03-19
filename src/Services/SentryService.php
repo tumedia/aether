@@ -23,7 +23,7 @@ class SentryService extends Service
 
     protected function getClient()
     {
-        $projectRoot = rtrim($this->sl->get('projectRoot'), '/');
+        $projectRoot = rtrim($this->container['projectRoot'], '/');
 
         return new Raven_Client(config('app.sentry.dsn'), [
             'environment' => config('app.env'),
