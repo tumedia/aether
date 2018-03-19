@@ -38,7 +38,7 @@ abstract class Module
         $pending = new PendingRender(static::class);
 
         if (is_string($initial)) {
-            $pending->merge($initial);
+            $pending->merge(...func_get_args());
         } elseif (is_array($initial)) {
             $pending->setOptions($initial);
         }
