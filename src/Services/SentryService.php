@@ -28,9 +28,7 @@ class SentryService extends Service
         return new Raven_Client(config('app.sentry.dsn'), [
             'environment' => config('app.env'),
             'app_path' => $projectRoot,
-            'prefixes' => [
-                dirname($projectRoot),
-            ],
+            'prefixes' => [$projectRoot],
             'excluded_app_paths' => ["{$projectRoot}/vendor"],
             'trace' => true,
             'curl_method' => 'sync',
