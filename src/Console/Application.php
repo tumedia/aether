@@ -22,9 +22,6 @@ class Application extends SymfonyApplication
         // $this->setAutoExit(false);
         // $this->setCatchExceptions(false);
 
-        // todo: something related to errors isn't working properly.
-        // should probably fix
-
         // todo: move this
         $this->add(new ConfigClearCommand);
         $this->add(new ConfigGenerateCommand);
