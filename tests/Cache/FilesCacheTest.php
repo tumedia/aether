@@ -2,13 +2,11 @@
 
 namespace Tests\Cache;
 
-use AetherCacheFiles;
 use Tests\Traits\FileCache;
-use PHPUnit\Framework\TestCase;
 
-class FilesCacheTest extends TestCase
+class FilesCacheTest extends AbstractCacheTest
 {
-    use FileCache, CacheTestsTrait;
+    use FileCache;
 
     protected function setUp()
     {

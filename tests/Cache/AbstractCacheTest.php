@@ -2,7 +2,9 @@
 
 namespace Tests\Cache;
 
-trait CacheTestsTrait
+use PHPUnit\Framework\TestCase;
+
+abstract class AbstractCacheTest extends TestCase
 {
     protected $cache;
 
