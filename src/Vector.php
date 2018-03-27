@@ -82,7 +82,7 @@ class Vector implements ArrayAccess, Iterator
     }
     public function offsetSet($offset, $value)
     {
-        if (empty($offset)) {
+        if (is_null($offset)) {
             $offset = count($this->data);
         }
         $this->data[$offset] = $value;
