@@ -2,8 +2,6 @@
 
 namespace Aether\Templating;
 
-use Aether\ServiceLocator;
-
 /**
  * Super class for templating interface of Aether
  *

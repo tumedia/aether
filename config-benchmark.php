@@ -5,7 +5,8 @@ use Aether\UrlParser;
 
 require_once __DIR__.'/vendor/autoload.php';
 
-function benchmark($name, callable $function, $iterations = 2000) {
+function benchmark($name, callable $function, $iterations = 2000)
+{
     $start = microtime(true);
 
     for ($i = 0; $i < $iterations; $i++) {
@@ -17,7 +18,8 @@ function benchmark($name, callable $function, $iterations = 2000) {
     echo "Ran the benchmark \"{$name}\" {$iterations} times in {$timeInMs} s\n";
 }
 
-function getAether() {
+function getAether()
+{
     $aether = new Aether(__DIR__.'/tests/Fixtures');
 
     $aether->singleton('parsedUrl', function () {

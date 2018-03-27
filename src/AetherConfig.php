@@ -8,7 +8,6 @@ use DOMXPath;
 use Exception;
 use DOMElement;
 use DOMDocument;
-use Aether\Aether;
 use Aether\Exceptions\MissingFile;
 use Aether\Exceptions\NoUrlRuleMatch;
 

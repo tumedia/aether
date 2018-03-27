@@ -2,7 +2,6 @@
 
 namespace Tests;
 
-use AetherConfig;
 use AetherTemplate;
 use AetherServiceLocator;
 

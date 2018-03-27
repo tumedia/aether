@@ -2,7 +2,6 @@
 
 namespace Aether\Modules;
 
-use Aether\Modules\Module;
 use Aether\ServiceLocator;
 use InvalidArgumentException;
 

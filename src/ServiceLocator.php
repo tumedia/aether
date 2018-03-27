@@ -2,7 +2,6 @@
 
 namespace Aether;
 
-use Exception;
 use Aether\Templating\Template;
 use Illuminate\Container\Container;
 use Illuminate\Container\EntryNotFoundException;

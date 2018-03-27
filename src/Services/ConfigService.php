@@ -2,11 +2,8 @@
 
 namespace Aether\Services;
 
-use Exception;
 use Aether\Config;
 use Aether\AetherConfig;
-use Aether\Exceptions\MissingFile;
-use Aether\Exceptions\NoUrlRuleMatch;
 
 class ConfigService extends Service
 {

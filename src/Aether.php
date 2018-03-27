@@ -2,10 +2,7 @@
 
 namespace Aether;
 
-use Exception;
-use Aether\Response\Json;
 use Aether\Sections\Section;
-use Aether\Response\Response;
 use Aether\Sections\SectionFactory;
 use Aether\Response\ResponseFactory;
 

@@ -4,10 +4,7 @@ namespace Aether\Response;
 
 use Aether\Aether;
 use Aether\AetherConfig;
-use Aether\Response\Json;
-use Aether\Response\Text;
 use Aether\Sections\Section;
-use Aether\Response\Response;
 use Aether\Modules\ModuleFactory;
 use Aether\Exceptions\ServiceNotFound;
 
