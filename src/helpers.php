@@ -30,7 +30,7 @@ if (!function_exists('resolve')) {
      */
     function resolve($name)
     {
-        return app($abstract);
+        return app($name);
     }
 }
 
