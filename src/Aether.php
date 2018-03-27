@@ -61,15 +61,9 @@ class Aether extends ServiceLocator
     private $bootedCallbacks = [];
 
     /**
-     * Start Aether.
-     * On start it will parse the projects configuration file,
-     * it will try to match the presented http request to a rule
-     * in the project configuration and create some overview
-     * over which modules it will need to render once
-     * a request to render them comes
+     * Create a new Aether instance.
      *
-     * @param  string|null  $projectRoot  The base path to the project.
-     * @return Aether
+     * @param  string|null  $projectRoot  The application's root directory.
      */
     public function __construct($projectRoot = null)
     {
