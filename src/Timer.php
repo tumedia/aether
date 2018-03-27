@@ -12,10 +12,7 @@ namespace Aether;
  */
 class Timer
 {
-    private $inspectPoints = [];
     private $timers = [];
-    private $lastTime = 0;
-    private $lastMem = 0;
 
     /**
      * Methods for doing timer operations
