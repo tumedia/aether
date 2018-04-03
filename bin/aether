@@ -20,11 +20,6 @@ $aether = new Aether($basePath);
 
 $kernel = $aether->make(Kernel::class);
 
-$status = $kernel->handle(
-    $input = new ArgvInput,
-    new ConsoleOutput
-);
-
-$kernel->terminate($input, $status);
+$status = $kernel->handle($input = new ArgvInput, new ConsoleOutput);
 
 exit($status);

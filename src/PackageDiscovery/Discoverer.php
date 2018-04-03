@@ -13,10 +13,10 @@ class Discoverer
         $this->projectRoot = $projectRoot;
     }
 
-    public function getServicesFromInstalledPackages()
+    public function getProvidersFromInstalledPackages()
     {
         return Arr::collapse($this->mapInstalledPackages(function ($package) {
-            return $package->extra->aether->services ?? [];
+            return $package->extra->aether->providers ?? [];
         }));
     }
 

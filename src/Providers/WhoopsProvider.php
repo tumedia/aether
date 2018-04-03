@@ -1,6 +1,6 @@
 <?php
 
-namespace Aether\Services;
+namespace Aether\Providers;
 
 use Whoops\Util\Misc;
 use Whoops\Run as Whoops;
@@ -8,9 +8,9 @@ use Whoops\Handler\PlainTextHandler;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Handler\JsonResponseHandler;
 
-class WhoopsService extends Service
+class WhoopsProvider extends Provider
 {
-    public function register()
+    public function boot()
     {
         if (config('app.env', '') !== 'local') {
             return;
@@ -25,7 +25,7 @@ class WhoopsService extends Service
 
     protected function getHandler()
     {
-        if ($this->container->runningInConsole()) {
+        if ($this->aether->runningInConsole()) {
             return new PlainTextHandler;
         }
 

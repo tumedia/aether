@@ -2,17 +2,17 @@
 
 namespace Aether\Templating;
 
-use Aether\Services\Service;
+use Aether\Providers\Provider;
 
-class TemplateService extends Service
+class TemplateProvider extends Provider
 {
     public function register()
     {
-        $this->container->singleton('template', function ($container) {
-            $template = new SmartyTemplate($container);
+        $this->aether->singleton('template', function ($aether) {
+            $template = new SmartyTemplate($aether);
 
-            $providers = $container->getVector('aetherProviders');
-            $variables = $this->getGlobalVariables($container);
+            $providers = $aether->getVector('aetherProviders');
+            $variables = $this->getGlobalVariables($aether);
 
             $template->set('aether', compact('providers') + $variables);
 
@@ -20,9 +20,9 @@ class TemplateService extends Service
         });
     }
 
-    protected function getGlobalVariables($container)
+    protected function getGlobalVariables($aether)
     {
-        $config = $container['aetherConfig'];
+        $config = $aether['aetherConfig'];
         $options = $config->getOptions();
 
         $variables = [];
@@ -32,8 +32,8 @@ class TemplateService extends Service
         $variables['urlVars'] = $config->getUrlVars();
         $variables['runningMode'] = $options['AetherRunningMode'] ?? 'test';
 
-        if ($container->bound('parsedUrl')) {
-            $url = $container['parsedUrl'];
+        if ($aether->bound('parsedUrl')) {
+            $url = $aether['parsedUrl'];
 
             $variables['requestUri'] = $this->getRequestUri($url);
             $variables['domain'] = $url->get('host');

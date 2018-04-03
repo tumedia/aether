@@ -2,27 +2,27 @@
 
 namespace Aether\Console;
 
-use Aether\Aether;
 use Illuminate\Console\Command as BaseCommand;
 
 abstract class Command extends BaseCommand
 {
+    /**
+     * @var \Aether\Aether
+     */
     protected $aether;
 
-    public function setAether(Aether $aether)
+    /**
+     * {@inheritdoc}
+     */
+    public function setLaravel($laravel)
     {
-        $this->aether = $aether;
+        parent::setLaravel($laravel);
 
-        $this->setLaravel($aether);
+        $this->aether = $laravel;
     }
 
     public function getAether()
     {
         return $this->aether;
-    }
-
-    public function getLaravel()
-    {
-        return $this->getAether();
     }
 }

@@ -2,5 +2,4 @@
 
 return [
     'foo' => 'bar',
-    'bar' => 'baz',
 ];

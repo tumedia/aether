@@ -10,6 +10,7 @@ class ConfigTest extends TestCase
     protected $expectedConfig = [
         'bar' => [
             'foo' => 'bar',
+            'bar' => 'env override',
         ],
         'foo' => [
             'lorem' => 'ipsum',

@@ -2,10 +2,10 @@
 
 namespace Aether\Cache;
 
-use Aether\Services\Service;
 use InvalidArgumentException;
+use Aether\Providers\Provider;
 
-class CacheService extends Service
+class CacheProvider extends Provider
 {
     public function register()
     {
@@ -17,7 +17,7 @@ class CacheService extends Service
             throw new InvalidArgumentException("Cache driver [{$driver}] is not supported");
         }
 
-        $this->container->singleton('cache', function () use ($method) {
+        $this->aether->singleton('cache', function () use ($method) {
             return $this->{$method}();
         });
     }
@@ -31,7 +31,7 @@ class CacheService extends Service
 
     protected function getFileDriver()
     {
-        return new FileDriver($this->container['projectRoot'].'storage/cache');
+        return new FileDriver($this->aether['projectRoot'].'storage/cache');
     }
 
     protected function getArrayDriver()

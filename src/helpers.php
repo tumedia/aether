@@ -5,7 +5,8 @@ use Aether\Config;
 
 if (!function_exists('app')) {
     /**
-     * Get the available container instance.
+     * Get the available container instance, or resolve an abstract from the
+     * container.
      *
      * @param  string  $abstract
      * @param  array   $parameters

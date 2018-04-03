@@ -35,30 +35,29 @@ use Aether\Response\ResponseFactory;
 class Aether extends ServiceLocator
 {
     /**
-     * Service classes that should be registered when Aether boots. Keep in mind
-     * that the order in which the services are registered highly matters, as
-     * one service may depend on a service that should be registered before it.
+     * Service providers that should be registered when Aether boots.
      *
      * @var array
      */
-    private $coreServices = [
-        Services\ConfigService::class,
-        Services\WhoopsService::class,
-        Services\LocalizationService::class,
-        Services\SentryService::class,
-        Services\EventService::class,
-        Cache\CacheService::class,
-        Session\SessionService::class,
-        Templating\TemplateService::class,
-        Services\TimerService::class,
-        Services\DatabaseService::class,
-        PackageDiscovery\PackageDiscoveryService::class,
+    private $coreProviders = [
+        Providers\ConfigProvider::class,
+        Providers\WhoopsProvider::class,
+        Providers\LocalizationProvider::class,
+        Providers\SentryProvider::class,
+        Providers\EventProvider::class,
+        Cache\CacheProvider::class,
+        Session\SessionProvider::class,
+        Templating\TemplateProvider::class,
+        Providers\TimerProvider::class,
+        Providers\DatabaseProvider::class,
+        Console\AetherCliProvider::class,
+        PackageDiscovery\PackageDiscoveryProvider::class,
     ];
 
     /**
      * @var array
      */
-    private $bootedCallbacks = [];
+    private $registeredProviders = [];
 
     /**
      * Create a new Aether instance.
@@ -71,25 +70,16 @@ class Aether extends ServiceLocator
 
         $this->setUpBaseBindings();
 
-        $this->registerCoreServices();
+        $this->registerProviders($this->coreProviders);
 
         $this->registerCoreContainerAliases();
 
-        $this->registerAppServices();
-
-        foreach ($this->bootedCallbacks as $callback) {
-            $callback($this);
-        }
-    }
-
-    public function booted($callback)
-    {
-        $this->bootedCallbacks[] = $callback;
+        $this->bootProviders();
     }
 
     /**
      * Ask the AetherSection to render itself,
-     * or if a service is requested it will try to load that service
+     * or if a service is requested it will try to load that service.
      *
      * @return void
      */
@@ -140,23 +130,45 @@ class Aether extends ServiceLocator
         return php_sapi_name() === 'cli';
     }
 
-    private function registerCoreServices()
+    /**
+     * Register an array of service providers.
+     *
+     * @param  string[]  $providers
+     * @return void
+     */
+    public function registerProviders(array $providers)
     {
-        foreach ($this->coreServices as $service) {
-            $this->register($service);
+        foreach ($providers as $provider) {
+            $this->register($provider);
         }
     }
 
-    private function registerAppServices()
+    /**
+     * Instantiate and register a given service provider, and add it to the
+     * registered providers array.
+     *
+     * @param  string  $provider
+     * @return void
+     */
+    private function register($provider)
     {
-        foreach ($this['config']->get('app.services') as $service) {
-            $this->register($service);
-        }
+        $this->registeredProviders[$provider] = tap(new $provider($this))->register();
     }
 
-    private function register($serviceClass)
+    /**
+     * Call the boot method on all services that have been registered.
+     *
+     * @return void
+     */
+    private function bootProviders()
     {
-        (new $serviceClass($this))->register();
+        foreach ($this->registeredProviders as $provider) {
+            if (method_exists($provider, 'boot')) {
+                $this->call([$provider, 'boot']);
+            }
+        }
+
+        $this->registeredProviders = [];
     }
 
     /**

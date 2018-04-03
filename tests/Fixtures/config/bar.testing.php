@@ -2,5 +2,5 @@
 
 return [
     'foo' => 'bar',
-    'bar' => 'baz',
+    'bar' => 'env override',
 ];

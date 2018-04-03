@@ -23,18 +23,18 @@ class DiscovererTest extends TestCase
         $discoverer = $this->getDiscoverer('i-do-not-exist/');
 
         $this->assertEquals([], $discoverer->getPackageVersions());
-        $this->assertEquals([], $discoverer->getServicesFromInstalledPackages());
+        $this->assertEquals([], $discoverer->getProvidersFromInstalledPackages());
     }
 
-    public function testGettingAetherServicesFromPackages()
+    public function testGettingAetherProvidersFromPackages()
     {
         $discoverer = $this->getDiscoverer();
 
         $this->assertEquals([
-            'Neo\Import\FooService',
-            'Neo\Import\BarService',
+            'Neo\Import\FooProvider',
+            'Neo\Import\BarProvider',
             'Not\So\Smarty',
-        ], $discoverer->getServicesFromInstalledPackages());
+        ], $discoverer->getProvidersFromInstalledPackages());
     }
 
     protected function getDiscoverer($path = 'fixtures/')

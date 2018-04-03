@@ -1,18 +1,25 @@
 <?php
 
-namespace Aether\Services;
+namespace Aether\Providers;
 
 use Raven_Client;
 
-class SentryService extends Service
+class SentryProvider extends Provider
 {
     public function register()
+    {
+        $this->aether->singleton('sentry.client', function ($aether) {
+            return $this->getClient($aether);
+        });
+    }
+
+    public function boot()
     {
         if (! config('app.sentry.enabled', false)) {
             return;
         }
 
-        $client = $this->getClient()->install();
+        $client = $this->aether['sentry.client']->install();
 
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $client->user_context([
@@ -21,9 +28,9 @@ class SentryService extends Service
         }
     }
 
-    protected function getClient()
+    protected function getClient($aether)
     {
-        $projectRoot = rtrim($this->container['projectRoot'], '/');
+        $projectRoot = rtrim($aether['projectRoot'], '/');
 
         return new Raven_Client(config('app.sentry.dsn'), [
             'environment' => config('app.env'),

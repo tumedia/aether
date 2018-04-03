@@ -1,30 +1,34 @@
 <?php
 
-namespace Aether\Services;
+namespace Aether\Providers;
 
+use Aether\Aether;
 use Aether\Config;
-use Aether\ServiceLocator;
+use Aether\Console\AetherCli;
 
-abstract class Service
+abstract class Provider
 {
     /**
-     * The service container instance.
+     * The Aether application instance.
      *
-     * @var \Aether\ServiceLocator
+     * @var \Aether\Aether
      */
-    protected $container;
+    protected $aether;
 
-    public function __construct(ServiceLocator $container)
+    public function __construct(Aether $aether)
     {
-        $this->container = $container;
+        $this->aether = $aether;
     }
 
     /**
-     * Register the service.
+     * Register the provider.
      *
      * @return void
      */
-    abstract public function register();
+    public function register()
+    {
+        //
+    }
 
     /**
      * Load base configuration from a given file. If the local app config
@@ -38,7 +42,7 @@ abstract class Service
      */
     protected function fillConfigFrom($path, $key)
     {
-        $config = $this->container['config'];
+        $config = $this->aether['config'];
 
         if ($config->wasLoadedFromCompiled()) {
             return;
@@ -47,5 +51,18 @@ abstract class Service
         $localConfig = $config->get($key, []);
 
         $config->set($key, array_replace_recursive(require $path, $localConfig));
+    }
+
+    /**
+     * Register Aether CLI commands.
+     *
+     * @param  array  $commands
+     * @return void
+     */
+    protected function commands(array $commands)
+    {
+        AetherCli::starting(function ($aetherCli) use ($commands) {
+            $aetherCli->resolveCommands($commands);
+        });
     }
 }
