@@ -18,7 +18,7 @@ class PackageDiscoveryProvider extends Provider
             $this->addPackageProvidersToConfig($config);
         }
 
-        $this->aether->registerProviders($config['app.providers']);
+        $this->aether->registerProviders($config->get('app.providers', []));
     }
 
     protected function addPackageProvidersToConfig($config)
