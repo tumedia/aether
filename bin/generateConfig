@@ -1,0 +1,13 @@
+#!/usr/bin/php
+<?php
+
+echo "---- generateConfig er ikke lenger nødvendig ----
+
+For å slette unødvendige filer, kjør:
+vendor/bin/aether config:clear
+
+Hvis du absolutt vil generere konfigureringsfiler, kjør:
+vendor/bin/aether config:generate
+";
+
+exit(1);
