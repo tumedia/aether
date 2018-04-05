@@ -8,7 +8,7 @@ class TemplateProvider extends Provider
 {
     public function register()
     {
-        $this->aether->singleton('template', function ($aether) {
+        $this->aether->bind('template', function ($aether) {
             $template = new SmartyTemplate($aether);
 
             $providers = $aether->getVector('aetherProviders');
@@ -17,6 +17,10 @@ class TemplateProvider extends Provider
             $template->set('aether', compact('providers') + $variables);
 
             return $template;
+        });
+
+        $this->aether->singleton('template.global', function ($aether) {
+            return $aether['template'];
         });
     }
 

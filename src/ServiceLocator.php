@@ -24,13 +24,13 @@ class ServiceLocator extends Container
     public $vectors = [];
 
     /**
-     * Fetch a reference to the templating object.
+     * Fetch a reference to the global templating object.
      *
      * @return \Aether\Templating\Template
      */
     public function getTemplate()
     {
-        return $this['template'];
+        return $this['template.global'];
     }
 
     /**
