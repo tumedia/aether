@@ -2,8 +2,8 @@
 
 namespace Tests;
 
+use Tests\TestCase;
 use Aether\ServiceLocator;
-use PHPUnit\Framework\TestCase;
 use Aether\Modules\ModuleFactory;
 use Tests\Fixtures\Modules\Hellolocal;
 
@@ -13,7 +13,7 @@ class ModuleFactoryTest extends TestCase
     {
         $mod = ModuleFactory::create(
             Hellolocal::class,
-            new ServiceLocator,
+            $this->aether,
             ['foo' => 'bar']
         );
 
@@ -25,6 +25,6 @@ class ModuleFactoryTest extends TestCase
      */
     public function testItThrowsWhenTheRequestedClassIsNotAModule()
     {
-        ModuleFactory::create(self::class, new ServiceLocator);
+        ModuleFactory::create(self::class, $this->aether);
     }
 }

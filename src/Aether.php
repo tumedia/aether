@@ -60,6 +60,17 @@ class Aether extends ServiceLocator
     private $registeredProviders = [];
 
     /**
+     * Determine if a static Aether instance has been instantiated and
+     * registered.
+     *
+     * @return bool
+     */
+    public static function hasInstance()
+    {
+        return ! is_null(static::$instance);
+    }
+
+    /**
      * Create a new Aether instance.
      *
      * @param  string|null  $projectRoot  The application's root directory.
