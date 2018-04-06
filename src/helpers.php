@@ -47,7 +47,7 @@ if (!function_exists('config')) {
      */
     function config(string $key = null, $default = null)
     {
-        $config = app('config');
+        $config = resolve('config');
 
         if (is_null($key)) {
             return $config;
