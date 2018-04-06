@@ -3,6 +3,7 @@
 namespace Tests\Templating;
 
 use Tests\TestCase;
+use Aether\Templating\Template;
 
 class SmartyTest extends TestCase
 {
@@ -45,6 +46,23 @@ class SmartyTest extends TestCase
         $tpl = $this->aether->getTemplate();
 
         $this->assertContains('Yay!', $tpl->fetch('searchpath-found.tpl'));
+    }
+
+    public function testTemplateMethodReturnsTemplateInstance()
+    {
+        $this->assertInstanceOf(Template::class, \template());
+    }
+
+    public function testTemplateMethodReturnsRenderedTemplate()
+    {
+        $this->assertEquals(" \n", \template('test.tpl'));
+
+        $rendered = \template('test.tpl', ['foo' => [
+            'a' => 'lorem',
+            'b' => 'ipsum',
+        ]]);
+
+        $this->assertContains('lorem ipsum', $rendered);
     }
 
     protected function tearDown()

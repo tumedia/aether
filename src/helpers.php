@@ -56,3 +56,30 @@ if (!function_exists('config')) {
         return $config->get($key, $default);
     }
 }
+
+if (! function_exists('template')) {
+    /**
+     * Get a fresh template engine instance, or render a template.
+     *
+     * If $name is set, the given template will be rendered automatically. If
+     * "$data" is set, the "setAll()" method will be called before render.
+     *
+     * @param  string  $name = null
+     * @param  array  $data = null
+     * @return \Aether\Templating\Template|string
+     */
+    function template($name = null, array $data = null)
+    {
+        $instance = resolve('template');
+
+        if (is_null($name)) {
+            return $instance;
+        }
+
+        if (is_array($data)) {
+            $instance->setAll($data);
+        }
+
+        return $instance->fetch($name);
+    }
+}

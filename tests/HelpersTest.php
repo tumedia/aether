@@ -6,12 +6,12 @@ use Aether\Aether;
 
 class HelpersTest extends TestCase
 {
-    public function testAppReturnsAether()
+    public function testAppMethodReturnsAether()
     {
         $this->assertSame($this->aether, \app());
     }
 
-    public function testAppResolvesAbstract()
+    public function testAppMethodResolvesAbstract()
     {
         \app()->bind('test.random.number', function ($app, $parameters) {
             return $parameters ? $parameters[0] : 10;
@@ -22,7 +22,7 @@ class HelpersTest extends TestCase
         $this->assertEquals(50, \app('test.random.number', [50]));
     }
 
-    public function testResolve()
+    public function testResolveMethod()
     {
         \app()->bind('test.dummy-text', function () {
             return 'lorem ipsum';
