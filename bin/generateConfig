@@ -1,13 +1,18 @@
 #!/usr/bin/php
 <?php
 
-echo "---- generateConfig er ikke lenger nødvendig ----
+passthru('vendor/bin/aether config:generate', $returnCode);
 
-For å slette unødvendige filer, kjør:
+echo "
+===========================================================
+--------- generateConfig er ikke lenger nødvendig ---------
+===========================================================
+* For å slette unødvendige filer, kjør:
 vendor/bin/aether config:clear
 
-Hvis du absolutt vil generere konfigureringsfiler, kjør:
+* Hvis du absolutt vil generere konfigureringsfiler, kjør:
 vendor/bin/aether config:generate
+
 ";
 
-exit(1);
+exit($returnCode);
