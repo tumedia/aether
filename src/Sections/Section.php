@@ -3,9 +3,9 @@
 namespace Aether\Sections;
 
 use Throwable;
+use Aether\Aether;
 use Aether\Response\Text;
 use Aether\Modules\Module;
-use Aether\ServiceLocator;
 use Aether\Modules\ModuleFactory;
 use Aether\Exceptions\ConfigError;
 use Aether\Exceptions\ServiceNotFound;
@@ -20,20 +20,23 @@ use Aether\Exceptions\ServiceNotFound;
 abstract class Section
 {
     /**
-     * Hold service locator
-     * @var \Aether\ServiceLocator
+     * The Aether instance.
+     *
+     * @var \Aether\Aether
      */
-    protected $sl = null;
+    protected $aether;
 
     /**
-     * COnstructor. Accept subsection
+     * Legacy alias for the $aether property.
      *
-     * @access public
-     * @param \Aether\ServiceLocator $sl
+     * @var \Aether\Aether
      */
-    public function __construct(ServiceLocator $sl)
+    protected $sl;
+
+    public function __construct(Aether $aether)
     {
-        $this->sl = $sl;
+        $this->aether = $aether;
+        $this->sl = $this->aether;
     }
 
     private function preloadModules($modules, $options)
@@ -48,7 +51,7 @@ abstract class Section
             try {
                 $object = ModuleFactory::create(
                     $module['name'],
-                        $this->sl,
+                        $this->aether,
                     $module['options'] + $options
                 );
 
@@ -134,20 +137,20 @@ abstract class Section
      */
     protected function renderModules($tplVars = array())
     {
-        $timer = $this->sl->get('timer');
+        $timer = $this->aether['timer'];
         if ($timer) {
             // Timer
             $timer->start('module_run');
         }
-        $config = $this->sl->get('aetherConfig');
-        $this->cache = $this->sl->has("cache") ? $this->sl->get("cache") : false;
+        $config = $this->aether['aetherConfig'];
+        $this->cache = $this->aether->bound('cache') ? $this->aether['cache'] : false;
         $cacheable = true;
         /**
          * Decide cache name for rule based cache
          * If the option cacheas is set, we will use the cache name
          * $domainname_$cacheas
          */
-        $url = $this->sl->get('parsedUrl');
+        $url = $this->aether['parsedUrl'];
         if ($this->cache) {
             $cacheas = $config->getCacheName();
             if ($cacheas != false) {
@@ -201,7 +204,7 @@ abstract class Section
              * and have internal wrapping html for this section
              */
             $tplInfo = $config->getTemplate();
-            $tpl = $this->sl->getTemplate();
+            $tpl = $this->aether->getTemplate();
             if (is_array($modules)) {
                 $tpl->set("extras", $tplVars);
 
@@ -289,7 +292,7 @@ abstract class Section
     public function service($name, $serviceName)
     {
         // Locate module containing service
-        $config = $this->sl->get('aetherConfig');
+        $config = $this->aether['aetherConfig'];
         $options = $config->getOptions();
 
         // Create module
@@ -321,7 +324,7 @@ abstract class Section
         }
 
         // Get module object
-        $mod = ModuleFactory::create($module['name'], $this->sl, $opts);
+        $mod = ModuleFactory::create($module['name'], $this->aether, $opts);
 
         if (! $mod instanceof Module) {
             throw new ServiceNotFound("Service run error: Failed to locate module [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
@@ -339,7 +342,7 @@ abstract class Section
      */
     private function provide($name, $content)
     {
-        $vector = $this->sl->getVector('aetherProviders');
+        $vector = $this->aether->getVector('aetherProviders');
         $vector[$name] = $content;
     }
 
@@ -362,11 +365,11 @@ abstract class Section
 
     protected function triggerDefaultRule()
     {
-        $config = $this->sl->get('aetherConfig');
+        $config = $this->aether['aetherConfig'];
         $config->reloadConfigFromDefaultRule();
         $section = SectionFactory::create(
             $config->getSection(),
-            $this->sl
+            $this->aether
         );
         return $section->response();
     }

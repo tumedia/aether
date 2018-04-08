@@ -2,8 +2,6 @@
 
 namespace Tests;
 
-use Tests\TestCase;
-use Aether\ServiceLocator;
 use Aether\Modules\ModuleFactory;
 use Tests\Fixtures\Modules\Hellolocal;
 

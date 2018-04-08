@@ -2,9 +2,7 @@
 
 namespace Tests;
 
-use Aether\ServiceLocator;
 use Aether\Sections\Section;
-use PHPUnit\Framework\TestCase;
 use Aether\Sections\SectionFactory;
 use Tests\Fixtures\Sections\Testsection;
 
@@ -14,7 +12,7 @@ class SectionFactoryTest extends TestCase
     {
         $section = SectionFactory::create(
             Testsection::class,
-            new ServiceLocator
+            $this->aether
         );
 
         $this->assertInstanceOf(Section::class, $section);

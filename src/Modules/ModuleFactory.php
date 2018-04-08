@@ -2,7 +2,7 @@
 
 namespace Aether\Modules;
 
-use Aether\ServiceLocator;
+use Aether\Aether;
 use InvalidArgumentException;
 
 class ModuleFactory
@@ -10,21 +10,21 @@ class ModuleFactory
     /**
      * Create an instance of a given module.
      *
-     * @param  string $className
-     * @param  \Aether\ServiceLocator $sl
-     * @param  array $options = []
-     * @throws \InvalidArgumentException
+     * @param  string  $className
+     * @param  \Aether\Aether  $aether
+     * @param  array  $options = []
      * @return \Aether\Modules\Module
+     * @throws \InvalidArgumentException
      */
     public static function create(
         $className,
-        ServiceLocator $sl,
+        Aether $aether,
         $options = []
     ) {
         if (!is_subclass_of($className, Module::class)) {
             throw new InvalidArgumentException("Module [{$className}] does not exist");
         }
 
-        return new $className($sl, $options);
+        return new $className($aether, $options);
     }
 }

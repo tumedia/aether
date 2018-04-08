@@ -2,8 +2,6 @@
 
 namespace Tests;
 
-use Aether\Aether;
-
 class HelpersTest extends TestCase
 {
     public function testAppMethodReturnsAether()
