@@ -137,11 +137,12 @@ abstract class Section
      */
     protected function renderModules($tplVars = array())
     {
-        $timer = $this->aether['timer'];
-        if ($timer) {
-            // Timer
+        if ($this->aether->bound('timer')) {
+            $timer = $this->aether['timer'];
+
             $timer->start('module_run');
         }
+
         $config = $this->aether['aetherConfig'];
         $this->cache = $this->aether->bound('cache') ? $this->aether['cache'] : false;
         $cacheable = true;
