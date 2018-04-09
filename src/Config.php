@@ -77,7 +77,7 @@ class Config extends Repository
 
         $config = [];
 
-        foreach (glob($configPath.'/*.php') as $path) {
+        foreach ($this->getSortedConfigFiles($configPath) as $path) {
             @list($configName, $matchEnv) = explode('.', basename($path, '.php'), 2);
 
             // If the config file is *not* targeting an environment, go ahead
@@ -96,6 +96,27 @@ class Config extends Repository
         }
 
         return $config;
+    }
+
+    /**
+     * Get the list of PHP files in the config directory, sorting the results
+     * by length, making sure that any environment specific files are always
+     * loaded last.
+     *
+     * Yes, it is a tiny bit nasty, but luckily this process only happens
+     * during development and at deploy time.
+     *
+     * @return array
+     */
+    private function getSortedConfigFiles($configPath)
+    {
+        $files = glob($configPath.'/*.php');
+
+        usort($files, function ($a, $b) {
+            return strlen($a) <=> strlen($b);
+        });
+
+        return $files;
     }
 
     /**
