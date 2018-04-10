@@ -21,7 +21,7 @@ use Memcache;
  * @author Raymond Julin <raymond.julin@gmail.com>
  * @package Aether
  */
-class MemcacheDriver extends Cache
+class MemcacheDriver implements Cache
 {
     /**
      * Connection

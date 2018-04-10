@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+
+use Aether\Aether;
+use Aether\Console\Kernel;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
+$basePath = getcwd();
+
+if (! file_exists("{$basePath}/config/aether.config.xml")) {
+    echo "Failed to detect Aether project in working directory.\n";
+
+    exit(1);
+}
+
+require_once $basePath.'/vendor/autoload.php';
+
+$aether = new Aether($basePath);
+
+$kernel = $aether->make(Kernel::class);
+
+$status = $kernel->handle($input = new ArgvInput, new ConsoleOutput);
+
+exit($status);

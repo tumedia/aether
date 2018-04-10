@@ -2,7 +2,7 @@
 
 namespace Aether\Cache;
 
-class FileDriver extends Cache
+class FileDriver implements Cache
 {
     /**
      * Path to the cache storage directory.
@@ -62,7 +62,9 @@ class FileDriver extends Cache
      */
     public function rm($name)
     {
-        unlink($this->path($name));
+        if ($this->has($name)) {
+            unlink($this->path($name));
+        }
 
         return true;
     }

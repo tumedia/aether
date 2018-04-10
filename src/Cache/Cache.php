@@ -2,25 +2,13 @@
 
 namespace Aether\Cache;
 
-/**
- * Dummy class with no caching implemented
- */
-class Cache
+interface Cache
 {
-    public function set($name, $data, $ttl=false)
-    {
-        return false;
-    }
-    public function get($name, $maxAge = false)
-    {
-        return false;
-    }
-    public function has($name)
-    {
-        return false;
-    }
-    public function rm($name)
-    {
-        return false;
-    }
+    public function set($name, $data, $ttl = false);
+
+    public function get($name, $maxAge = false);
+
+    public function has($name);
+
+    public function rm($name);
 }

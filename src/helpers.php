@@ -1,46 +1,37 @@
 <?php
 
 use Aether\Aether;
+use Aether\Config;
 
-if (!function_exists('env')) {
+if (!function_exists('app')) {
     /**
-     * Get an environment variable.
+     * Get the available container instance, or resolve an abstract from the
+     * container.
      *
-     * @param  string $key
-     * @param  mixed  $default = null
-     * @return mixed  Returns the value of `$default` if the environment
-     *                variable is not set.
+     * @param  string  $abstract
+     * @param  array   $parameters
+     * @return mixed|\Aether\Aether
      */
-    function env(string $key, $default = null)
+    function app($abstract = null, array $parameters = [])
     {
-        $value = getenv($key);
-
-        if ($value === false) {
-            return $default;
+        if (is_null($abstract)) {
+            return Aether::getInstance();
         }
 
-        switch (strtolower($value)) {
-            case 'true':
-            case '(true)':
-                return true;
-            case 'false':
-            case '(false)':
-                return false;
-            case 'empty':
-            case '(empty)':
-                return '';
-            case 'null':
-            case '(null)':
-                return;
-        }
+        return Aether::getInstance()->make($abstract, $parameters);
+    }
+}
 
-        $valueLength = strlen($value);
-
-        if ($valueLength > 1 && strpos($value, '"') === 0 && strrpos($value, '"') === $valueLength - 1) {
-            return substr($value, 1, -1);
-        }
-
-        return $value;
+if (!function_exists('resolve')) {
+    /**
+     * Resolve a service from the container.
+     *
+     * @param  string  $name
+     * @return mixed
+     */
+    function resolve($name)
+    {
+        return app($name);
     }
 }
 
@@ -56,12 +47,39 @@ if (!function_exists('config')) {
      */
     function config(string $key = null, $default = null)
     {
-        $config = Aether::getInstance()->getServiceLocator()->get('config');
+        $config = resolve('config');
 
         if (is_null($key)) {
             return $config;
         }
 
         return $config->get($key, $default);
+    }
+}
+
+if (! function_exists('template')) {
+    /**
+     * Get a fresh template engine instance, or render a template.
+     *
+     * If $name is set, the given template will be rendered automatically. If
+     * "$data" is set, the "setAll()" method will be called before render.
+     *
+     * @param  string  $name = null
+     * @param  array  $data = null
+     * @return \Aether\Templating\Template|string
+     */
+    function template($name = null, array $data = null)
+    {
+        $instance = resolve('template');
+
+        if (is_null($name)) {
+            return $instance;
+        }
+
+        if (is_array($data)) {
+            $instance->setAll($data);
+        }
+
+        return $instance->fetch($name);
     }
 }

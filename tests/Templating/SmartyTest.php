@@ -2,15 +2,28 @@
 
 namespace Tests\Templating;
 
-use AetherConfig;
-use AetherServiceLocator;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
+use Aether\Templating\Template;
 
 class SmartyTest extends TestCase
 {
     public function testGetSmartyEngine()
     {
-        $tpl = $this->getTemplateEngine(['foo' => [
+        $tpl = $this->aether->getTemplate();
+
+        $tpl->set('foo', [
+            'a' => 'hello',
+            'b' => 'world',
+        ]);
+
+        $this->assertContains('hello world', $tpl->fetch('test.tpl'));
+    }
+
+    public function testSetAllMethod()
+    {
+        $tpl = $this->aether->getTemplate();
+
+        $tpl->setAll(['foo' => [
             'a' => 'hello',
             'b' => 'world',
         ]]);
@@ -20,31 +33,40 @@ class SmartyTest extends TestCase
 
     public function testTemplateExists()
     {
-        $tpl = $this->getTemplateEngine();
+        $tpl = $this->aether->getTemplate();
 
         $this->assertTrue($tpl->templateExists('test.tpl'));
         $this->assertFalse($tpl->templateExists('martin.tpl'));
     }
 
+    public function testSearchpathIsIncluded()
+    {
+        $this->setUrl('http://raw.no/searchpath-test');
+
+        $tpl = $this->aether->getTemplate();
+
+        $this->assertContains('Yay!', $tpl->fetch('searchpath-found.tpl'));
+    }
+
+    public function testTemplateMethodReturnsTemplateInstance()
+    {
+        $this->assertInstanceOf(Template::class, \template());
+    }
+
+    public function testTemplateMethodReturnsRenderedTemplate()
+    {
+        $this->assertEquals(" \n", \template('test.tpl'));
+
+        $rendered = \template('test.tpl', ['foo' => [
+            'a' => 'lorem',
+            'b' => 'ipsum',
+        ]]);
+
+        $this->assertContains('lorem ipsum', $rendered);
+    }
+
     protected function tearDown()
     {
         array_map('unlink', glob(dirname(__DIR__).'/Fixtures/templates/compiled/*.php'));
-    }
-
-    private function getTemplateEngine(array $data = [])
-    {
-        $sl = new AetherServiceLocator;
-        $sl->set('projectRoot', dirname(__DIR__).'/Fixtures/');
-
-        $config = new AetherConfig(dirname(__DIR__).'/Fixtures/aether.config.xml');
-        $sl->set('aetherConfig', $config);
-
-        $tpl = $sl->getTemplate();
-
-        foreach ($data as $key => $value) {
-            $tpl->set($key, $value);
-        }
-
-        return $tpl;
     }
 }

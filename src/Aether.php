@@ -2,9 +2,9 @@
 
 namespace Aether;
 
-use Aether\Response\Json;
-use Aether\Response\Response;
+use Aether\Sections\Section;
 use Aether\Sections\SectionFactory;
+use Aether\Response\ResponseFactory;
 
 /**
  * The Aether web framework
@@ -32,205 +32,154 @@ use Aether\Sections\SectionFactory;
  * @author Raymond Julin
  * @package aether
  */
-class Aether
+class Aether extends ServiceLocator
 {
-    /** @var \Aether */
-    protected static $globalInstance;
-
     /**
-     * Hold service locator
-     * @var \Aether\ServiceLocator
-     */
-    private $sl = null;
-
-    /**
-     * Root folder for this project
-     * @var string
-     */
-    private $projectRoot;
-
-    /**
-     * Service classes that should be registered when Aether boots. Keep in mind
-     * that the order in which the services are registered highly matters, as
-     * one service may depend on a service that should be registered before it.
+     * Service providers that should be registered when Aether boots.
      *
      * @var array
      */
-    private $services = [
-        Services\ConfigService::class,
-        Services\WhoopsService::class,
-        Services\SentryService::class,
-        Services\CacheService::class,
-        Services\SessionService::class,
-        Services\TemplateGlobalsService::class,
-        Services\TimerService::class,
+    private $coreProviders = [
+        Providers\ConfigProvider::class,
+        Providers\WhoopsProvider::class,
+        Providers\LocalizationProvider::class,
+        Providers\SentryProvider::class,
+        Providers\EventProvider::class,
+        Cache\CacheProvider::class,
+        Session\SessionProvider::class,
+        Templating\TemplateProvider::class,
+        Providers\TimerProvider::class,
+        Providers\DatabaseProvider::class,
+        Console\AetherCliProvider::class,
+        PackageDiscovery\PackageDiscoveryProvider::class,
     ];
 
     /**
-     * Get the global Aether instance.
-     *
-     * @return \Aether\Aether
+     * @var array
      */
-    public static function getInstance()
+    private $registeredProviders = [];
+
+    /**
+     * Determine if a static Aether instance has been instantiated and
+     * registered.
+     *
+     * @return bool
+     */
+    public static function hasInstance()
     {
-        return static::$globalInstance;
+        return ! is_null(static::$instance);
     }
 
     /**
-     * Set the global Aether instance.
+     * Create a new Aether instance.
      *
-     * @param  \Aether\Aether|null $aether
-     * @return void
-     */
-    public static function setInstance(Aether $aether = null)
-    {
-        static::$globalInstance = $aether;
-    }
-
-    /**
-     * Start Aether.
-     * On start it will parse the projects configuration file,
-     * it will try to match the presented http request to a rule
-     * in the project configuration and create some overview
-     * over which modules it will need to render once
-     * a request to render them comes
-     *
-     * @param  string|null  $projectRoot  The base path to the project.
-     * @return Aether
+     * @param  string|null  $projectRoot  The application's root directory.
      */
     public function __construct($projectRoot = null)
     {
-        static::setInstance($this);
-        $this->sl = new ServiceLocator;
+        $this->instance('projectRoot', rtrim($projectRoot, '/').'/');
 
-        // Initiate all required helper objects
-        $parsedUrl = new UrlParser;
-        $parsedUrl->parseServerArray($_SERVER);
-        $this->sl->set('parsedUrl', $parsedUrl);
+        $this->setUpBaseBindings();
 
-        $this->sl->set('projectRoot', rtrim($projectRoot, '/').'/');
+        $this->registerProviders($this->coreProviders);
 
-        $this->registerServices();
+        $this->registerCoreContainerAliases();
 
-        $this->initiateSection();
-
-        if ($this->sl->has('timer')) {
-            $this->sl->get('timer')->tick('aether_main', 'section_initiate');
-        }
+        $this->bootProviders();
     }
 
     /**
      * Ask the AetherSection to render itself,
-     * or if a service is requested it will try to load that service
+     * or if a service is requested it will try to load that service.
      *
-     * @access public
-     * @return string
+     * @return void
      */
     public function render()
     {
-        $config = $this->sl->get('aetherConfig');
-        $options = $config->getOptions();
+        $this->initiateSection();
 
-        $section = $this->sl->get('section');
+        $response = $this->call([ResponseFactory::createFromGlobals(), 'getResponse']);
 
-        /**
-         * If a service is requested simply render the service
-         */
-        if (isset($_GET['module']) && isset($_GET['service'])) {
-            $response = $section->service($_GET['module'], $_GET['service']);
-            if (!is_object($response) || !($response instanceof Response)) {
-                trigger_error("Expected " . preg_replace("/[^A-z0-9]+/", "", $_GET['module']) . "::service() to return an AetherResponse object." . (isset($_SERVER['HTTP_REFERER']) ? " Referer: " . $_SERVER['HTTP_REFERER'] : ""), E_USER_WARNING);
-            } else {
-                $response->draw($this->sl);
-            }
-        } elseif (isset($_GET['_esi'])) {
-            /**
-             * ESI support and rendering of only one module by provider name
-             * # _esi to list
-             * # _esi=<providerName> to render one module with settings of the url path
-             */
-            if (strlen($_GET['_esi']) > 0) {
-                $locale = (isset($options['locale'])) ? $options['locale'] : "nb_NO.UTF-8";
-                setlocale(LC_ALL, $locale);
+        $response->draw($this);
+    }
 
-                $lc_numeric = (isset($options['lc_numeric'])) ? $options['lc_numeric'] : 'C';
-                setlocale(LC_NUMERIC, $lc_numeric);
+    /**
+     * Determine if Aether is running in a production environment.
+     *
+     * @return bool
+     */
+    public function isProduction()
+    {
+        return $this['config']['app.env'] === 'production';
+    }
 
-                if (isset($options['lc_messages'])) {
-                    $localeDomain = "messages";
-                    setlocale(LC_MESSAGES, $options['lc_messages']);
-                    bindtextdomain($localeDomain, __DIR__ . "/locales");
-                    bind_textdomain_codeset($localeDomain, 'UTF-8');
-                    textdomain($localeDomain);
-                }
-                $section->renderProviderWithCacheHeaders($_GET['_esi']);
-            } else {
-                $modules = $config->getModules();
-                $providers = array();
-                foreach ($modules as $m) {
-                    $provider = [
-                        'provides' => isset($m['provides']) ? $m['provides'] : null,
-                        'cache' => isset($m['cache']) ? $m['cache'] : false
-                    ];
-                    if (isset($m['module'])) {
-                        $provider['providers'] = array_map(function ($m) {
-                            return [
-                                'provides' => $m['provides'],
-                                'cache' => isset($m['cache']) ? $m['cache'] : false
-                            ];
-                        }, array_values($m['module']));
-                    }
-                    $providers[] = $provider;
-                }
-                $response = new Json(compact('providers'));
-                $response->draw($this->sl);
-            }
-        } else {
-            /**
-             * Start session if session switch is turned on in
-             * configuration file
-             */
-            if (array_key_exists('session', $options)
-                    and $options['session'] == 'on') {
-                session_start();
-            }
+    /**
+     * Set up some important core bindings in the container.
+     *
+     * @return void
+     */
+    private function setUpBaseBindings()
+    {
+        static::setInstance($this);
 
-            $response = $section->response();
-            $response->draw($this->sl);
+        $this->instance('app', $this);
+
+        if (! $this->runningInConsole()) {
+            $this->singleton('parsedUrl', function ($container) {
+                return UrlParser::createFromGlobals();
+            });
         }
     }
 
     /**
-     * Get the AetherServiceLocator instance.
+     * Check if we're running in a command-line environment.
      *
-     * @return \Aether\ServiceLocator
+     * @return bool
      */
-    public function getServiceLocator()
+    public function runningInConsole()
     {
-        return $this->sl;
+        return php_sapi_name() === 'cli';
     }
 
     /**
-     * Set the AetherServiceLocator instance.
+     * Register an array of service providers.
      *
-     * @param  \Aether\ServiceLocator  $sl
+     * @param  string[]  $providers
      * @return void
      */
-    public function setServiceLocator($sl)
+    public function registerProviders(array $providers)
     {
-        $this->sl = $sl;
-    }
-
-    /**
-     * Register services.
-     *
-     * @return void
-     */
-    private function registerServices()
-    {
-        foreach ($this->services as $service) {
-            (new $service($this->getServiceLocator()))->register();
+        foreach ($providers as $provider) {
+            $this->register($provider);
         }
+    }
+
+    /**
+     * Instantiate and register a given service provider, and add it to the
+     * registered providers array.
+     *
+     * @param  string  $provider
+     * @return void
+     */
+    private function register($provider)
+    {
+        $this->registeredProviders[$provider] = tap(new $provider($this))->register();
+    }
+
+    /**
+     * Call the boot method on all services that have been registered.
+     *
+     * @return void
+     */
+    private function bootProviders()
+    {
+        foreach ($this->registeredProviders as $provider) {
+            if (method_exists($provider, 'boot')) {
+                $this->call([$provider, 'boot']);
+            }
+        }
+
+        $this->registeredProviders = [];
     }
 
     /**
@@ -240,9 +189,33 @@ class Aether
      */
     private function initiateSection()
     {
-        $this->sl->set('section', SectionFactory::create(
-            $this->sl->get('aetherConfig')->getSection(),
-            $this->sl
+        $this->instance('section', SectionFactory::create(
+            $this['aetherConfig']->getSection(),
+            $this
         ));
+
+        $this->alias('section', Section::class);
+
+        if ($this->bound('timer')) {
+            $this['timer']->tick('aether_main', 'section_initiate');
+        }
+    }
+
+    protected function registerCoreContainerAliases()
+    {
+        foreach ([
+            'app'          => [\Aether\Aether::class, \Aether\ServiceLocator::class, \Illuminate\Container\Container::class, \Illuminate\Contracts\Container\Container::class, \Psr\Container\ContainerInterface::class],
+            'aetherConfig' => [\Aether\AetherConfig::class],
+            'cache'        => [\Aether\Cache\Cache::class],
+            'config'       => [\Aether\Config::class, \Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
+            'db'           => [\Illuminate\Database\DatabaseManager::class],
+            'events'       => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
+            'template'     => [\Aether\Templating\Template::class],
+            'timer'        => [\Aether\Timer::class],
+        ] as $key => $aliases) {
+            foreach ($aliases as $alias) {
+                $this->alias($key, $alias);
+            }
+        }
     }
 }

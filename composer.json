@@ -7,8 +7,16 @@
         "php": ">=5.4",
         "filp/whoops": "^2.1",
         "illuminate/config": "5.5.*",
+        "illuminate/console": "5.5.*",
+        "illuminate/container": "5.5.*",
+        "illuminate/contracts": "5.5.*",
+        "illuminate/database": "5.5.*",
+        "illuminate/events": "5.5.*",
+        "illuminate/support": "5.5.*",
+        "psy/psysh": "^0.8",
         "sentry/sentry": "1.8.*",
         "smarty/smarty": "3.1.30",
+        "symfony/var-dumper": "~3.0|~4.0",
         "vlucas/phpdotenv": "^2.4"
     },
     "require-dev": {
@@ -29,8 +37,9 @@
         }
     },
     "bin": [
-        "./bin/generateConfig",
-        "./bin/updateLocales"
+        "./bin/updateLocales",
+        "./bin/aether",
+        "./bin/generateConfig"
     ],
     "config": {
         "sort-packages": true

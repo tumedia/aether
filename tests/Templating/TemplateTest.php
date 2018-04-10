@@ -2,21 +2,18 @@
 
 namespace Tests\Templating;
 
-use AetherConfig;
-use AetherServiceLocator;
-use AetherTemplateSmarty;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
+use Aether\Templating\SmartyTemplate;
 
 class TemplateTest extends TestCase
 {
-    public function testGetTemplateObject()
+    public function testGettingATemplateObjectThroughAether()
     {
-        $sl = new AetherServiceLocator;
-        $sl->set('projectRoot', __DIR__.'/templating/');
+        $this->setUrl('/');
 
-        $config = new AetherConfig('./aether.config.xml');
-        $sl->set('aetherConfig', $config);
-
-        $this->assertInstanceOf(AetherTemplateSmarty::class, $sl->getTemplate());
+        $this->assertInstanceOf(
+            SmartyTemplate::class,
+            $this->aether->getTemplate()
+        );
     }
 }

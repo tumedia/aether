@@ -118,9 +118,21 @@ class AetherConfigTest extends TestCase
         $this->assertFalse($options['ananas']);
     }
 
+    public function testItIncludesImportNodes()
+    {
+        $config = $this->getLoadedConfig('http://raw.no/unittest');
+
+        $this->assertArraySubset([
+            'importedOption' => 'hell yes',
+            'nestedImportedOption' => 'yup',
+        ], $config->getOptions());
+
+        $this->assertArrayHasKey('importedModule', $config->getModules());
+    }
+
     private function getConfig()
     {
-        return new AetherConfig(__DIR__.'/Fixtures/aether.config.xml');
+        return new AetherConfig(__DIR__.'/Fixtures/config/aether.config.xml');
     }
 
     private function getLoadedConfig($url)

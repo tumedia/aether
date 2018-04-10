@@ -9,6 +9,14 @@ use Dotenv\Exception\InvalidPathException;
 class Config extends Repository
 {
     /**
+     * Boolean flag to check if the configuration values were loaded from the
+     * pre-compiled file.
+     *
+     * @var bool
+     */
+    protected $loadedFromCompiled = false;
+
+    /**
      * Create a new AetherAppConfig instance. This will automatically load the
      * configuration from the path specified.
      *
@@ -17,6 +25,29 @@ class Config extends Repository
     public function __construct(string $projectRoot)
     {
         parent::__construct($this->loadConfig($projectRoot));
+    }
+
+    /**
+     * Determine if the configuration was loaded from the compiled file.
+     *
+     * @return bool
+     */
+    public function wasLoadedFromCompiled()
+    {
+        return $this->loadedFromCompiled;
+    }
+
+    /**
+     * Save the entire configuration array to a file.
+     *
+     * @param  string  $file
+     * @return void
+     */
+    public function saveToFile($file)
+    {
+        $data = '<?php return '.var_export($this->all(), true).';';
+
+        file_put_contents($file, $data);
     }
 
     /**
@@ -33,6 +64,8 @@ class Config extends Repository
         // If a `compiled.php` file exists, we'll use that. Should only be used
         // in a production environment.
         if (file_exists($compiled = $configPath.'/compiled.php')) {
+            $this->loadedFromCompiled = true;
+
             return require $compiled;
         }
 
@@ -44,7 +77,7 @@ class Config extends Repository
 
         $config = [];
 
-        foreach (glob($configPath.'/*.php') as $path) {
+        foreach ($this->getSortedConfigFiles($configPath) as $path) {
             @list($configName, $matchEnv) = explode('.', basename($path, '.php'), 2);
 
             // If the config file is *not* targeting an environment, go ahead
@@ -63,6 +96,27 @@ class Config extends Repository
         }
 
         return $config;
+    }
+
+    /**
+     * Get the list of PHP files in the config directory, sorting the results
+     * by length, making sure that any environment specific files are always
+     * loaded last.
+     *
+     * Yes, it is a tiny bit nasty, but luckily this process only happens
+     * during development and at deploy time.
+     *
+     * @return array
+     */
+    private function getSortedConfigFiles($configPath)
+    {
+        $files = glob($configPath.'/*.php');
+
+        usort($files, function ($a, $b) {
+            return strlen($a) <=> strlen($b);
+        });
+
+        return $files;
     }
 
     /**

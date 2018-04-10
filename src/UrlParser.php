@@ -51,6 +51,20 @@ class UrlParser
     private $query;
 
     /**
+     * Create a new instance from global variables.
+     *
+     * @return \Aether\UrlParser
+     */
+    public static function createFromGlobals()
+    {
+        $instance = new static;
+
+        $instance->parseServerArray($_SERVER);
+
+        return $instance;
+    }
+
+    /**
      * Parse an url
      *
      * @access public

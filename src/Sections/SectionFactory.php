@@ -2,19 +2,20 @@
 
 namespace Aether\Sections;
 
-use Aether\ServiceLocator;
+use Aether\Aether;
 
 class SectionFactory
 {
     /**
      * Create an instance of a given section.
      *
-     * @param  string $className
-     * @param  \Aether\ServiceLocator $sl
+     * @param  string  $className
+     * @param  \Aether\Aether  $aether
      * @return AetherSection
      */
-    public static function create($className, ServiceLocator $sl)
+    public static function create($className, Aether $aether)
     {
-        return new $className($sl);
+        // @todo: can this class be removed?
+        return $aether->make($className);
     }
 }

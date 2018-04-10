@@ -94,28 +94,100 @@ class AetherConfig
     /**
      * Constructor.
      *
-     * @access public
-     * @return \Aether\AetherConfig
-     * @param string $configFilePath
+     * @param  string  $configFilePath
      */
     public function __construct($configFilePath)
     {
         $this->configFilePath = $configFilePath;
     }
 
-    private function getSiteConfig($url)
+    /**
+     * Save the entire XML document to a file.
+     *
+     * @param  string  $file
+     * @return void
+     */
+    public function saveToFile($file)
     {
-        $configFilePath = $this->configFilePath;
-        if (!file_exists($configFilePath)) {
-            throw new MissingFile(
-                "Config file [$configFilePath] is missing."
-            );
+        $this->loadDocFromFile($this->configFilePath)->save($file);
+    }
+
+    private function resolveImportNode($doc, $importNode)
+    {
+        $path = $this->getFileToImport($importNode->nodeValue);
+        $parent = $importNode->parentNode;
+
+        $importedDoc = $this->loadDocFromFile($path)->documentElement;
+
+        foreach ($importedDoc->childNodes as $node) {
+            $parent->insertBefore($doc->importNode($node, true), $importNode);
         }
+
+        $parent->removeChild($importNode);
+    }
+
+    private function getFileToImport($name)
+    {
+        $directory = dirname($this->configFilePath).'/'.dirname($name);
+        $fileName = basename($name, '.xml').'.xml';
+
+        if (! app()->isProduction() && file_exists($path = $directory.'/test.'.$fileName)) {
+            return $path;
+        }
+
+        if (file_exists($path = $directory.'/'.$fileName)) {
+            return $path;
+        }
+
+        if (file_exists($path = $directory.'/prod.'.$fileName)) {
+            return $path;
+        }
+
+        throw new MissingFile("Config named [{$name}] is missing");
+    }
+
+    private function loadDocFromFile($file)
+    {
         $doc = new DOMDocument;
         $doc->preserveWhiteSpace = false;
-        $doc->load($configFilePath);
-        $this->doc = $doc;
-        $xpath = new DOMXPath($doc);
+
+        if (app()->isProduction()) {
+            $doc->load($file);
+        } else {
+            $doc->loadXML(
+                preg_replace('/cache="[0-9]*"/', '', file_get_contents($file))
+            );
+        }
+
+        $importNodes = (new DOMXPath($doc))->query('//import');
+
+        foreach ($importNodes as $importNode) {
+            $this->resolveImportNode($doc, $importNode);
+        }
+
+        $this->injectLegacyAetherRunningMode($doc);
+
+        return $doc;
+    }
+
+    private function injectLegacyAetherRunningMode($doc)
+    {
+        $siteNodes = (new DOMXPath($doc))->query('/config/site');
+
+        $prefix = app()->isProduction() ? 'prod' : 'test';
+
+        foreach ($siteNodes as $siteNode) {
+            $option = $doc->createElement('option', $prefix);
+            $option->setAttribute('name', 'AetherRunningMode');
+            $siteNode->insertBefore($option, $siteNode->firstChild);
+        }
+    }
+
+    private function getSiteConfig($url)
+    {
+        $this->doc = $this->loadDocFromFile($this->configFilePath);
+
+        $xpath = new DOMXPath($this->doc);
 
         /*
          * Find starting point of url rules, from this point on we

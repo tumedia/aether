@@ -3,6 +3,8 @@
 namespace Aether\Modules;
 
 use Aether\Aether;
+use Aether\Config;
+use Aether\AetherConfig;
 use BadMethodCallException;
 
 /**
@@ -129,21 +131,11 @@ class PendingRender
     {
         $instance = ModuleFactory::create(
             $this->module,
-            $this->getServiceLocator(),
+            Aether::getInstance(),
             $this->prepareOptions()
         );
 
         return $instance->run() ?: '';
-    }
-
-    /**
-     * Get the service locator instance.
-     *
-     * @return \Aether\ServiceLocator
-     */
-    protected function getServiceLocator()
-    {
-        return Aether::getInstance()->getServiceLocator();
     }
 
     /**
@@ -168,7 +160,7 @@ class PendingRender
      */
     protected function getConfigOptionsToMerge($key)
     {
-        $config = $this->getServiceLocator()->get('config')->get('modules', []);
+        $config = config('modules', []);
 
         return $config[$this->module][$key] ?? [];
     }
@@ -180,12 +172,10 @@ class PendingRender
      */
     protected function getAetherOptionsToMerge()
     {
-        if (!$this->legacyMode || !$this->getServiceLocator()->has('aetherConfig')) {
+        if (!$this->legacyMode || ! app()->bound('aetherConfig')) {
             return [];
         }
 
-        $config = $this->getServiceLocator()->get('aetherConfig');
-
-        return $config->getOptions();
+        return app('aetherConfig')->getOptions();
     }
 }

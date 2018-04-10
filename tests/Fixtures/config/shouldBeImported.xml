@@ -1,0 +1,8 @@
+<config>
+    <option name="importedOption">hell yes</option>
+    <module provides="importedModule">
+        DummyModule4000
+    </module>
+
+    <import>shouldAlsoBeImported</import>
+</config>

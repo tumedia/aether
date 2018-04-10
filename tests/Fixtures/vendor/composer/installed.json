@@ -1,0 +1,12 @@
+[
+    {
+        "name": "test/package",
+        "extra": {
+            "aether": {
+                "providers": [
+                    "Tests\\Fixtures\\TestPackage\\TestPackageProvider"
+                ]
+            }
+        }
+    }
+]

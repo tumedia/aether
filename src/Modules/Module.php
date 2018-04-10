@@ -2,7 +2,7 @@
 
 namespace Aether\Modules;
 
-use Aether\ServiceLocator;
+use Aether\Aether;
 
 /**
  * Base class definition for aether modules
@@ -14,16 +14,25 @@ use Aether\ServiceLocator;
 abstract class Module
 {
     /**
-     * Hold service locator
-     * @var AetherServiceLocator
+     * The Aether instance.
+     *
+     * @var \Aether\Aether
      */
-    protected $sl = null;
+    protected $aether;
 
     /**
-     * Specific options for this module
+     * Legacy alias for the $aether property.
+     *
+     * @var \Aether\Aether
+     */
+    protected $sl;
+
+    /**
+     * Specific options for this module.
+     *
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
      * "Draw" an instance of `PendingRender` for the module.
@@ -46,17 +55,10 @@ abstract class Module
         return $pending;
     }
 
-    /**
-     * Constructor. Accept service locator
-     *
-     * @access public
-     * @return AetherModule
-     * @param \Aether\ServiceLocator $sl
-     * @param array $options
-     */
-    public function __construct(ServiceLocator $sl, $options=array())
+    public function __construct(Aether $aether, $options = [])
     {
-        $this->sl = $sl;
+        $this->aether = $aether;
+        $this->sl = $this->aether;
         $this->options = $options;
     }
 
