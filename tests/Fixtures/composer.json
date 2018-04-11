@@ -1,7 +1,7 @@
 {
     "autoload": {
         "psr-4": {
-            "Tests\\": "./src"
+            "Tests\\Fixtures\\": "./src"
         }
     }
 }

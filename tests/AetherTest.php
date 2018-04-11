@@ -20,6 +20,6 @@ class AetherTest extends TestCase
 
     public function testGetNamespace()
     {
-        $this->assertEquals('Tests\\', $this->aether->getNamespace());
+        $this->assertEquals('Tests\\Fixtures\\', $this->aether->getNamespace());
     }
 }
