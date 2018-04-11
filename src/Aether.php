@@ -2,6 +2,7 @@
 
 namespace Aether;
 
+use RuntimeException;
 use Aether\Sections\Section;
 use Aether\Sections\SectionFactory;
 use Aether\Response\ResponseFactory;
@@ -58,6 +59,11 @@ class Aether extends ServiceLocator
      * @var array
      */
     private $registeredProviders = [];
+
+    /**
+     * @var string
+     */
+    private $namespace;
 
     /**
      * Determine if a static Aether instance has been instantiated and
@@ -139,6 +145,32 @@ class Aether extends ServiceLocator
     public function runningInConsole()
     {
         return php_sapi_name() === 'cli';
+    }
+
+    /**
+     * Get the application namespace.
+     *
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    public function getNamespace()
+    {
+        if (! is_null($this->namespace)) {
+            return $this->namespace;
+        }
+
+        $projectRoot = realpath($this['projectRoot']);
+
+        $composer = json_decode(file_get_contents($projectRoot.'/composer.json'));
+
+        foreach (data_get($composer, 'autoload.psr-4') as $namespace => $path) {
+            if (realpath($projectRoot.'/'.$path) === $projectRoot.'/src') {
+                return $this->namespace = $namespace;
+            }
+        }
+
+        throw new RuntimeException('Unable to detect application namespace.');
     }
 
     /**

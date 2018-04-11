@@ -17,4 +17,9 @@ class AetherTest extends TestCase
 
         $this->assertFalse(Aether::hasInstance());
     }
+
+    public function testGetNamespace()
+    {
+        $this->assertEquals('Tests\\', $this->aether->getNamespace());
+    }
 }
