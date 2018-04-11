@@ -55,4 +55,13 @@ class ConsoleTest extends TestCase
 
         $this->assertContains('Yes hello', $this->console->output());
     }
+
+    public function testApplicationCommandsAreLoadedAutomatically()
+    {
+        $this->assertArrayHasKey('autoloaded', $this->console->all());
+
+        $this->console->call('autoloaded');
+
+        $this->assertContains('Hello world', $this->console->output());
+    }
 }
