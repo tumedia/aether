@@ -3,7 +3,8 @@
 
 passthru('vendor/bin/aether config:generate', $returnCode);
 
-echo "
+if (($argv[1] ?? '') !== 'prod') {
+    echo "
 ===========================================================
 --------- generateConfig er ikke lenger nødvendig ---------
 ===========================================================
@@ -12,7 +13,7 @@ vendor/bin/aether config:clear
 
 * Hvis du absolutt vil generere konfigureringsfiler, kjør:
 vendor/bin/aether config:generate
-
 ";
+}
 
 exit($returnCode);
