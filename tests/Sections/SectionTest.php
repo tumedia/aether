@@ -20,22 +20,28 @@ class SectionTest extends TestCase
             ->visit('http://raw.no/unittest/goodtimes/nay')
             ->assertSee('404 Eg fant han ikkje')
             ->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+    }
 
-        return;
+    /**
+     * @runInSeparateProcess
+     */
+    public function testSectionCacheHeader()
+    {
+        config()->set('app.env', 'production');
+        $this
+            ->visit('http://raw.no/section-test/cache/me/if/you/can')
+            ->assertHeader('Cache-Control', 's-maxage=30');
+    }
 
-        $sl = new ServiceLocator;
-        $config = $this->getLoadedConfig('');
-        $sl->set('aetherConfig', $config);
-
-        $section = SectionFactory::create(
-            Testsection::class,
-            $sl
-        );
-
-        $response = $section->response();
-        $this->assertInstanceOf(Text::class, $response);
-        $this->assertEquals('404 Eg fant han ikkje', $response->get(), 'Response should be NotFoundSection\'s output');
-        $this->assertArrayNotHasKey('id', $response->options, 'Options should be cleared when reloading config');
+    /**
+     * @runInSeparateProcess
+     */
+    public function testSectionCacheHeaderMissing()
+    {
+        config()->set('app.env', 'production');
+        $this
+            ->visit('http://raw.no/section-test/missing-cache')
+            ->assertHeaderMissing('Cache-Control');
     }
 
     private function getLoadedConfig($url)
