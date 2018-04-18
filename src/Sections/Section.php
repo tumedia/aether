@@ -33,6 +33,13 @@ abstract class Section
      */
     protected $sl;
 
+    /**
+     * Cache time for varnish
+     *
+     * @var integerino
+     */
+    protected $pageCacheTime;
+
     public function __construct(Aether $aether)
     {
         $this->aether = $aether;
@@ -97,6 +104,7 @@ abstract class Section
                         if (is_numeric($mCacheTime) && $mCacheTime > 0) {
                             $this->cache->set($mCacheName, $mOut, $mCacheTime);
                         } else {
+                            // uncacbleable page if at least one module is uncacheable
                             $this->pageCacheTime = 0;
                         }
                     } catch (Throwable $e) {
@@ -144,7 +152,8 @@ abstract class Section
 
         $config = $this->aether['aetherConfig'];
         $this->cache = $this->aether->bound('cache') ? $this->aether['cache'] : false;
-        $cacheable = true;
+        $this->pageCacheTime = $config->getCacheTime();
+
         /**
          * Decide cache name for rule based cache
          * If the option cacheas is set, we will use the cache name
@@ -158,17 +167,6 @@ abstract class Section
             } else {
                 $this->cacheName = $url->cacheName();
             }
-
-            $this->pageCacheTime = $config->getCacheTime();
-            if ($this->pageCacheTime === false) {
-                $this->pageCacheTime = 0;
-            }
-
-            if ($url->get('query') != "") {
-                $cacheable = false;
-            }
-        } else {
-            $this->pageCacheTime = 0;
         }
 
         /**
@@ -179,9 +177,6 @@ abstract class Section
          * not cached and later on displayed to an end user
          */
         $options = $config->getOptions();
-
-        // Cache complete pages in Aether. Does not affect module cache
-        $cachePages = config('app.cache.pages', false);
 
         $modules = $this->preloadModules($config->getModules(), $options);
 
@@ -197,60 +192,51 @@ abstract class Section
         /**
          * Render page
          */
-        $cacheable = ($cacheable && is_object($this->cache));
-        if (!$cachePages || !$cacheable || $this->pageCacheTime === 0 || ($this->cache->get($this->cacheName) == false)) {
-            /* Load controller template
-             * This template knows where all modules should be placed
-             * and have internal wrapping html for this section
-             */
-            $tplInfo = $config->getTemplate();
-            $tpl = $this->aether->getTemplate();
-            if (is_array($modules)) {
-                foreach ($modules as &$module) {
-                    // If module should be cached, handle it
-                    $module = $this->loadModule($module);
-                    if (!$module) {
-                        continue;
-                    }
 
-                    /**
-                     * Support multiple modules of same type by
-                     * specificaly naming them with a surname when
-                     * duplicates are encountered
-                     */
-                    $modId = isset($module['provides']) ? $module['provides'] : $module['name'];
+        /* Load controller template
+         * This template knows where all modules should be placed
+         * and have internal wrapping html for this section
+         */
+        $tplInfo = $config->getTemplate();
+        $tpl = $this->aether->getTemplate();
+        if (is_array($modules)) {
+            foreach ($modules as &$module) {
+                // If module should be cached, handle it
+                $module = $this->loadModule($module);
+                if (!$module) {
+                    continue;
+                }
 
-                    $this->provide($modId, $module['output']);
-                    // DEPRECATED: direct access to $ModuleName in template
-                    $tpl->set($module['name'], $module['output']);
+                /**
+                 * Support multiple modules of same type by
+                 * specificaly naming them with a surname when
+                 * duplicates are encountered
+                 */
+                $modId = isset($module['provides']) ? $module['provides'] : $module['name'];
 
-                    /**
-                     * If we have a timer, end this timing
-                     * we're in test mode and thus showing timing
-                     * information
-                     */
-                    if (isset($timer) and is_object($timer)) {
-                        $timer->tick('module_run', $modId);
-                    }
+                $this->provide($modId, $module['output']);
+                // DEPRECATED: direct access to $ModuleName in template
+                $tpl->set($module['name'], $module['output']);
+
+                /**
+                 * If we have a timer, end this timing
+                 * we're in test mode and thus showing timing
+                 * information
+                 */
+                if (isset($timer) and is_object($timer)) {
+                    $timer->tick('module_run', $modId);
                 }
             }
-
-            if (!isset($tplInfo['name']) || strlen($tplInfo['name']) === 0) {
-                throw new ConfigError("Template not specified for url: " . (string)$url);
-            } else {
-                $output = $tpl->fetch($tplInfo['name']);
-            }
-
-            if ($cachePages && $cacheable && $this->pageCacheTime > 0) {
-                $this->cache->set($this->cacheName, $output, $this->pageCacheTime);
-            }
-        } else {
-            $output = $this->cache->get($this->cacheName);
         }
 
-        // Page is cacheable even with cachePages off since we want headers for
-        // browser and ex. varnish etc.
-        if (is_numeric($this->pageCacheTime)) {
+        if (empty($tplInfo['name'])) {
+            throw new ConfigError("Template not specified for url: " . (string)$url);
+        }
+
+        $output = $tpl->fetch($tplInfo['name']);
+
+        // Varnish cache header
+        if (is_numeric($this->pageCacheTime) && !headers_sent()) {
             header("Cache-Control: s-maxage={$this->pageCacheTime}");
         }
 

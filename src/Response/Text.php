@@ -78,7 +78,7 @@ class Text extends Response
             try {
                 $out = $tpl->fetch('debugBar.tpl');
             } catch (Exception $e) {
-                echo $e;
+                echo $e->getMessage();
             }
             $out = str_replace(
                 "<!--INSERTIONPOINT-->",
