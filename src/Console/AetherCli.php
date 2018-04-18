@@ -18,5 +18,8 @@ class AetherCli extends Application
         parent::__construct($aether, $events, $version);
 
         $this->aether = $aether;
+
+        $this->setCatchExceptions(false);
+        $this->setAutoExit(false);
     }
 }

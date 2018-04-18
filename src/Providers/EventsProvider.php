@@ -4,7 +4,7 @@ namespace Aether\Providers;
 
 use Illuminate\Events\Dispatcher;
 
-class EventProvider extends Provider
+class EventsProvider extends Provider
 {
     public function register()
     {

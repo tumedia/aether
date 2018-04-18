@@ -59,6 +59,7 @@ class UrlParser
     {
         $instance = new static;
 
+        // todo: switch to use request instance
         $instance->parseServerArray($_SERVER);
 
         return $instance;

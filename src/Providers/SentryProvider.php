@@ -13,20 +13,20 @@ class SentryProvider extends Provider
         });
     }
 
-    public function boot()
-    {
-        if (! config('app.sentry.enabled', false)) {
-            return;
-        }
+    // public function boot()
+    // {
+    //     if (! config('app.sentry.enabled', false)) {
+    //         return;
+    //     }
 
-        $client = $this->aether['sentry.client']->install();
+    //     $client = $this->aether['sentry.client']->install();
 
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $client->user_context([
-                'ip_address' => $_SERVER['HTTP_X_FORWARDED_FOR'],
-            ]);
-        }
-    }
+    //     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    //         $client->user_context([
+    //             'ip_address' => $_SERVER['HTTP_X_FORWARDED_FOR'],
+    //         ]);
+    //     }
+    // }
 
     protected function getClient($aether)
     {

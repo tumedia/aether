@@ -22,7 +22,6 @@ class Discoverer
 
     public function getPackageVersions()
     {
-        // todo: add this info to sentry
         return $this->mapInstalledPackages(function ($package) {
             return [
                 'name' => $package->name,

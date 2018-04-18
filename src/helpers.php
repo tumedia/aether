@@ -2,6 +2,7 @@
 
 use Aether\Aether;
 use Aether\Config;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 
 if (!function_exists('app')) {
     /**

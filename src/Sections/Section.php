@@ -2,6 +2,7 @@
 
 namespace Aether\Sections;
 
+use Error;
 use Throwable;
 use Aether\Aether;
 use Aether\Response\Text;
@@ -9,6 +10,8 @@ use Aether\Modules\Module;
 use Aether\Modules\ModuleFactory;
 use Aether\Exceptions\ConfigError;
 use Aether\Exceptions\ServiceNotFound;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
  * Base class definition of aether sections
@@ -348,20 +351,24 @@ abstract class Section
     }
 
     /**
-     * Handle exceptions thrown by modules. In production, trigger_error() is
-     * used, otherwise the exception will be re-thrown.
+     * Handle exceptions thrown by modules. In production, the exception is
+     * simply reported to the exception handler without being rendered.
      *
      * @param  \Throwable  $e
      * @return void
-     * @throws \Throwable
+     * @throws \Exception
      */
-    private function handleModuleError($e)
+    private function handleModuleError(Throwable $e)
     {
-        if (config('app.env') !== 'production') {
+        if ($e instanceof Error) {
+            $e = new FatalThrowableError($e);
+        }
+
+        if (! $this->aether->isProduction()) {
             throw $e;
         }
 
-        trigger_error("Caught exception at " . $e->getFile() . ":" . $e->getLine() . ": " . $e->getMessage() . ", trace: " . str_replace("\n", ", ", $e->getTraceAsString()));
+        resolve(ExceptionHandler::class)->report($e);
     }
 
     protected function triggerDefaultRule()

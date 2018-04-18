@@ -11,26 +11,5 @@ class PackageDiscoveryProvider extends Provider
         $this->aether->bind(Discoverer::class, function ($app) {
             return new Discoverer($app['projectRoot']);
         });
-
-        $config = $this->aether['config'];
-
-        if (! $config->wasLoadedFromCompiled()) {
-            $this->addPackageProvidersToConfig($config);
-        }
-
-        $this->aether->registerProviders($config->get('app.providers', []));
-    }
-
-    protected function addPackageProvidersToConfig($config)
-    {
-        if (! $config->has('app.providers')) {
-            $config->set('app.providers', []);
-        }
-
-        $discoverer = $this->aether[Discoverer::class];
-
-        foreach ($discoverer->getProvidersFromInstalledPackages() as $provider) {
-            $config->push('app.providers', $provider);
-        }
     }
 }
