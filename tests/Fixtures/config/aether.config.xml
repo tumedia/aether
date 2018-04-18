@@ -111,6 +111,9 @@
                             <rule match="you">
                                 <rule match="can" cache="30">
                                 </rule>
+
+                                <rule match="cannot" cache="0">
+                                </rule>
                             </rule>
                         </rule>
                     </rule>

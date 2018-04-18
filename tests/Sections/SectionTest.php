@@ -36,6 +36,17 @@ class SectionTest extends TestCase
     /**
      * @runInSeparateProcess
      */
+    public function testSectionCacheHeaderZero()
+    {
+        config()->set('app.env', 'production');
+        $this
+            ->visit('http://raw.no/section-test/cache/me/if/you/cannot')
+            ->assertHeader('Cache-Control', 's-maxage=0');
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
     public function testSectionCacheHeaderMissing()
     {
         config()->set('app.env', 'production');
