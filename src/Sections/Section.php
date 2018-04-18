@@ -133,9 +133,8 @@ abstract class Section
      *
      * @access protected
      * @return string
-     * @param array $tplVars
      */
-    protected function renderModules($tplVars = array())
+    protected function renderModules()
     {
         if ($this->aether->bound('timer')) {
             $timer = $this->aether['timer'];
@@ -207,8 +206,6 @@ abstract class Section
             $tplInfo = $config->getTemplate();
             $tpl = $this->aether->getTemplate();
             if (is_array($modules)) {
-                $tpl->set("extras", $tplVars);
-
                 foreach ($modules as &$module) {
                     // If module should be cached, handle it
                     $module = $this->loadModule($module);
