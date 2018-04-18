@@ -2,8 +2,6 @@
 
 namespace Tests;
 
-use Aether\Response\Text;
-
 class SectionTest extends TestCase
 {
     /**

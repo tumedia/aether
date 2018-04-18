@@ -105,11 +105,11 @@ class Kernel
 
     protected function reportException(Exception $e)
     {
-        $this->make(ExceptionHandler::class)->report($e);
+        $this->aether->make(ExceptionHandler::class)->report($e);
     }
 
     protected function renderException($output, Exception $e)
     {
-        $this->make(ExceptionHandler::class)->renderForConsole($output, $e);
+        $this->aether->make(ExceptionHandler::class)->renderForConsole($output, $e);
     }
 }
