@@ -171,6 +171,25 @@ class Aether extends ServiceLocator
     }
 
     /**
+     * Initiate the requested section and register it with the service locator.
+     *
+     * @return void
+     */
+    public function initiateSection()
+    {
+        $this->instance('section', SectionFactory::create(
+            $this['aetherConfig']->getSection(),
+            $this
+        ));
+
+        $this->alias('section', Section::class);
+
+        if ($this->bound('timer')) {
+            $this['timer']->tick('aether_main', 'section_initiate');
+        }
+    }
+
+    /**
      * Set up some important core bindings in the container.
      *
      * @return void
@@ -205,25 +224,6 @@ class Aether extends ServiceLocator
     private function register($provider)
     {
         $this->registeredProviders[$provider] = tap(new $provider($this))->register();
-    }
-
-    /**
-     * Initiate the requested section and register it with the service locator.
-     *
-     * @return void
-     */
-    private function initiateSection()
-    {
-        $this->instance('section', SectionFactory::create(
-            $this['aetherConfig']->getSection(),
-            $this
-        ));
-
-        $this->alias('section', Section::class);
-
-        if ($this->bound('timer')) {
-            $this['timer']->tick('aether_main', 'section_initiate');
-        }
     }
 
     private function registerCoreContainerAliases()
