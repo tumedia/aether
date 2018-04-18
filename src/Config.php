@@ -78,7 +78,13 @@ class Config extends Repository
         $config = [];
 
         foreach ($this->getSortedConfigFiles($configPath) as $path) {
-            @list($configName, $matchEnv) = explode('.', basename($path, '.php'), 2);
+            $parts = explode('.', basename($path, '.php'), 2);
+
+            if (count($parts) === 2) {
+                list($configName, $matchEnv) = $parts;
+            } else {
+                list($configName, $matchEnv) = [$parts[0], null];
+            }
 
             // If the config file is *not* targeting an environment, go ahead
             // and load it.

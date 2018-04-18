@@ -69,7 +69,7 @@ class Kernel
         }
     }
 
-    protected function bootstrap()
+    public function bootstrap()
     {
         $this->aether->bootstrapWith($this->bootstrappers);
     }

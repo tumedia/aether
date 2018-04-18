@@ -28,16 +28,14 @@ class Kernel
 
     public function bootstrap()
     {
-        $this->aether->singleton('parsedUrl', function () {
-            return UrlParser::createFromGlobals();
-        });
-
         $this->aether->bootstrapWith($this->bootstrappers);
     }
 
-    public function handle()
+    public function handle(UrlParser $parsedUrl)
     {
         try {
+            $this->aether->instance('parsedUrl', $parsedUrl);
+
             $this->bootstrap();
 
             $this->aether->initiateSection();

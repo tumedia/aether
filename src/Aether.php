@@ -5,7 +5,6 @@ namespace Aether;
 use RuntimeException;
 use Aether\Sections\Section;
 use Aether\Sections\SectionFactory;
-use Aether\Response\ResponseFactory;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 
 /**
@@ -90,7 +89,7 @@ class Aether extends ServiceLocator
     {
         $kernel = $this->make(Http\Kernel::class);
 
-        $response = $kernel->handle();
+        $response = $kernel->handle(UrlParser::createFromGlobals());
 
         $response->draw($this);
     }
