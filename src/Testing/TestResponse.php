@@ -74,6 +74,17 @@ class TestResponse
         return $this;
     }
 
+    public function assertHeaderMissing($header)
+    {
+        Assert::assertArrayNotHasKey(
+            $header,
+            $this->headers,
+            "Response header [{$header}] is present"
+        );
+
+        return $this;
+    }
+
     protected function getSentHeaders()
     {
         if (! function_exists('xdebug_get_headers')) {
