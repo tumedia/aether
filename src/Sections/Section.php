@@ -130,7 +130,7 @@ abstract class Section
             }
         }
 
-        $module['output'] = $mOut;
+        $module['output'] = $mOut ?? '';
 
         return $module;
     }
