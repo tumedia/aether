@@ -25,9 +25,8 @@ class HandleExceptions
 
         register_shutdown_function([$this, 'handleShutDown']);
 
-        if ($aether->isProduction()) {
-            ini_set('display_errors', 'Off');
-        }
+        // We don't want PHP to display errors - we'll do it ourselves.
+        ini_set('display_errors', 'Off');
 
         // @todo:
         // DebugClassLoader::enable();
