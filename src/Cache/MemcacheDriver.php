@@ -29,6 +29,8 @@ class MemcacheDriver implements Cache
      */
     private $con = null;
 
+    private $updateTimeout = 0;
+
     /**
      * Setup memcache servers as supplied
      *
