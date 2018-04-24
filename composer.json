@@ -19,6 +19,7 @@
         "vlucas/phpdotenv": "^2.4"
     },
     "require-dev": {
+        "mockery/mockery": "^1.0",
         "phpunit/phpunit": "^6.4",
         "psy/psysh": "^0.9"
     },

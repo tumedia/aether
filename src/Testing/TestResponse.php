@@ -102,6 +102,24 @@ class TestResponse
     }
 
     /**
+     * Assert that the HTTP status code returned by the response matches the
+     * given value.
+     *
+     * @param  int  $code
+     * @return \Aether\Testing\TestResponse  $this
+     */
+    public function assertStatus($code)
+    {
+        Assert::assertEquals(
+            $code,
+            $actual = http_response_code(),
+            "Response status [{$actual}] does not equal [{$code}]"
+        );
+
+        return $this;
+    }
+
+    /**
      * "Draw" the response and set local properties.
      *
      * @return void

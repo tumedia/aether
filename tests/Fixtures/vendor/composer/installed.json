@@ -1,6 +1,11 @@
 [
     {
         "name": "test/package",
+        "version": "0.1",
+        "dist": {
+            "reference": "fffffffffffff"
+        },
+        "installation-source": "dist",
         "extra": {
             "aether": {
                 "providers": [

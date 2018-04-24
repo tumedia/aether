@@ -39,6 +39,8 @@
                     <option name="foo">foobar</option>
                 </module>
             </rule>
+
+            <import>exceptionRoutes</import>
         </urlRules>
     </site>
     <site name="raw.no">
