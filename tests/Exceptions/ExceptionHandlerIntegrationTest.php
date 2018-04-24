@@ -8,10 +8,8 @@ use Raven_Client;
 use Tests\TestCase;
 use Aether\Console\Command;
 use Aether\Console\AetherCli;
-use Aether\Exceptions\Handler;
 use Aether\Console\Kernel as ConsoleKernel;
 use Symfony\Component\Console\Input\ArgvInput;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 

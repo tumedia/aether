@@ -5,7 +5,6 @@ namespace Aether\Bootstrap;
 use Exception;
 use Aether\Aether;
 use ErrorException;
-use Symfony\Component\Debug\DebugClassLoader;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Debug\Exception\FatalErrorException;

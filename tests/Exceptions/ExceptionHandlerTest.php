@@ -7,9 +7,7 @@ use Mockery as m;
 use Aether\Aether;
 use Aether\Exceptions\Handler;
 use PHPUnit\Framework\TestCase;
-use Aether\Bootstrap\HandleExceptions;
 use Aether\PackageDiscovery\Discoverer;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
