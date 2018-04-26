@@ -65,6 +65,17 @@ class SmartyTest extends TestCase
         $this->assertContains('lorem ipsum', $rendered);
     }
 
+    public function testTheTemplateClassIsMacroable()
+    {
+        Template::macro('addOne', function ($value) {
+            return $value + 1;
+        });
+
+        $template = resolve('template');
+
+        $this->assertEquals(2, $template->addOne(1));
+    }
+
     protected function tearDown()
     {
         array_map('unlink', glob(dirname(__DIR__).'/Fixtures/templates/compiled/*.php'));

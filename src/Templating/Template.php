@@ -2,6 +2,8 @@
 
 namespace Aether\Templating;
 
+use Illuminate\Support\Traits\Macroable;
+
 /**
  * Super class for templating interface of Aether
  *
@@ -11,6 +13,8 @@ namespace Aether\Templating;
  */
 abstract class Template
 {
+    use Macroable;
+
     /**
      * Set a template variable
      *
