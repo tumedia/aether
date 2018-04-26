@@ -52,6 +52,7 @@ class ExceptionHandlerTest extends TestCase
         $handler->addContext(['user' => ['id' => 1]]);
         $handler->report($e, ['foo' => 'bar']);
     }
+
     /**
      * @runInSeparateProcess
      */
