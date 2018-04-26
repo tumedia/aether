@@ -15,6 +15,8 @@ class Handler implements ExceptionHandler
 {
     protected $aether;
 
+    protected $context = [];
+
     /**
      * If supported by the reporting mechanism, this should contain a unique ID
      * that can be linked to the thrown exception.
@@ -83,6 +85,17 @@ class Handler implements ExceptionHandler
     }
 
     /**
+     * Add global context that will be added to all reported exceptions.
+     *
+     * @param  array  $context
+     * @return void
+     */
+    public function addContext(array $context)
+    {
+        $this->context = array_merge($this->context, $context);
+    }
+
+    /**
      * Return a unique ID corresponding to the previously caught exception.
      *
      * @return string
@@ -124,11 +137,17 @@ class Handler implements ExceptionHandler
 
     protected function reportInProduction(Exception $e, array $context = [])
     {
-        $eventId = $this->aether['sentry.client']->captureException($e, [
-            'modules' => $this->getInstalledPackages(),
-        ] + $context);
+        $eventId = $this->aether['sentry.client']->captureException(
+            $e,
+            $context + $this->getContext()
+        );
 
         $this->lastReportedId = $eventId;
+    }
+
+    protected function getContext()
+    {
+        return ['modules' => $this->getInstalledPackages()] + $this->context;
     }
 
     protected function getInstalledPackages()

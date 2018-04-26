@@ -44,13 +44,14 @@ class ExceptionHandlerTest extends TestCase
         $aether->instance(Discoverer::class, $this->mockPackageDiscoverer());
 
         $e = new Exception('expected exception');
-        $expectedContext = ['user' => ['id' => 1], 'foo' => 'bar'];
+        $expectedContext = ['foo' => 'bar', 'user' => ['id' => 1]];
 
         $aether->instance('sentry.client', $this->mockSentryClient($e, $expectedContext));
 
-        (new Handler($aether))->report($e, $expectedContext);
+        $handler = new Handler($aether);
+        $handler->addContext(['user' => ['id' => 1]]);
+        $handler->report($e, ['foo' => 'bar']);
     }
-
     /**
      * @runInSeparateProcess
      */
