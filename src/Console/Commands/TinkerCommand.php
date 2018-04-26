@@ -20,7 +20,7 @@ class TinkerCommand extends Command
         if (! class_exists(Shell::class)) {
             throw new RuntimeException(implode("\n", [
                 'The tinker command requires psy/psysh to be installed.',
-                'Run the following command to install: composer require psy/psysh'
+                'Run the following command to install: composer require --dev psy/psysh'
             ]));
         }
 
