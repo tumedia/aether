@@ -28,7 +28,6 @@ class ExceptionHandlerTest extends TestCase
     {
         $aether = m::mock(Aether::class)->makePartial();
         $aether->shouldReceive('isProduction')->andReturn(true);
-
         $aether->instance(Discoverer::class, $this->mockPackageDiscoverer());
 
         $e = new Exception('expected exception');
@@ -36,6 +35,20 @@ class ExceptionHandlerTest extends TestCase
         $aether->instance('sentry.client', $this->mockSentryClient($e));
 
         (new Handler($aether))->report($e);
+    }
+
+    public function testReportingToSentryWithContext()
+    {
+        $aether = m::mock(Aether::class)->makePartial();
+        $aether->shouldReceive('isProduction')->andReturn(true);
+        $aether->instance(Discoverer::class, $this->mockPackageDiscoverer());
+
+        $e = new Exception('expected exception');
+        $expectedContext = ['user' => ['id' => 1], 'foo' => 'bar'];
+
+        $aether->instance('sentry.client', $this->mockSentryClient($e, $expectedContext));
+
+        (new Handler($aether))->report($e, $expectedContext);
     }
 
     /**
@@ -83,11 +96,11 @@ class ExceptionHandlerTest extends TestCase
         return $m;
     }
 
-    protected function mockSentryClient($expectedException)
+    protected function mockSentryClient($expectedException, $expectedContext = [])
     {
         $raven = m::mock('Raven_Client');
         $raven->shouldReceive('captureException')
-              ->with($expectedException, ['modules' => ['foo/bar' => '0.1 (ffffffff)']])
+              ->with($expectedException, ['modules' => ['foo/bar' => '0.1 (ffffffff)']] + $expectedContext)
               ->andReturn('exception_id');
         return $raven;
     }

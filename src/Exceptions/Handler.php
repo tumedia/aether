@@ -32,14 +32,15 @@ class Handler implements ExceptionHandler
      * Report or log an exception.
      *
      * @param  \Exception  $e
+     * @param  array  $context = []
      * @return void
      */
-    public function report(Exception $e)
+    public function report(Exception $e, array $context = [])
     {
         if ($this->aether->isProduction()) {
-            $this->reportInProduction($e);
+            $this->reportInProduction($e, $context);
         } else {
-            $this->reportInDevelopment($e);
+            $this->reportInDevelopment($e, $context);
         }
 
         // todo: figure out if we should also send to regular logs in prod
@@ -116,16 +117,16 @@ class Handler implements ExceptionHandler
         });
     }
 
-    protected function reportInDevelopment(Exception $e)
+    protected function reportInDevelopment(Exception $e, array $context = [])
     {
         // todo: write to some log file?
     }
 
-    protected function reportInProduction(Exception $e)
+    protected function reportInProduction(Exception $e, array $context = [])
     {
         $eventId = $this->aether['sentry.client']->captureException($e, [
             'modules' => $this->getInstalledPackages(),
-        ]);
+        ] + $context);
 
         $this->lastReportedId = $eventId;
     }
