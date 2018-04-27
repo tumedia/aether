@@ -10,6 +10,7 @@ use Aether\Console\Command;
 use Aether\Console\AetherCli;
 use Aether\Console\Kernel as ConsoleKernel;
 use Symfony\Component\Console\Input\ArgvInput;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
@@ -23,6 +24,18 @@ class ExceptionHandlerIntegrationTest extends TestCase
      */
     public function testPhpErrorsAreConvertedToErrorExceptions()
     {
+        foo;
+    }
+
+    public function testPhpErrorsAreOnlyReportedInProduction()
+    {
+        config()->set('app.env', 'production');
+
+        $handler = m::mock(ExceptionHandler::class);
+        $handler->shouldReceive('report')->with(m::type('ErrorException'), [
+            'tags' => ['new_error_exception' => 'yup'],
+        ]);
+
         foo;
     }
 

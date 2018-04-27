@@ -36,7 +36,18 @@ class HandleExceptions
     public function handleError($severity, $message, $file = '', $line = 0, $context = [])
     {
         if (error_reporting() & $severity) {
-            throw new ErrorException($message, 0, $severity, $file, $line);
+            // @todo: revert this back to normal after a little while of
+            // monitoring and fixing
+
+            $errorException = new ErrorException($message, 0, $severity, $file, $line);
+
+            if ($this->aether->isProduction()) {
+                $this->getHandler()->report($errorException, [
+                    'tags' => ['new_error_exception' => 'yup'],
+                ]);
+            } else {
+                throw $errorException;
+            }
         }
     }
 
