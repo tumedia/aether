@@ -4,7 +4,9 @@ namespace Aether\Testing;
 
 use Aether\Aether;
 use Aether\UrlParser;
+use Aether\Http\Kernel as HttpKernel;
 use Aether\AetherConfig;
+use Aether\Console\Kernel as ConsoleKernel;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -18,6 +20,8 @@ abstract class TestCase extends BaseTestCase
     protected function setUp()
     {
         $this->aether = $this->createAether();
+
+        $this->aether->make(ConsoleKernel::class)->bootstrap();
     }
 
     protected function tearDown()
@@ -38,15 +42,16 @@ abstract class TestCase extends BaseTestCase
             $this->setUrl($url);
         }
 
-        $parsedUrl = $this->aether['parsedUrl'];
+        $parsedUrl = new UrlParser;
+        $parsedUrl->parse($url);
 
         if ($parsedUrl->get('query')) {
             parse_str($parsedUrl->get('query'), $_GET);
         }
 
-        $this->response = new TestResponse($this->aether);
+        $response = $this->aether->make(HttpKernel::class)->handle($parsedUrl);
 
-        return $this->response->generate();
+        return new TestResponse($this->aether, $response);
     }
 
     /**

@@ -44,12 +44,15 @@ class Text extends Response
         if (session_id() !== '') {
             $_SESSION['wasGoingTo'] = $_SERVER['REQUEST_URI'];
         }
+
+        $tpl = $sl->getTemplate();
+
         $timer = $sl->get('timer');
-        if ($timer) {
+
+        if ($timer && $tpl->templateExists('debugBar.tpl')) {
             // Timer
             $timer->end('aether_main');
             // Replace into out content
-            $tpl = $sl->getTemplate();
             //$tpl->selectTemplate('debugBar');
             $timers = $timer->all();
             foreach ($timers as $key => $tr) {

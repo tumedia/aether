@@ -5,7 +5,7 @@ namespace Aether;
 use RuntimeException;
 use Aether\Sections\Section;
 use Aether\Sections\SectionFactory;
-use Aether\Response\ResponseFactory;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 
 /**
  * The Aether web framework
@@ -35,26 +35,6 @@ use Aether\Response\ResponseFactory;
  */
 class Aether extends ServiceLocator
 {
-    /**
-     * Service providers that should be registered when Aether boots.
-     *
-     * @var array
-     */
-    private $coreProviders = [
-        Providers\ConfigProvider::class,
-        Providers\WhoopsProvider::class,
-        Providers\LocalizationProvider::class,
-        Providers\SentryProvider::class,
-        Providers\EventProvider::class,
-        Cache\CacheProvider::class,
-        Session\SessionProvider::class,
-        Templating\TemplateProvider::class,
-        Providers\TimerProvider::class,
-        Providers\DatabaseProvider::class,
-        Console\AetherCliProvider::class,
-        PackageDiscovery\PackageDiscoveryProvider::class,
-    ];
-
     /**
      * @var array
      */
@@ -87,24 +67,29 @@ class Aether extends ServiceLocator
 
         $this->setUpBaseBindings();
 
-        $this->registerProviders($this->coreProviders);
+        $this->registerBaseProviders();
 
         $this->registerCoreContainerAliases();
+    }
 
-        $this->bootProviders();
+    public function bootstrapWith(array $bootstappers)
+    {
+        foreach ($bootstappers as $bootstapper) {
+            $this->make($bootstapper)->bootstrap($this);
+        }
     }
 
     /**
-     * Ask the AetherSection to render itself,
-     * or if a service is requested it will try to load that service.
+     * Generate a HTTP response throught the HTTP kernel, then send the
+     * response to the browser.
      *
      * @return void
      */
     public function render()
     {
-        $this->initiateSection();
+        $kernel = $this->make(Http\Kernel::class);
 
-        $response = $this->call([ResponseFactory::createFromGlobals(), 'getResponse']);
+        $response = $kernel->handle(UrlParser::createFromGlobals());
 
         $response->draw($this);
     }
@@ -117,24 +102,6 @@ class Aether extends ServiceLocator
     public function isProduction()
     {
         return $this['config']['app.env'] === 'production';
-    }
-
-    /**
-     * Set up some important core bindings in the container.
-     *
-     * @return void
-     */
-    private function setUpBaseBindings()
-    {
-        static::setInstance($this);
-
-        $this->instance('app', $this);
-
-        if (! $this->runningInConsole()) {
-            $this->singleton('parsedUrl', function ($container) {
-                return UrlParser::createFromGlobals();
-            });
-        }
     }
 
     /**
@@ -187,23 +154,11 @@ class Aether extends ServiceLocator
     }
 
     /**
-     * Instantiate and register a given service provider, and add it to the
-     * registered providers array.
-     *
-     * @param  string  $provider
-     * @return void
-     */
-    private function register($provider)
-    {
-        $this->registeredProviders[$provider] = tap(new $provider($this))->register();
-    }
-
-    /**
      * Call the boot method on all services that have been registered.
      *
      * @return void
      */
-    private function bootProviders()
+    public function bootProviders()
     {
         foreach ($this->registeredProviders as $provider) {
             if (method_exists($provider, 'boot')) {
@@ -219,7 +174,7 @@ class Aether extends ServiceLocator
      *
      * @return void
      */
-    private function initiateSection()
+    public function initiateSection()
     {
         $this->instance('section', SectionFactory::create(
             $this['aetherConfig']->getSection(),
@@ -233,7 +188,44 @@ class Aether extends ServiceLocator
         }
     }
 
-    protected function registerCoreContainerAliases()
+    /**
+     * Set up some important core bindings in the container.
+     *
+     * @return void
+     */
+    private function setUpBaseBindings()
+    {
+        static::setInstance($this);
+
+        $this->instance('app', $this);
+
+        $this->singleton(ExceptionHandler::class, Exceptions\Handler::class);
+    }
+
+    private function registerBaseProviders()
+    {
+        $this->register(Providers\ConfigProvider::class);
+
+        $this->register(Providers\EventsProvider::class);
+
+        $this->register(PackageDiscovery\PackageDiscoveryProvider::class);
+
+        $this->register(Providers\SentryProvider::class);
+    }
+
+    /**
+     * Instantiate and register a given service provider, and add it to the
+     * registered providers array.
+     *
+     * @param  string  $provider
+     * @return void
+     */
+    private function register($provider)
+    {
+        $this->registeredProviders[$provider] = tap(new $provider($this))->register();
+    }
+
+    private function registerCoreContainerAliases()
     {
         foreach ([
             'app'          => [\Aether\Aether::class, \Aether\ServiceLocator::class, \Illuminate\Container\Container::class, \Illuminate\Contracts\Container\Container::class, \Psr\Container\ContainerInterface::class],

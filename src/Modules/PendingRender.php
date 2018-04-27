@@ -2,10 +2,14 @@
 
 namespace Aether\Modules;
 
+use Exception;
+use Throwable;
 use Aether\Aether;
 use Aether\Config;
 use Aether\AetherConfig;
 use BadMethodCallException;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
  * This class is a wrapper around Aether Modules that will be rendered when
@@ -119,7 +123,33 @@ class PendingRender
      */
     public function __toString()
     {
-        return $this->runModule();
+        try {
+            return $this->runModule();
+        } catch (Throwable $e) {
+            // If an exception is thrown during render, we'll catch it and send
+            // it to the exception handler manually. It needs to be this way
+            // because exceptions thrown when casting an object to a string
+            // using the `__toString()` method will be caught internally and
+            // re-thrown as a "Method must not throw an exception, caught .."
+            // error - losing the original exception including information such
+            // as the stack trace.
+
+            if (! $e instanceof Exception) {
+                $e = new FatalThrowableError($e);
+            }
+
+            if (app()->isProduction()) {
+                resolve(ExceptionHandler::class)->report($e);
+            } else {
+                ob_clean();
+
+                resolve(ExceptionHandler::class)->render(null, $e)->draw(app());
+
+                // @todo: figure out a nice way to stop output beyond this point.
+            }
+
+            return '';
+        }
     }
 
     /**

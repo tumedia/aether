@@ -3,6 +3,7 @@
 namespace Aether\Console\Commands;
 
 use Psy\Shell;
+use RuntimeException;
 use Psy\Configuration;
 use Aether\Console\Command;
 use Illuminate\Support\Collection;
@@ -16,6 +17,13 @@ class TinkerCommand extends Command
 
     public function handle()
     {
+        if (! class_exists(Shell::class)) {
+            throw new RuntimeException(implode("\n", [
+                'The tinker command requires psy/psysh to be installed.',
+                'Run the following command to install: composer require --dev psy/psysh'
+            ]));
+        }
+
         $config = new Configuration([
             'updateCheck' => 'never'
         ]);

@@ -13,14 +13,15 @@
         "illuminate/database": "5.5.*",
         "illuminate/events": "5.5.*",
         "illuminate/support": "5.5.*",
-        "psy/psysh": "^0.8",
         "sentry/sentry": "1.8.*",
         "smarty/smarty": "3.1.30",
         "symfony/var-dumper": "~3.0|~4.0",
         "vlucas/phpdotenv": "^2.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.4"
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^6.4",
+        "psy/psysh": "^0.9"
     },
     "autoload": {
         "psr-4": {

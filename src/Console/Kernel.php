@@ -2,12 +2,16 @@
 
 namespace Aether\Console;
 
+use Error;
+use Exception;
+use Throwable;
 use Aether\Aether;
 use BadMethodCallException;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Console\Kernel as KernelContract;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 
-class Kernel implements KernelContract
+class Kernel
 {
     /**
      * @var \Aether\Aether
@@ -24,6 +28,18 @@ class Kernel implements KernelContract
      */
     protected $aetherCli;
 
+    /**
+     * Application bootsrappers for the console kernel.
+     *
+     * @var array
+     */
+    protected $bootstrappers = [
+        \Aether\Bootstrap\HandleExceptions::class,
+        \Aether\Bootstrap\SetRequestForConsole::class,
+        \Aether\Bootstrap\RegisterProviders::class,
+        \Aether\Bootstrap\BootProviders::class,
+    ];
+
     public function __construct(Aether $aether, Dispatcher $events)
     {
         if (! defined('ARTISAN_BINARY')) {
@@ -34,14 +50,28 @@ class Kernel implements KernelContract
         $this->events = $events;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle($input, $output = null)
     {
-        // todo: error handling
+        try {
+            $this->bootstrap();
 
-        return $this->getAetherCli()->run($input, $output);
+            return $this->getAetherCli()->run($input, $output);
+        } catch (Throwable $e) {
+            if ($e instanceof Error) {
+                $e = new FatalThrowableError($e);
+            }
+
+            $this->reportException($e);
+
+            $this->renderException($output, $e);
+
+            return 1;
+        }
+    }
+
+    public function bootstrap()
+    {
+        $this->aether->bootstrapWith($this->bootstrappers);
     }
 
     protected function getAetherCli()
@@ -53,35 +83,33 @@ class Kernel implements KernelContract
         return $this->aetherCli;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function call($command, array $parameters = [], $outputBuffer = null)
     {
         return $this->getAetherCli()->call($command, $parameters, $outputBuffer);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function queue($command, array $parameters = [])
     {
         throw new BadMethodCallException('Kernel::queue() is not yet implemented.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function all()
     {
         return $this->getAetherCli()->all();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function output()
     {
         return $this->getAetherCli()->output();
+    }
+
+    protected function reportException(Exception $e)
+    {
+        $this->aether->make(ExceptionHandler::class)->report($e);
+    }
+
+    protected function renderException($output, Exception $e)
+    {
+        $this->aether->make(ExceptionHandler::class)->renderForConsole($output, $e);
     }
 }

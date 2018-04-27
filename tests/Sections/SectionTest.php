@@ -2,13 +2,6 @@
 
 namespace Tests;
 
-use Aether\UrlParser;
-use Aether\AetherConfig;
-use Aether\Response\Text;
-use Aether\ServiceLocator;
-use Aether\Sections\SectionFactory;
-use Tests\Fixtures\Sections\Testsection;
-
 class SectionTest extends TestCase
 {
     /**
@@ -53,21 +46,5 @@ class SectionTest extends TestCase
         $this
             ->visit('http://raw.no/section-test/missing-cache')
             ->assertHeaderMissing('Cache-Control');
-    }
-
-    private function getLoadedConfig($url)
-    {
-        $aetherUrl = new UrlParser;
-        $aetherUrl->parse($url);
-
-        $conf = $this->getConfig();
-        $conf->matchUrl($aetherUrl);
-
-        return $conf;
-    }
-
-    private function getConfig()
-    {
-        return new AetherConfig(__DIR__.'/Fixtures/config/aether.config.xml');
     }
 }

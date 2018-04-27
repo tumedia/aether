@@ -2,12 +2,19 @@
 
 namespace Tests;
 
+use Exception;
+use Mockery as m;
+use Aether\Modules\Module;
 use Aether\Modules\PendingRender;
 use Tests\Fixtures\Modules\Hellolocal;
 use Tests\Fixtures\Modules\OptionsSerializer;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 class ModulePendingRenderTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     public function testItRendersWhenCastToString()
     {
         $pending = new PendingRender(Hellolocal::class);
@@ -152,6 +159,35 @@ class ModulePendingRenderTest extends TestCase
         $pending->fooBar();
     }
 
+    public function testItShouldReportExceptionsDirectlyToTheExceptionHandlerWhenCastingToStringInProduction()
+    {
+        config()->set('app.env', 'production');
+
+        $handler = m::mock(ExceptionHandler::class);
+        $handler->shouldReceive('report')->with(m::type(SuperCoolException::class));
+
+        $this->aether->instance(ExceptionHandler::class, $handler);
+
+        $pending = new PendingRender(FailingTestModule::class);
+
+        $this->assertEquals('', (string) $pending);
+    }
+
+    public function testItShouldRenderExceptionsDirectlyUsingTheExceptionHandlerWhenCastingToStringLocally()
+    {
+        $response = m::mock(\Aether\Response\Response::class);
+        $response->shouldReceive('draw');
+
+        $handler = m::mock(ExceptionHandler::class);
+        $handler->shouldReceive('render')->with(null, m::type(SuperCoolException::class))->andReturn($response);
+
+        $this->aether->instance(ExceptionHandler::class, $handler);
+
+        $pending = new PendingRender(FailingTestModule::class);
+
+        $this->assertEquals('', (string) $pending);
+    }
+
     private function assertOptions($expected, string $renderedModule)
     {
         $this->assertSame($expected, unserialize($renderedModule));
@@ -160,5 +196,18 @@ class ModulePendingRenderTest extends TestCase
     private function setModulesConfig($config)
     {
         config()->set('modules', $config);
+    }
+}
+
+class SuperCoolException extends Exception
+{
+    //
+}
+
+class FailingTestModule extends Module
+{
+    public function run()
+    {
+        throw new SuperCoolException('this is an expected exception');
     }
 }
