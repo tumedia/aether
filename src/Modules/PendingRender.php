@@ -144,6 +144,8 @@ class PendingRender
                 ob_clean();
 
                 resolve(ExceptionHandler::class)->render(null, $e)->draw(app());
+
+                // @todo: figure out a nice way to stop output beyond this point.
             }
 
             return '';
