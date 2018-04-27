@@ -36,6 +36,8 @@ class Action extends Response
      */
     public function draw($sl)
     {
+        // @todo: switch to http_response_code()
+
         switch ($this->statusCode) {
             case 301: // Moved permanently
                 header("HTTP/1.1 301 Moved Permanently");
