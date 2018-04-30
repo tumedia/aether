@@ -38,7 +38,7 @@ class ConfigGenerateAndClearTest extends TestCase
 
         $compiled = require $this->aether['projectRoot'].'config/compiled.php';
 
-        $this->assertContains("Tests\Fixtures\TestPackage\TestPackageProvider", $compiled['app']['providers']);
+        $this->assertContains('Tests\Fixtures\TestPackage\TestPackageProvider', $compiled['app']['providers']);
 
         $this->console->call('config:clear');
     }
