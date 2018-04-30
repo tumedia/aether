@@ -139,10 +139,7 @@ abstract class Section
      * Render content from modules
      * this is where caching is implemented
      * TODO Possible refactoring, many leves of nesting
-     * TODO Reconsider the solution with passing in extra tpl data
-     * to renderModules() as an argument. Smells bad
      *
-     * @access protected
      * @return string
      */
     protected function renderModules()
