@@ -3,12 +3,13 @@
 namespace Tests\Traits;
 
 use AetherCacheFile;
+use Illuminate\Filesystem\Filesystem;
 
 trait FileCache
 {
     protected function setUpFileCache()
     {
-        return new AetherCacheFile($this->getStoragePath());
+        return new AetherCacheFile($this->getStoragePath(), new Filesystem);
     }
 
     protected function tearDownFileCache()

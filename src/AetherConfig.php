@@ -10,6 +10,7 @@ use DOMElement;
 use DOMDocument;
 use Aether\Exceptions\MissingFile;
 use Aether\Exceptions\NoUrlRuleMatch;
+use Illuminate\Filesystem\Filesystem;
 
 /**
  * Read in config file for aether and make its options
@@ -89,16 +90,23 @@ class AetherConfig
      */
     private $configFilePath;
 
+    /**
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    private $files;
+
     private $matchedNodes = array();
 
     /**
      * Constructor.
      *
      * @param  string  $configFilePath
+     * @param  \Illuminate\Filesystem\Filesystem  $files
      */
-    public function __construct($configFilePath)
+    public function __construct($configFilePath, Filesystem $files = null)
     {
         $this->configFilePath = $configFilePath;
+        $this->files = $files ?: new Filesystem;
     }
 
     /**
@@ -131,15 +139,15 @@ class AetherConfig
         $directory = dirname($this->configFilePath).'/'.dirname($name);
         $fileName = basename($name, '.xml').'.xml';
 
-        if (! app()->isProduction() && file_exists($path = $directory.'/test.'.$fileName)) {
+        if (! app()->isProduction() && $this->files->exists($path = $directory.'/test.'.$fileName)) {
             return $path;
         }
 
-        if (file_exists($path = $directory.'/'.$fileName)) {
+        if ($this->files->exists($path = $directory.'/'.$fileName)) {
             return $path;
         }
 
-        if (file_exists($path = $directory.'/prod.'.$fileName)) {
+        if ($this->files->exists($path = $directory.'/prod.'.$fileName)) {
             return $path;
         }
 
@@ -155,7 +163,7 @@ class AetherConfig
             $doc->load($file);
         } else {
             $doc->loadXML(
-                preg_replace('/cache="[0-9]*"/', '', file_get_contents($file))
+                preg_replace('/cache="[0-9]*"/', '', $this->files->get($file))
             );
         }
 

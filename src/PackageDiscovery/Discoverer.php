@@ -3,14 +3,18 @@
 namespace Aether\PackageDiscovery;
 
 use Illuminate\Support\Arr;
+use Illuminate\Filesystem\Filesystem;
 
 class Discoverer
 {
     protected $projectRoot;
 
-    public function __construct($projectRoot)
+    protected $files;
+
+    public function __construct($projectRoot, Filesystem $files)
     {
         $this->projectRoot = $projectRoot;
+        $this->files = $files;
     }
 
     public function getProvidersFromInstalledPackages()
@@ -40,11 +44,11 @@ class Discoverer
     {
         $path = $this->vendorPath('composer/installed.json');
 
-        if (! file_exists($path)) {
+        if (! $this->files->exists($path)) {
             return [];
         }
 
-        return json_decode(file_get_contents($path));
+        return json_decode($this->files->get($path));
     }
 
     protected function vendorPath($path = null)

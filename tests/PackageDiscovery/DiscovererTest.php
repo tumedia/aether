@@ -3,6 +3,7 @@
 namespace Tests\PackageDiscovery;
 
 use PHPUnit\Framework\TestCase;
+use Illuminate\Filesystem\Filesystem;
 use Aether\PackageDiscovery\Discoverer;
 
 class DiscovererTest extends TestCase
@@ -39,6 +40,6 @@ class DiscovererTest extends TestCase
 
     protected function getDiscoverer($path = 'fixtures/')
     {
-        return new Discoverer(__DIR__.'/'.$path);
+        return new Discoverer(__DIR__.'/'.$path, new Filesystem);
     }
 }

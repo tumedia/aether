@@ -234,6 +234,7 @@ class Aether extends ServiceLocator
             'config'       => [\Aether\Config::class, \Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
             'db'           => [\Illuminate\Database\DatabaseManager::class],
             'events'       => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
+            'files'        => [\Illuminate\Filesystem\Filesystem::class],
             'template'     => [\Aether\Templating\Template::class],
             'timer'        => [\Aether\Timer::class],
         ] as $key => $aliases) {

@@ -2,6 +2,8 @@
 
 namespace Aether\Cache;
 
+use Illuminate\Filesystem\Filesystem;
+
 class FileDriver implements Cache
 {
     /**
@@ -12,13 +14,22 @@ class FileDriver implements Cache
     protected $storagePath;
 
     /**
+     * The filesystem instance.
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $files;
+
+    /**
      * Create a new cache instance.
      *
      * @param  string  $storagePath
+     * @param  \Illuminate\Fileysystem\Filesystem  $files
      */
-    public function __construct($storagePath)
+    public function __construct($storagePath, Filesystem $files)
     {
         $this->storagePath = $storagePath;
+        $this->files = $files;
     }
 
     /**
@@ -28,11 +39,11 @@ class FileDriver implements Cache
     {
         $path = $this->path($name);
 
-        if (!file_exists(dirname($path))) {
-            mkdir(dirname($path), 0777, true);
+        if (! $this->files->exists(dirname($path))) {
+            $this->files->makeDirectory(dirname($path), 0777, true);
         }
 
-        return file_put_contents($path, $this->createPayload($data, $ttl)) !== false;
+        return $this->files->put($path, $this->createPayload($data, $ttl)) !== false;
     }
 
     /**
@@ -42,11 +53,11 @@ class FileDriver implements Cache
     {
         $path = $this->path($name);
 
-        if (!file_exists($path)) {
+        if (! $this->files->exists($path)) {
             return false;
         }
 
-        return $this->getFromPayload(file_get_contents($path), $maxAge);
+        return $this->getFromPayload($this->files->get($path), $maxAge);
     }
 
     /**
@@ -63,7 +74,7 @@ class FileDriver implements Cache
     public function rm($name)
     {
         if ($this->has($name)) {
-            unlink($this->path($name));
+            $this->files->delete($this->path($name));
         }
 
         return true;

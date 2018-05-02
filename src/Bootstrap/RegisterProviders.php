@@ -18,6 +18,7 @@ class RegisterProviders
         \Aether\Providers\TimerProvider::class,
         \Aether\Providers\DatabaseProvider::class,
         \Aether\Console\AetherCliProvider::class,
+        \Aether\Providers\FilesystemProvider::class,
     ];
 
     public function bootstrap(Aether $aether)
