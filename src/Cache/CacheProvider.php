@@ -17,8 +17,8 @@ class CacheProvider extends Provider
             throw new InvalidArgumentException("Cache driver [{$driver}] is not supported");
         }
 
-        $this->aether->singleton('cache', function () use ($method) {
-            return $this->{$method}();
+        $this->aether->singleton('cache', function ($aether) use ($method) {
+            return $this->{$method}($aether);
         });
     }
 
@@ -29,9 +29,9 @@ class CacheProvider extends Provider
         );
     }
 
-    protected function getFileDriver()
+    protected function getFileDriver($aether)
     {
-        return new FileDriver($this->aether['projectRoot'].'storage/cache');
+        return new FileDriver($aether['projectRoot'].'storage/cache', $aether['files']);
     }
 
     protected function getArrayDriver()
