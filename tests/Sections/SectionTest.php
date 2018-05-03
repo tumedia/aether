@@ -12,7 +12,7 @@ class SectionTest extends TestCase
         $this
             ->visit('http://raw.no/unittest/goodtimes/nay')
             ->assertSee('404 Eg fant han ikkje')
-            ->assertHeader('Content-Type', 'text/html; charset=UTF-8');
+            ->assertHeader('Content-Type', 'text/html; charset=utf-8');
     }
 
     /**
@@ -21,6 +21,7 @@ class SectionTest extends TestCase
     public function testSectionCacheHeader()
     {
         config()->set('app.env', 'production');
+
         $this
             ->visit('http://raw.no/section-test/cache/me/if/you/can')
             ->assertHeader('Cache-Control', 's-maxage=30');
@@ -32,6 +33,7 @@ class SectionTest extends TestCase
     public function testSectionCacheHeaderZero()
     {
         config()->set('app.env', 'production');
+
         $this
             ->visit('http://raw.no/section-test/cache/me/if/you/cannot')
             ->assertHeader('Cache-Control', 's-maxage=0');
@@ -43,6 +45,7 @@ class SectionTest extends TestCase
     public function testSectionCacheHeaderMissing()
     {
         config()->set('app.env', 'production');
+
         $this
             ->visit('http://raw.no/section-test/missing-cache')
             ->assertHeaderMissing('Cache-Control');

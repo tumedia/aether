@@ -75,8 +75,8 @@ class TestResponse
 
         if (! is_null($value)) {
             Assert::assertEquals(
-                $this->headers[$header],
                 $value,
+                $this->headers[$header],
                 "Response header [{$header}] does not equal [{$value}]. Got [{$this->headers[$header]}] instead"
             );
         }

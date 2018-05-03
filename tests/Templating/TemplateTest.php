@@ -9,8 +9,6 @@ class TemplateTest extends TestCase
 {
     public function testGettingATemplateObjectThroughAether()
     {
-        $this->setUrl('/');
-
         $this->assertInstanceOf(
             SmartyTemplate::class,
             $this->aether->getTemplate()

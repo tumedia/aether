@@ -1,5 +1,0 @@
-<config>
-    <rule match="exceptions">
-        <section>somethingRandomThatDoesntExist</section>
-    </rule>
-</config>

@@ -1,0 +1,7 @@
+<config>
+    <rule match="module-pending-render">
+        <option name="foo">bar</option>
+        <option name="baz">qux</option>
+        <option name="aether-says">hi</option>
+    </rule>
+</config>

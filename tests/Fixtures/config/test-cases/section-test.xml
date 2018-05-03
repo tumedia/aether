@@ -1,0 +1,22 @@
+<config>
+    <rule match="section-test">
+        <section>Tests\Fixtures\Sections\Testsection</section>
+        <template>test.tpl</template>
+        <rule match="cache" cache="60">
+            <section>Tests\Fixtures\Sections\Testsection</section>
+            <rule match="me">
+                <rule match="if">
+                    <rule match="you">
+                        <rule match="can" cache="30">
+                        </rule>
+                        <rule match="cannot" cache="0">
+                        </rule>
+                    </rule>
+                </rule>
+            </rule>
+        </rule>
+        <rule match="missing-cache">
+            <section>Tests\Fixtures\Sections\Testsection</section>
+        </rule>
+    </rule>
+</config>

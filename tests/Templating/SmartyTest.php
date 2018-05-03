@@ -41,7 +41,7 @@ class SmartyTest extends TestCase
 
     public function testSearchpathIsIncluded()
     {
-        $this->setUrl('http://raw.no/searchpath-test');
+        $this->setUrl('http://test/templating-searchpath');
 
         $tpl = $this->aether->getTemplate();
 

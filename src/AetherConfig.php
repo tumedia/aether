@@ -160,7 +160,7 @@ class AetherConfig
         $doc->preserveWhiteSpace = false;
 
         if (app()->isProduction()) {
-            $doc->load($file);
+            $doc->loadXML($this->files->get($file));
         } else {
             $doc->loadXML(
                 preg_replace('/cache="[0-9]*"/', '', $this->files->get($file))
