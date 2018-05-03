@@ -29,12 +29,6 @@ class AetherConfig
     private $doc;
 
     /**
-     * Default rule
-     * @var Object
-     */
-    private $defaultRule = false;
-
-    /**
      * What section was found
      * @var string
      */
@@ -57,25 +51,19 @@ class AetherConfig
      * What modules should be included
      * @var array
      */
-    private $modules = array();
+    private $modules = [];
 
     /**
      * Option settings for this section (highly optional)
      * @var array
      */
-    private $options = array();
-
-    /**
-     * Whats left of the request path when url parsing is finished
-     * @var array
-     */
-    private $path;
+    private $options = [];
 
     /**
      * Variables found in the url
      * @var arra
      */
-    private $urlVariables = array();
+    private $urlVariables = [];
 
     /**
      * If set, a specific base to be used for all urls within app
@@ -95,7 +83,7 @@ class AetherConfig
      */
     private $files;
 
-    private $matchedNodes = array();
+    private $matchedNodes = [];
 
     /**
      * Constructor.
@@ -252,12 +240,6 @@ class AetherConfig
             // This is expected
             // Comment above was exceptionally not expected -- simeng 2011-10-10
         }
-    }
-
-    // Get config root node
-    public function getRootNode(UrlParser $url)
-    {
-        return $this->getSiteConfig($url)['rules'];
     }
 
     private function containsRules($node)
@@ -488,9 +470,9 @@ class AetherConfig
         if (isset($nodeConfig['optionDel'])) {
             foreach ($nodeConfig['optionDel'] as $k => $v) {
                 if (isset($this->options[$k])) {
-                    $this->options[$k] = join(";", array_filter(function ($e) {
-                        return $e != $v;
-                    }, explode(";", $this->options[$k])));
+                    $this->options[$k] = join(';', array_filter(explode(';', $this->options[$k]), function ($x) use ($v) {
+                        return $x !== $v;
+                    }));
                 }
             }
         }
@@ -697,24 +679,9 @@ class AetherConfig
                 $bSum += intval($modules[$b]['priority']);
             }
 
-            if ($aSum > $bSum) {
-                return 1;
-            } else {
-                return -1;
-            }
+            return $aSum <=> $bSum;
         });
         return $modules;
-    }
-
-    /**
-     * Set modules that should be used when rendering page
-     *
-     * @access public
-     * @return void
-     */
-    public function setModules($modules)
-    {
-        $this->modules = $modules;
     }
 
     /**
@@ -724,7 +691,7 @@ class AetherConfig
      * @return array
      * @param array $defaults Provide a set of defaults to use if no value is set
      */
-    public function getOptions($defaults=array())
+    public function getOptions($defaults = [])
     {
         return $this->options + $defaults;
     }
@@ -734,9 +701,10 @@ class AetherConfig
      *
      * Ex: use it to change or add a config option from within a section
      *
-     * @access public
+     * @param  string  $name
+     * @param  mixed  $value
+     * @return void
      */
-
     public function setOption($name, $value)
     {
         $this->options[$name] = $value;
@@ -802,17 +770,6 @@ class AetherConfig
     public function getRoot()
     {
         return $this->urlRoot;
-    }
-
-    /**
-     * Get configuration file path
-     *
-     * @access public
-     * @return string
-     */
-    public function configFilePath()
-    {
-        return $this->configFilePath;
     }
 
     public function resetRuleConfig()

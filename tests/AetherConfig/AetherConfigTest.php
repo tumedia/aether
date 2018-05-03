@@ -2,31 +2,10 @@
 
 namespace Tests\AetherConfig;
 
-use Mockery as m;
-use Aether\Aether;
-use Aether\UrlParser;
-use Aether\AetherConfig;
-use PHPUnit\Framework\Assert;
-use PHPUnit\Framework\TestCase;
-use Illuminate\Filesystem\Filesystem;
 use Tests\Fixtures\Sections\NotFoundSection;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
-class AetherConfigTest extends TestCase
+class AetherConfigTest extends AbstractAetherConfigTest
 {
-    use MockeryPHPUnitIntegration;
-
-    protected $aetherConfig;
-
-    protected $aetherConfigFiles;
-
-    protected $aetherConfigOptions;
-
-    public function tearDown()
-    {
-        Aether::setInstance(null);
-    }
-
     public function testConfigReadDefault()
     {
         $this->givenUrlRules('
@@ -136,6 +115,8 @@ class AetherConfigTest extends TestCase
             ->andUrl('http://test/foo/hifi-produkter')
             ->assertUrlVariable('category', 'hifi-produkter')
             ->assertOption('foo', 'bar');
+
+        $this->assertNull($this->aetherConfig->getUrlVar('random'));
     }
 
     public function testConfigReset()
@@ -197,78 +178,13 @@ class AetherConfigTest extends TestCase
             ->assertModuleOption('FooModule', 'isFalseString', 'false');
     }
 
-    public function testItIncludesImportNodes()
-    {
-        $this->givenUrlRules('
-            <rule match="foo">
-                <option name="foo">bar</option>
-                <import>a</import>
-            </rule>')
-            ->withConfigFile('a.xml', '
-            <option name="importedOption">yup</option>
-            <import>b</import>')
-            ->withoutConfigFile('prod.a.xml')
-            ->withoutConfigFile('test.a.xml')
-            ->withConfigFile('b.xml', '
-            <option name="nestedImportedOption">hell yeah</option>')
-            ->withoutConfigFile('prod.b.xml')
-            ->withoutConfigFile('test.b.xml')
-            ->andUrl('http://test/foo')
-            ->assertOption('foo', 'bar')
-            ->assertOption('importedOption', 'yup')
-            ->assertOption('nestedImportedOption', 'hell yeah');
-    }
-
-    public function testItIncludesImportNodesBasedOnLocalEnvironment()
-    {
-        $this->givenUrlRules('
-            <rule match="foo">
-                <import>a</import>
-            </rule>')
-            ->withConfigFile('a.xml', '<option name="foo">a-base</option>')
-            ->withConfigFile('test.a.xml', '<option name="foo">test-a</option>')
-            ->withConfigFile('prod.a.xml', '<option name="foo">prod-a</option>')
-            ->andUrl('http://test/foo')
-            ->assertOption('foo', 'test-a');
-    }
-
-    public function testItIncludesTheUnprefixedFileInProduction()
-    {
-        config()->set('app.env', 'production');
-
-        $this->givenUrlRules('
-            <rule match="foo">
-                <import>a</import>
-            </rule>')
-            ->withConfigFile('a.xml', '<option name="foo">a-base</option>')
-            ->withConfigFile('test.a.xml', '<option name="foo">test-a</option>')
-            ->withConfigFile('prod.a.xml', '<option name="foo">prod-a</option>')
-            ->andUrl('http://test/foo')
-            ->assertOption('foo', 'a-base');
-    }
-
-    public function testItIncludesTheProdPrefixedFileInProductionWhenThereIsNoUnprefixedFile()
-    {
-        config()->set('app.env', 'production');
-
-        $this->givenUrlRules('
-            <rule match="foo">
-                <import>a</import>
-            </rule>')
-            ->withoutConfigFile('a.xml')
-            ->withConfigFile('test.a.xml', '<option name="foo">test-a</option>')
-            ->withConfigFile('prod.a.xml', '<option name="foo">prod-a</option>')
-            ->andUrl('http://test/foo')
-            ->assertOption('foo', 'prod-a');
-    }
-
     public function testPageAndModuleCachingInProduction()
     {
         config()->set('app.env', 'production');
 
         $this->givenUrlRules('
-            <rule match="foo" cache="10">
-                <module cache="20">
+            <rule match="foo" cache="10" cacheas="foo-key">
+                <module cache="20" cacheas="module-key">
                     TestModule
                 </module>
             </rule>')
@@ -276,7 +192,10 @@ class AetherConfigTest extends TestCase
 
         $this->assertEquals(10, (int) $this->aetherConfig->getCacheTime());
 
+        $this->assertEquals('foo-key', $this->aetherConfig->getCacheName());
+
         $this->assertEquals(20, (int) $this->aetherConfig->getModules()['TestModule']['cache']);
+        $this->assertEquals('module-key', $this->aetherConfig->getModules()['TestModule']['cacheas']);
     }
 
     public function testCacheAttributesAreRemovedInLocalEnvironments()
@@ -294,151 +213,76 @@ class AetherConfigTest extends TestCase
         $this->assertArrayNotHasKey('cache', $this->aetherConfig->getModules()['TestModule']);
     }
 
-    protected function withConfigFile($file, $rawXml)
+    public function testModuleProvidesAttribute()
     {
-        $rawXml = "<config>{$rawXml}</config>";
-
-        $path = "/config/./{$file}";
-
-        $this->aetherConfigFiles->allows()->exists($path)->andReturn(true);
-        $this->aetherConfigFiles->allows()->get($path)->andReturn($rawXml);
-
-        return $this;
+        $this->givenUrlRules('
+            <rule match="foo">
+                <module provides="foo">
+                    FooModule
+                </module>
+            </rule>')
+            ->andUrl('http://test/foo')
+            ->assertModule('foo');
     }
 
-    protected function withoutConfigFile($file)
+    public function testOptionAddMode()
     {
-        $path = "/config/./{$file}";
+        $this->givenUrlRules('
+            <option name="foo">a</option>
+            <rule match="add-b">
+                <option name="foo" mode="add">b</option>
+                <rule match="add-d">
+                    <option name="foo" mode="add">d</option>
+                </rule>
+            </rule>
+            <rule default="true"></rule>');
 
-        $this->aetherConfigFiles->allows()->exists($path)->andReturn(false);
+        $this->withUrl('http://test/')->assertOption('foo', 'a');
 
-        return $this;
+        $this->withUrl('http://test/add-b')->assertOption('foo', 'a;b');
+
+        $this->withUrl('http://test/add-b/add-d')->assertOption('foo', 'a;b;d');
     }
 
-    protected function givenConfig($rawXml)
+    public function testOptionDeleteMode()
     {
-        $this->aetherConfigFiles = m::mock(Filesystem::class);
+        $this->givenUrlRules('
+            <option name="foo">a</option>
+            <rule match="add-b">
+                <option name="foo" mode="add">b</option>
+                <rule match="delete-b">
+                    <option name="foo" mode="del">b</option>
+                </rule>
+            </rule>');
 
-        $this->aetherConfigFiles->shouldReceive('get')->with('/config/aether.config.xml')->andReturn($rawXml);
+        $this->withUrl('http://test/add-b')->assertOption('foo', 'a;b');
 
-        $this->aetherConfig = new AetherConfig(
-            '/config/aether.config.xml',
-            $this->aetherConfigFiles
+        $this->withUrl('http://test/add-b/delete-b')->assertOption('foo', 'a');
+    }
+
+    public function testGetModulesAcceptsProviderName()
+    {
+        $this->givenUrlRules('
+            <rule match="foo">
+                <module provides="bar">BarModule</module>
+                <module provides="baz">BazModule</module>
+            </rule>')
+            ->andUrl('http://test/foo');
+
+        $this->assertArraySubset(
+            ['provides' => 'bar', 'name' => 'BarModule'],
+            $this->aetherConfig->getModules('bar')
         );
 
-        return $this;
+        $this->assertNull($this->aetherConfig->getModules('random'));
     }
 
-    protected function andUrl($url)
+    public function testSetOptionMethod()
     {
-        $this->aetherConfig->matchUrl(tap(new UrlParser)->parse($url));
+        $this->givenUrlRules('');
 
-        return $this;
-    }
+        $this->aetherConfig->setOption('foo', 'bar');
 
-    protected function assertSection($expected)
-    {
-        $actual = $this->aetherConfig->getSection();
-
-        Assert::assertEquals(
-            $expected,
-            $actual,
-            "Section [{$actual}] is not an instance of [{$expected}]"
-        );
-
-        return $this;
-    }
-
-    protected function assertModule($module)
-    {
-        $modules = $this->aetherConfig->getModules();
-
-        Assert::assertArrayHasKey(
-            $module,
-            $modules,
-            "Module [{$module}] is missing"
-        );
-
-        return $this;
-    }
-
-    protected function assertModuleOption($module, $option, $value = null)
-    {
-        $options = $this->aetherConfig->getModules()[$module]['options'];
-
-        Assert::assertArrayHasKey(
-            $option,
-            $options,
-            "Module option [{$module}]->[{$option}] is missing"
-        );
-
-        if (func_num_args() > 1) {
-            Assert::assertEquals(
-                $value,
-                $options[$option],
-                "Module option [{$module}]->[{$option}] does not equal [{$value}]. Got [{$options[$option]}] instead"
-            );
-        }
-
-        return $this;
-    }
-
-    protected function assertOption($option, $value = null)
-    {
-        $options = $this->aetherConfig->getOptions();
-
-        Assert::assertArrayHasKey(
-            $option,
-            $options,
-            "Option [{$option}] is missing"
-        );
-
-        if (func_num_args() > 1) {
-            Assert::assertEquals(
-                $value,
-                $options[$option],
-                "Option [{$option}] does not equal [{$value}]. Got [{$options[$option]}] instead"
-            );
-        }
-
-        return $this;
-    }
-
-    protected function assertOptionMissing($option)
-    {
-        $options = $this->aetherConfig->getOptions();
-
-        Assert::assertArrayNotHasKey(
-            $option,
-            $options,
-            "Option [{$option}] is not missing"
-        );
-
-        return $this;
-    }
-
-    protected function assertUrlVariable($variable, $value = null)
-    {
-        Assert::assertTrue(
-            $this->aetherConfig->hasUrlVar($variable),
-            "URL Variable [{$variable}] is missing"
-        );
-
-        if (func_num_args() > 1) {
-            $actual = $this->aetherConfig->getUrlVariable($variable);
-
-            Assert::assertEquals(
-                $value,
-                $actual,
-                "URL Variable [{$variable}] does not equal [{$value}]. Got [{$actual}] instead"
-            );
-        }
-
-        return $this;
-    }
-
-    protected function givenUrlRules($xmlString, $site = '*')
-    {
-        return $this->givenConfig("<config><site name=\"{$site}\"><urlRules>{$xmlString}</urlRules></site></config>");
+        $this->assertOption('foo', 'bar');
     }
 }
