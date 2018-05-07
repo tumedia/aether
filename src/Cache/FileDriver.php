@@ -2,6 +2,7 @@
 
 namespace Aether\Cache;
 
+use RuntimeException;
 use Illuminate\Filesystem\Filesystem;
 
 class FileDriver implements Cache
@@ -25,11 +26,19 @@ class FileDriver implements Cache
      *
      * @param  string  $storagePath
      * @param  \Illuminate\Fileysystem\Filesystem  $files
+     *
+     * @throws \RuntimeException  When the path is not writable.
      */
     public function __construct($storagePath, Filesystem $files)
     {
         $this->storagePath = $storagePath;
         $this->files = $files;
+
+        if (! $files->isWritable($storagePath)) {
+            throw new RuntimeException(
+                "Storage path [{$storagePath}] does not exist or is not writable"
+            );
+        }
     }
 
     /**
