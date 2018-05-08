@@ -65,4 +65,22 @@ abstract class Provider
             $aetherCli->resolveCommands($commands);
         });
     }
+
+    /**
+     * Add a path to load templates from, optionally under a given namespace.
+     *
+     * @param  string  $path
+     * @param  string|null  $namespace
+     * @return void
+     */
+    protected function loadTemplatesFrom($path, $namespace = null)
+    {
+        $this->aether->resolving('template', function ($template) use ($path, $namespace) {
+            if (is_null($namespace)) {
+                $template->addPath($path);
+            } else {
+                $template->addNamespace($path, $namespace);
+            }
+        });
+    }
 }

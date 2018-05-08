@@ -1,7 +1,6 @@
 <config>
     <site name="*">
         <urlRules>
-            <import>test-cases/templating-searchpath</import>
             <import>test-cases/module-pending-render</import>
             <import>test-cases/section-test</import>
         </urlRules>

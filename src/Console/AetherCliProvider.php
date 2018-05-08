@@ -14,6 +14,7 @@ class AetherCliProvider extends Provider
         $this->commands([
             Commands\ConfigClearCommand::class,
             Commands\ConfigGenerateCommand::class,
+            Commands\TemplatesClearCommand::class,
             Commands\TinkerCommand::class,
         ]);
 

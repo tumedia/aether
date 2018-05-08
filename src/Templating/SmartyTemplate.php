@@ -14,38 +14,28 @@ use Aether\ServiceLocator;
  */
 class SmartyTemplate extends Template
 {
-    /**
-     * Construct
-     *
-     * @param \Aether\ServiceLocator $sl
-     */
-    public function __construct(ServiceLocator $sl)
+    protected $engine;
+
+    public function __construct(ServiceLocator $sl, Smarty $smarty = null)
     {
-        $this->engine = new Smarty;
+        $this->engine = $smarty ?: new Smarty;
         $this->sl = $sl;
+
+        $projectRoot = $this->sl->get('projectRoot');
+
+        $this->engine->addTemplateDir($base = "{$projectRoot}/templates");
+
+        $this->engine->error_reporting = E_ALL ^ E_NOTICE;
+        $this->engine->plugins_dir = [SMARTY_SYSPLUGINS_DIR, SMARTY_PLUGINS_DIR, $base];
+        $this->engine->compile_dir = "{$base}/compiled";
+        $this->engine->config_dir = "{$base}/configs";
+        $this->engine->cache_dir = "{$base}/cache";
+
         $options = $this->sl->get('aetherConfig')->getOptions();
 
-        $root = $this->sl->get('projectRoot');
-        $base = $root . 'templates/';
-        // Add project root first in template search path
-        $templateDirs[] = $base;
-        $pluginDirs = array(SMARTY_SYSPLUGINS_DIR, SMARTY_PLUGINS_DIR, $base);
         if (isset($options['searchpath'])) {
-            $search = array_map("trim", explode(";", $options['searchpath']));
-            foreach ($search as $dir) {
-                if (strpos($dir, ".") === 0) {
-                    $dir = $root . $dir;
-                }
-                $templateDirs[] = $dir . "templates/";
-                $pluginDirs[] = $dir . "templates/plugins/";
-            }
+            $this->addPathsFromOptions($options['searchpath'], $projectRoot);
         }
-        $this->engine->error_reporting = E_ALL ^ E_NOTICE;
-        $this->engine->template_dir = $templateDirs;
-        $this->engine->plugins_dir = $pluginDirs;
-        $this->engine->compile_dir = $base . 'compiled/';
-        $this->engine->config_dir = $base . 'configs/';
-        $this->engine->cache_dir = $base . 'cache/';
 
         // Make sure template files are group writable
         umask(0022);
@@ -106,5 +96,50 @@ class SmartyTemplate extends Template
     public function templateExists($name)
     {
         return $this->engine->templateExists($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addPath($path)
+    {
+        $this->engine->addTemplateDir($path);
+
+        $this->engine->addPluginsDir("{$path}/plugins");
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * Namespaced templates are fetched using the following syntax:
+     * - "{namespace}:{some_template.tpl}"
+     */
+    public function addNamespace($path, $namespace)
+    {
+        $this->engine->registerResource(
+            $namespace,
+            new NamespacedTemplatesSmartyResource($path, $namespace, $this->sl->get('projectRoot'))
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clearCompiled()
+    {
+        $this->engine->clearCompiledTemplate();
+    }
+
+    protected function addPathsFromOptions($searchpath, $projectRoot)
+    {
+        $search = array_map('trim', explode(';', $searchpath));
+
+        foreach ($search as $dir) {
+            if (strpos($dir, '.') === 0) {
+                $dir = $projectRoot.$dir;
+            }
+
+            $this->addPath(rtrim($dir, '/').'/templates');
+        }
     }
 }

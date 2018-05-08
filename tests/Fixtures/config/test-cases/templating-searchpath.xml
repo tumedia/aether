@@ -1,7 +1,0 @@
-<config>
-    <rule match="templating-searchpath">
-        <option name="searchpath">
-            ../TemplateSearchpathFixture/
-        </option>
-    </rule>
-</config>
