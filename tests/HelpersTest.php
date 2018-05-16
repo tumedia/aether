@@ -28,4 +28,16 @@ class HelpersTest extends TestCase
 
         $this->assertSame('lorem ipsum', \resolve('test.dummy-text'));
     }
+
+    public function testEventMethod()
+    {
+        $wasCalled = false;
+        resolve('events')->listen('test.event', function () use (&$wasCalled) {
+            $wasCalled = true;
+        });
+
+        \event('test.event');
+
+        $this->assertTrue($wasCalled);
+    }
 }
