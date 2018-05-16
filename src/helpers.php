@@ -83,3 +83,18 @@ if (! function_exists('template')) {
         return $instance->fetch($name);
     }
 }
+
+if (!function_exists('event')) {
+    /**
+     * Dispatch an event and call the listeners.
+     *
+     * @param  string|object  $event
+     * @param  mixed  $payload
+     * @param  bool  $halt
+     * @return array|null
+     */
+    function event(...$args)
+    {
+        return resolve('events')->dispatch(...$args);
+    }
+}
