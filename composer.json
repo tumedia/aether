@@ -41,8 +41,7 @@
     },
     "bin": [
         "./bin/updateLocales",
-        "./bin/aether",
-        "./bin/generateConfig"
+        "./bin/aether"
     ],
     "config": {
         "sort-packages": true
