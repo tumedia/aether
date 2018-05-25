@@ -19,6 +19,7 @@ class RegisterProviders
         \Aether\Providers\DatabaseProvider::class,
         \Aether\Console\AetherCliProvider::class,
         \Aether\Providers\FilesystemProvider::class,
+        \Aether\Providers\EncryptionProvider::class,
     ];
 
     public function bootstrap(Aether $aether)
