@@ -66,11 +66,11 @@ class ServiceLocator extends Container
     public function has($name)
     {
         $result = parent::has($name);
-         if ($result) {
-             $value = parent::resolve($name);
-             return $value === null ? false : true;
-         }
-         return false;
+        if ($result) {
+            $value = parent::resolve($name);
+            return $value === null ? false : true;
+        }
+        return false;
     }
 
     /**
