@@ -60,6 +60,20 @@ class ServiceLocator extends Container
     }
 
     /**
+     * Check if an entry exists
+     * Nullcheck for backwards compatibility
+     */
+    public function has($name)
+    {
+        $result = parent::has($name);
+         if ($result) {
+             $value = parent::resolve($name);
+             return $value === null ? false : true;
+         }
+         return false;
+    }
+
+    /**
      * Resolve a vector object.
      *
      * @param  string  $name
