@@ -36,6 +36,13 @@ abstract class Section
     protected $sl;
 
     /**
+     * The Module Factory instance.
+     *
+     * @var \Aether\Modules\ModuleFactory
+     */
+    protected $moduleFactory;
+
+    /**
      * Cache time for varnish
      *
      * @var integerino
@@ -46,6 +53,7 @@ abstract class Section
     {
         $this->aether = $aether;
         $this->sl = $this->aether;
+        $this->moduleFactory = $aether->make(ModuleFactory::class);
     }
 
     private function preloadModules($modules, $options)
@@ -58,7 +66,7 @@ abstract class Section
             $object = "";
             // Get module object
             try {
-                $object = $this->aether->make(ModuleFactory::class)->create(
+                $object = $this->moduleFactory->create(
                     $module['name'],
                     $module['options'] + $options
                 );
@@ -101,7 +109,7 @@ abstract class Section
                     $mCacheTime = $module['cache'];
 
                     try {
-                        $mOut = $mod->run();
+                        $mOut = $this->moduleFactory->run($mod);
                         if (is_numeric($mCacheTime) && $mCacheTime > 0) {
                             $this->cache->set($mCacheName, $mOut, $mCacheTime);
                         } else {
@@ -120,7 +128,7 @@ abstract class Section
                 $mod = $module['obj'];
 
                 try {
-                    $mOut = $mod->run();
+                    $mOut = $this->moduleFactory->run($mod);
                 } catch (Throwable $e) {
                     $this->handleModuleError($e);
                     return false;
@@ -306,10 +314,7 @@ abstract class Section
         }
 
         // Get module object
-        $mod = $this->aether->make(ModuleFactory::class)->create(
-            $module['name'],
-            $opts
-        );
+        $mod = $this->moduleFactory->create($module['name'], $opts);
 
         return $mod->service($serviceName);
     }
