@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Response;
 
 use PHPUnit\Framework\TestCase;
 use Aether\Response\JsonCommentFiltered;

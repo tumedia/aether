@@ -1,9 +1,10 @@
 <?php
 
-namespace Tests;
+namespace Tests\Modules;
 
 use Exception;
 use Mockery as m;
+use Tests\TestCase;
 use Aether\Modules\Module;
 use Aether\Modules\PendingRender;
 use Tests\Fixtures\Modules\Hellolocal;

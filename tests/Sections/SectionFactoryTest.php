@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests;
+namespace Tests\Sections;
 
+use Tests\TestCase;
 use Aether\Sections\Section;
 use Aether\Sections\SectionFactory;
 use Tests\Fixtures\Sections\Testsection;

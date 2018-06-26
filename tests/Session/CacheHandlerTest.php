@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Session;
 
 use Tests\Traits\FileCache;
 use PHPUnit\Framework\TestCase;

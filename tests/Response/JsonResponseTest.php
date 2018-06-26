@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Response;
 
 use Aether\Response\Json;
 use PHPUnit\Framework\TestCase;

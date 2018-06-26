@@ -1,6 +1,8 @@
 <?php
 
-namespace Tests;
+namespace Tests\Sections;
+
+use Tests\TestCase;
 
 class SectionTest extends TestCase
 {

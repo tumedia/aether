@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests;
+namespace Tests\Modules;
 
+use Tests\TestCase;
 use Aether\Modules\ModuleFactory;
 use Tests\Fixtures\Modules\Hellolocal;
 
