@@ -6,7 +6,6 @@ use Exception;
 use Throwable;
 use Aether\Aether;
 use Aether\Config;
-use Aether\AetherConfig;
 use BadMethodCallException;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
@@ -159,13 +158,11 @@ class PendingRender
      */
     protected function runModule()
     {
-        $instance = ModuleFactory::create(
-            $this->module,
-            Aether::getInstance(),
-            $this->prepareOptions()
-        );
+        $factory = resolve(ModuleFactory::class);
 
-        return $instance->run() ?: '';
+        $module = $factory->create($this->module, $this->prepareOptions());
+
+        return $factory->run($module) ?: '';
     }
 
     /**

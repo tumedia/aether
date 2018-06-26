@@ -66,9 +66,8 @@ class ResponseFactory
             throw new ServiceNotFound("Provider [{$this->requestedEsi}] does not match any module");
         }
 
-        $object = ModuleFactory::create(
+        $object = resolve(ModuleFactory::class)->create(
             $module['name'],
-            Aether::getInstance(),
             ($module['options'] ?? []) + $config->getOptions()
         );
 

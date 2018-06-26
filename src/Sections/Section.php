@@ -9,7 +9,6 @@ use Aether\Response\Text;
 use Aether\Modules\Module;
 use Aether\Modules\ModuleFactory;
 use Aether\Exceptions\ConfigError;
-use Aether\Exceptions\ServiceNotFound;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
@@ -59,9 +58,8 @@ abstract class Section
             $object = "";
             // Get module object
             try {
-                $object = ModuleFactory::create(
+                $object = $this->aether->make(ModuleFactory::class)->create(
                     $module['name'],
-                        $this->aether,
                     $module['options'] + $options
                 );
 
@@ -308,11 +306,10 @@ abstract class Section
         }
 
         // Get module object
-        $mod = ModuleFactory::create($module['name'], $this->aether, $opts);
-
-        if (! $mod instanceof Module) {
-            throw new ServiceNotFound("Service run error: Failed to locate module [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
-        }
+        $mod = $this->aether->make(ModuleFactory::class)->create(
+            $module['name'],
+            $opts
+        );
 
         return $mod->service($serviceName);
     }

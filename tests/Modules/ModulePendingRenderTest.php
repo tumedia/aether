@@ -189,6 +189,11 @@ class ModulePendingRenderTest extends TestCase
         $this->assertEquals('', (string) $pending);
     }
 
+    public function testTheRunMethodRunsThroughTheServiceContainer()
+    {
+        $this->assertSame('foo', (string) ModuleWithInjectedService::draw());
+    }
+
     private function assertOptions($expected, string $renderedModule)
     {
         $this->assertSame($expected, unserialize($renderedModule));

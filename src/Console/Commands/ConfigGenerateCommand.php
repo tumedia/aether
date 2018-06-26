@@ -3,8 +3,6 @@
 namespace Aether\Console\Commands;
 
 use Aether\Aether;
-use Aether\Config;
-use Aether\AetherConfig;
 use Aether\Console\Command;
 
 class ConfigGenerateCommand extends Command

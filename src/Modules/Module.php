@@ -63,16 +63,6 @@ abstract class Module
     }
 
     /**
-     * Run module.
-     * Modules is only capable of returning text ouput
-     * any http actions must be taken by the section
-     *
-     * @access public
-     * @return string
-     */
-    abstract public function run();
-
-    /**
      * Allow each module to decide if caching should be totaly
      * forbidden in a given context. Useful for modules
      * that deliver highly dynamic data based on each request

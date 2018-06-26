@@ -10,13 +10,12 @@ class ModuleFactoryTest extends TestCase
 {
     public function testCreate()
     {
-        $mod = ModuleFactory::create(
+        $module = $this->getModuleFactory()->create(
             Hellolocal::class,
-            $this->aether,
             ['foo' => 'bar']
         );
 
-        $this->assertEquals('Hello local', $mod->run());
+        $this->assertEquals('Hello local', $module->run());
     }
 
     /**
@@ -24,6 +23,19 @@ class ModuleFactoryTest extends TestCase
      */
     public function testItThrowsWhenTheRequestedClassIsNotAModule()
     {
-        ModuleFactory::create(self::class, $this->aether);
+        resolve(ModuleFactory::class)->create(self::class);
+    }
+
+    public function testTheRunMethodRunsThroughTheServiceContainer()
+    {
+        $factory = $this->getModuleFactory();
+        $module = $factory->create(ModuleWithInjectedService::class);
+
+        $this->assertSame('foo', $factory->run($module));
+    }
+
+    protected function getModuleFactory()
+    {
+        return $this->aether->make(ModuleFactory::class);
     }
 }

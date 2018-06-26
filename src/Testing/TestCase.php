@@ -5,7 +5,6 @@ namespace Aether\Testing;
 use Aether\Aether;
 use Aether\UrlParser;
 use Aether\Http\Kernel as HttpKernel;
-use Aether\AetherConfig;
 use Aether\Console\Kernel as ConsoleKernel;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 

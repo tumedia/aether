@@ -2,8 +2,6 @@
 
 namespace Aether\Providers;
 
-use Aether\AetherConfig;
-
 class LocalizationProvider extends Provider
 {
     public function boot()

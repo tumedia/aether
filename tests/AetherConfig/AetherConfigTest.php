@@ -2,8 +2,6 @@
 
 namespace Tests\AetherConfig;
 
-use Tests\Fixtures\Sections\NotFoundSection;
-
 class AetherConfigTest extends AbstractAetherConfigTest
 {
     public function testConfigReadDefault()
