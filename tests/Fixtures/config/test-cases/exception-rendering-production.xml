@@ -1,0 +1,7 @@
+<config>
+    <rule match="exception-rendering-production">
+        <module>
+            Tests\Fixtures\ModuleThatDoesntExist
+        </module>
+    </rule>
+</config>

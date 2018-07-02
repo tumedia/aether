@@ -1,0 +1,10 @@
+<config>
+    <rule match="providing-modules">
+        <rule match="foo">
+            <template>render-provider-foo.tpl</template>
+            <module provides="foo">
+                Tests\Fixtures\Modules\Hellolocal
+            </module>
+        </rule>
+    </rule>
+</config>

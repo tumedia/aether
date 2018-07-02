@@ -110,9 +110,15 @@ class TestResponse
      */
     public function assertStatus($code)
     {
+        $actual = http_response_code();
+
+        if ($actual === false) {
+            throw new ErrorException('Could not determine response status code');
+        }
+
         Assert::assertEquals(
             $code,
-            $actual = http_response_code(),
+            $actual,
             "Response status [{$actual}] does not equal [{$code}]"
         );
 
