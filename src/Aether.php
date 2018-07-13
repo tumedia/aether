@@ -72,7 +72,7 @@ class Aether extends ServiceLocator
         $this->registerCoreContainerAliases();
     }
 
-    public function bootstrapWith(array $bootstappers)
+    public function bootstrapWith(array $bootstrappers)
     {
         foreach ($bootstrappers as $bootstrapper) {
             $this->make($bootstrapper)->bootstrap($this);
