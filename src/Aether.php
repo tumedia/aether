@@ -74,8 +74,8 @@ class Aether extends ServiceLocator
 
     public function bootstrapWith(array $bootstappers)
     {
-        foreach ($bootstappers as $bootstapper) {
-            $this->make($bootstapper)->bootstrap($this);
+        foreach ($bootstrappers as $bootstrapper) {
+            $this->make($bootstrapper)->bootstrap($this);
         }
     }
 
