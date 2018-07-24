@@ -544,9 +544,6 @@ class AetherConfig
                     if (isset($moduleConfig['cache'])) {
                         $module['cache'] = $moduleConfig['cache'];
                     }
-                    if (isset($moduleConfig['cacheas'])) {
-                        $module['cacheas'] = $moduleConfig['cacheas'];
-                    }
                     if (isset($moduleConfig['options'])) {
                         $module['options'] = $moduleConfig['options'];
                     }

@@ -98,10 +98,6 @@ abstract class Section
                 $mCacheName .= $module['provides'];
             }
 
-            if (array_key_exists('cacheas', $module)) {
-                $mCacheName = $url->get('host') . $module['cacheas'];
-            }
-
             // Try to read from cache, else generate and cache
             if (($mOut = $this->cache->get($mCacheName)) == false) {
                 if (isset($module['obj'])) {
