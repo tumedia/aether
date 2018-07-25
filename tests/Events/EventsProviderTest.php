@@ -4,7 +4,6 @@ namespace Tests\Events;
 
 use Aether\Aether;
 use PHPUnit\Framework\TestCase;
-use Illuminate\Contracts\Events\Dispatcher;
 use Aether\Console\Kernel as ConsoleKernel;
 
 class EventsProviderTest extends TestCase

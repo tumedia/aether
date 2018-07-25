@@ -61,7 +61,7 @@ $events = resolve('events');
 // Returns `Illuminate\Events\Dispatcher`
 ```
 
-Manually resolving the event dispatcher can be useful in package code where you want to listen to an event, as the configuration (blow) is not necessarily available. For instance:
+Manually resolving the event dispatcher can be useful in package code where you want to listen to an event, as the configuration (below) is not necessarily available. For instance:
 
 ```
 $events = resolve('events');

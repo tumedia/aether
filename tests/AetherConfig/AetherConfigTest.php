@@ -2,8 +2,6 @@
 
 namespace Tests\AetherConfig;
 
-use Tests\Fixtures\Sections\NotFoundSection;
-
 class AetherConfigTest extends AbstractAetherConfigTest
 {
     public function testConfigReadDefault()
@@ -184,7 +182,7 @@ class AetherConfigTest extends AbstractAetherConfigTest
 
         $this->givenUrlRules('
             <rule match="foo" cache="10" cacheas="foo-key">
-                <module cache="20" cacheas="module-key">
+                <module cache="20">
                     TestModule
                 </module>
             </rule>')
@@ -195,7 +193,6 @@ class AetherConfigTest extends AbstractAetherConfigTest
         $this->assertEquals('foo-key', $this->aetherConfig->getCacheName());
 
         $this->assertEquals(20, (int) $this->aetherConfig->getModules()['TestModule']['cache']);
-        $this->assertEquals('module-key', $this->aetherConfig->getModules()['TestModule']['cacheas']);
     }
 
     public function testCacheAttributesAreRemovedInLocalEnvironments()

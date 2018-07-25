@@ -9,7 +9,6 @@ use Aether\Response\Text;
 use Aether\Modules\Module;
 use Aether\Modules\ModuleFactory;
 use Aether\Exceptions\ConfigError;
-use Aether\Exceptions\ServiceNotFound;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
@@ -37,6 +36,13 @@ abstract class Section
     protected $sl;
 
     /**
+     * The Module Factory instance.
+     *
+     * @var \Aether\Modules\ModuleFactory
+     */
+    protected $moduleFactory;
+
+    /**
      * Cache time for varnish
      *
      * @var integerino
@@ -47,6 +53,7 @@ abstract class Section
     {
         $this->aether = $aether;
         $this->sl = $this->aether;
+        $this->moduleFactory = $aether->make(ModuleFactory::class);
     }
 
     private function preloadModules($modules, $options)
@@ -59,9 +66,8 @@ abstract class Section
             $object = "";
             // Get module object
             try {
-                $object = ModuleFactory::create(
+                $object = $this->moduleFactory->create(
                     $module['name'],
-                        $this->aether,
                     $module['options'] + $options
                 );
 
@@ -92,10 +98,6 @@ abstract class Section
                 $mCacheName .= $module['provides'];
             }
 
-            if (array_key_exists('cacheas', $module)) {
-                $mCacheName = $url->get('host') . $module['cacheas'];
-            }
-
             // Try to read from cache, else generate and cache
             if (($mOut = $this->cache->get($mCacheName)) == false) {
                 if (isset($module['obj'])) {
@@ -103,7 +105,7 @@ abstract class Section
                     $mCacheTime = $module['cache'];
 
                     try {
-                        $mOut = $mod->run();
+                        $mOut = $this->moduleFactory->run($mod);
                         if (is_numeric($mCacheTime) && $mCacheTime > 0) {
                             $this->cache->set($mCacheName, $mOut, $mCacheTime);
                         } else {
@@ -122,7 +124,7 @@ abstract class Section
                 $mod = $module['obj'];
 
                 try {
-                    $mOut = $mod->run();
+                    $mOut = $this->moduleFactory->run($mod);
                 } catch (Throwable $e) {
                     $this->handleModuleError($e);
                     return false;
@@ -308,11 +310,7 @@ abstract class Section
         }
 
         // Get module object
-        $mod = ModuleFactory::create($module['name'], $this->aether, $opts);
-
-        if (! $mod instanceof Module) {
-            throw new ServiceNotFound("Service run error: Failed to locate module [$name], check if it is loaded in config for this url: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . (isset($_SERVER['HTTP_REFERER']) ? ", called from URI: " . $_SERVER['HTTP_REFERER'] : ""));
-        }
+        $mod = $this->moduleFactory->create($module['name'], $opts);
 
         return $mod->service($serviceName);
     }

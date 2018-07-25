@@ -5,12 +5,12 @@ namespace Tests\Fixtures\Sections;
 use Aether\Response\Text;
 use Aether\Sections\Section;
 
-class NotFoundSection extends Section
+class GenericTestSection extends Section
 {
     public function response()
     {
-        http_response_code(404);
+        http_response_code(200);
 
-        return new Text('404 Eg fant han ikkje', 'text/html');
+        return new Text($this->renderModules());
     }
 }

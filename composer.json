@@ -11,10 +11,11 @@
         "illuminate/container": "5.5.*",
         "illuminate/contracts": "5.5.*",
         "illuminate/database": "5.5.*",
+        "illuminate/encryption": "5.5.*",
         "illuminate/events": "5.5.*",
         "illuminate/filesystem": "5.5.*",
         "illuminate/support": "5.5.*",
-        "sentry/sentry": "1.8.*",
+        "sentry/sentry": "1.9.*",
         "smarty/smarty": "3.1.30",
         "symfony/var-dumper": "~3.0|~4.0",
         "vlucas/phpdotenv": "^2.4"

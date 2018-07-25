@@ -1,9 +1,10 @@
 <?php
 
-namespace Tests;
+namespace Tests\Modules;
 
 use Exception;
 use Mockery as m;
+use Tests\TestCase;
 use Aether\Modules\Module;
 use Aether\Modules\PendingRender;
 use Tests\Fixtures\Modules\Hellolocal;
@@ -186,6 +187,11 @@ class ModulePendingRenderTest extends TestCase
         $pending = new PendingRender(FailingTestModule::class);
 
         $this->assertEquals('', (string) $pending);
+    }
+
+    public function testTheRunMethodRunsThroughTheServiceContainer()
+    {
+        $this->assertSame('foo', (string) ModuleWithInjectedService::draw());
     }
 
     private function assertOptions($expected, string $renderedModule)

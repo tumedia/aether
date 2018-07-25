@@ -1,9 +1,9 @@
 <config>
     <rule match="section-test">
-        <section>Tests\Fixtures\Sections\Testsection</section>
+        <section>Tests\Fixtures\Sections\GenericTestSection</section>
         <template>test.tpl</template>
         <rule match="cache" cache="60">
-            <section>Tests\Fixtures\Sections\Testsection</section>
+            <section>Tests\Fixtures\Sections\GenericTestSection</section>
             <rule match="me">
                 <rule match="if">
                     <rule match="you">
@@ -16,7 +16,7 @@
             </rule>
         </rule>
         <rule match="missing-cache">
-            <section>Tests\Fixtures\Sections\Testsection</section>
+            <section>Tests\Fixtures\Sections\GenericTestSection</section>
         </rule>
     </rule>
 </config>

@@ -32,6 +32,7 @@ class ExceptionHandlerIntegrationTest extends TestCase
         config()->set('app.env', 'production');
 
         $handler = m::mock(ExceptionHandler::class);
+        $handler->shouldNotReceive('render');
         $handler->shouldReceive('report')->with(m::type('ErrorException'), [
             'tags' => ['new_error_exception' => 'yup'],
         ]);
@@ -48,7 +49,7 @@ class ExceptionHandlerIntegrationTest extends TestCase
 
         $this->aether->instance('sentry.client', $this->mockSentry());
 
-        $this->visit('http://raw.no/exceptions')
+        $this->visit('http://raw.no/exception-rendering-production')
              ->assertStatus(500)
              ->assertSee('Noe gikk galt')
              ->assertSee('unique-error-id');

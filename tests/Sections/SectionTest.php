@@ -1,6 +1,8 @@
 <?php
 
-namespace Tests;
+namespace Tests\Sections;
+
+use Tests\TestCase;
 
 class SectionTest extends TestCase
 {
@@ -12,7 +14,8 @@ class SectionTest extends TestCase
         $this
             ->visit('http://raw.no/unittest/goodtimes/nay')
             ->assertSee('404 Eg fant han ikkje')
-            ->assertHeader('Content-Type', 'text/html; charset=utf-8');
+            ->assertStatus(404)
+            ->assertHeader('Content-Type', 'text/html; charset=UTF-8');
     }
 
     /**
@@ -24,6 +27,7 @@ class SectionTest extends TestCase
 
         $this
             ->visit('http://raw.no/section-test/cache/me/if/you/can')
+            ->assertStatus(200)
             ->assertHeader('Cache-Control', 's-maxage=30');
     }
 
@@ -36,6 +40,7 @@ class SectionTest extends TestCase
 
         $this
             ->visit('http://raw.no/section-test/cache/me/if/you/cannot')
+            ->assertStatus(200)
             ->assertHeader('Cache-Control', 's-maxage=0');
     }
 
@@ -48,6 +53,18 @@ class SectionTest extends TestCase
 
         $this
             ->visit('http://raw.no/section-test/missing-cache')
+            ->assertStatus(200)
             ->assertHeaderMissing('Cache-Control');
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testSecionsShouldProvideModulesToTheTemplate()
+    {
+        $this
+            ->visit('http://raw.no/providing-modules/foo')
+            ->assertStatus(200)
+            ->assertSee('Hello local');
     }
 }
