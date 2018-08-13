@@ -356,7 +356,7 @@ abstract class Section
         resolve(ExceptionHandler::class)->report($e);
     }
 
-    protected function triggerDefaultRule()
+    public function triggerDefaultRule()
     {
         $config = $this->aether['aetherConfig'];
         $config->reloadConfigFromDefaultRule();

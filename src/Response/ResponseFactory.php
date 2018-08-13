@@ -35,7 +35,11 @@ class ResponseFactory
     public function getResponse(Section $section, AetherConfig $config): Response
     {
         if (! is_null($this->requestedService) && ! is_null($this->requestedModule)) {
-            return $section->service($this->requestedModule, $this->requestedService);
+            try {
+                return $section->service($this->requestedModule, $this->requestedService);
+            } catch (ServiceNotFound $e) {
+                return $section->triggerDefaultRule();
+            }
         }
 
         if ($this->requestedEsi === '') {
