@@ -2,6 +2,7 @@
 
 use Aether\Aether;
 use Aether\Config;
+use Aether\Assets\AssetResolver;
 
 if (!function_exists('app')) {
     /**
@@ -96,5 +97,20 @@ if (!function_exists('event')) {
     function event(...$args)
     {
         return resolve('events')->dispatch(...$args);
+    }
+}
+
+if (!function_exists('find_asset')) {
+    /**
+     * Get the URI to a static asset.
+     *
+     * @param  string  $asset
+     * @return string
+     *
+     * @throws \Aether\Assets\AssetNotFoundException
+     */
+    function find_asset($asset)
+    {
+        return resolve(AssetResolver::class)->find($asset);
     }
 }
