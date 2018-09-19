@@ -113,6 +113,16 @@ class SmartyTemplateTest extends TestCase
         $this->assertContains('overridden', $template->fetch('foo:extends-self.tpl'));
     }
 
+    public function testNamespaceOverridesCanIncludeThemselvesByForceUsingTheOriginalTemplate()
+    {
+        $this->aether->instance('projectRoot', __DIR__.'/fixtures/app/');
+
+        $template = resolve('template');
+        $template->addNamespace(__DIR__.'/fixtures/package/templates', 'foo');
+
+        $this->assertContains('<div>hello from package', $template->fetch('foo:includes-self.tpl'));
+    }
+
     public function testAddingSearchpathToTheTemplatePaths()
     {
         $this->aether['aetherConfig']->setOption('searchpath', 'foo; ./bar');

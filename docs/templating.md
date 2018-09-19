@@ -123,9 +123,19 @@ vim templates/vendor/calendar/event.tpl
 Doing this will completely replace the original template. If, however, you wish to *extend* the original template, you must include a special `!`, like so:
 
 ```
-{extends "!calendar:event.tpl"}
+<!-- calendar:event.tpl -->
+{extends "calendar:!event.tpl"}
 
 {block name="foo"} ... {/block}
 ```
 
 > The `!` is used to signal to Smarty that the original template should be used. Forget this and you'll be in for an infinite loop.
+
+The same rule applies if you want to *include* the original template:
+
+```
+<!-- calendar:event.tpl -->
+<div class="my-cool-wrapper">
+    {include "calendar:!event.tpl"}
+</div>
+```
