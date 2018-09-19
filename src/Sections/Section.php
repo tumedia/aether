@@ -11,6 +11,8 @@ use Aether\Modules\ModuleFactory;
 use Aether\Exceptions\ConfigError;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Aether\Exceptions\ServiceNotFound;
+use InvalidArgumentException;
 
 /**
  * Base class definition of aether sections
@@ -310,7 +312,12 @@ abstract class Section
         }
 
         // Get module object
-        $mod = $this->moduleFactory->create($module['name'], $opts);
+        try {
+            $mod = $this->moduleFactory->create($module['name'], $opts);
+        }
+        catch (InvalidArgumentException $e) {
+            throw new ServiceNotFound($e->getMessage(), 0, $e);
+        }
 
         return $mod->service($serviceName);
     }
@@ -349,7 +356,7 @@ abstract class Section
         resolve(ExceptionHandler::class)->report($e);
     }
 
-    protected function triggerDefaultRule()
+    public function triggerDefaultRule()
     {
         $config = $this->aether['aetherConfig'];
         $config->reloadConfigFromDefaultRule();

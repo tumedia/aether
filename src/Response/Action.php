@@ -57,6 +57,12 @@ class Action extends Response
                 header("HTTP/1.1 401 Unauthorized");
                 header("Location: {$this->data}");
                 break;
+            case 403: // Access denied
+                header("HTTP/1.1 403 Access denied");
+                header("Status: 403 Access denied");
+
+                print $this->data;
+                break;
             case 404: // Not found
                 header("HTTP/1.1 404 Not found");
                 header("Status: 404 Not found");

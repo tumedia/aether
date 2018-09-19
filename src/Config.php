@@ -89,14 +89,16 @@ class Config extends Repository
             // If the config file is *not* targeting an environment, go ahead
             // and load it.
             if (! $matchEnv) {
-                $config[$configName] = require "{$configPath}/{$configName}.php";
+                $config[$configName] = $this->requireFile(
+                    "{$configPath}/{$configName}.php"
+                );
             }
             // Otherwise, we'll check if the target environment matches the
             // actual environment before merging it in.
             elseif ($matchEnv === env('APP_ENV')) {
                 $config[$configName] = array_replace_recursive(
                     $config[$configName] ?? [],
-                    require "{$configPath}/{$configName}.{$matchEnv}.php"
+                    $this->requireFile("{$configPath}/{$configName}.{$matchEnv}.php")
                 );
             }
         }
@@ -138,5 +140,19 @@ class Config extends Repository
         } catch (InvalidPathException $e) {
             // Do nothing if the .env file is not present.
         }
+    }
+
+    /**
+     * Require a file and return its value.
+     *
+     * We do this in a seperate function so the code in the required file is
+     * executed in a new function scope.
+     *
+     * @param  string  $path
+     * @return mixed
+     */
+    private function requireFile($path)
+    {
+        return require $path;
     }
 }
