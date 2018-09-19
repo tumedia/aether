@@ -110,9 +110,6 @@ class SmartyTemplate extends Template
 
     /**
      * {@inheritdoc}
-     *
-     * Namespaced templates are fetched using the following syntax:
-     * - "{namespace}:{some_template.tpl}"
      */
     public function addNamespace($path, $namespace)
     {

@@ -1,6 +1,6 @@
 # Templating
 
-[source](https://git.tumedia.no/tumedia/aether/tree/master/src/Templating) - [tests](https://git.tumedia.no/tumedia/aether/tree/master/tests/Templating)
+[💾 Source](https://git.tumedia.no/tumedia/aether/tree/master/src/Templating) - [✅ Tests](https://git.tumedia.no/tumedia/aether/tree/master/tests/Templating)
 
 ---
 
@@ -58,7 +58,7 @@ return template('article.tpl', [
 ]);
 ```
 
-Using the `template()` function is the recommended way of rendering templates.
+Using the `template()` function is the recommended way to render templates.
 
 ## Compiled Templates
 
@@ -70,11 +70,11 @@ To clear the compiled templates, you may use the `templates:clear` command:
 vendor/bin/aether templates:clear
 ```
 
-## Loading Templates From Packages
+## Template Namespaces
 
 Let's say you want to create a package that contains a calendar module.
 
-todo: write more
+In a service provider, call the `loadTemplatesFrom()` method, like so:
 
 ``` php
 <?php
@@ -91,3 +91,41 @@ class CalendarProvider extends Provider
     }
 }
 ```
+
+Smarty will now load templates from the calendar package's `templates/` directory when the `calendar` namespace is used.
+
+### Rendering a Namespaced Template
+
+The syntax used to render a namespaced template is as follows:
+
+```
+namespace:path/to/template.tpl
+```
+
+For example:
+
+``` php
+return template('calendar:upcoming-events.tpl');
+```
+
+### Overriding a Namespaced Template
+
+Let's say the calendar package contains a view that renders a single calendar event, and you want to override it locally, you may do so by creating a local override which will be used when the template is rendered.
+
+First you will need to create a special folder called `vendor` within your templates directory. Inside the vendor folder, create a folder with the same name as the template namespace you wish to override.
+
+For example:
+
+```
+vim templates/vendor/calendar/event.tpl
+```
+
+Doing this will completely replace the original template. If, however, you wish to *extend* the original template, you must include a special `!`, like so:
+
+```
+{extends "!calendar:event.tpl"}
+
+{block name="foo"} ... {/block}
+```
+
+> The `!` is used to signal to Smarty that the original template should be used. Forget this and you'll be in for an infinite loop.
