@@ -41,4 +41,28 @@ abstract class Template
      * @param string $name
      */
     abstract public function templateExists($name);
+
+    /**
+     * Add a path to load templates from.
+     *
+     * @param  string  $path
+     * @return void
+     */
+    abstract public function addPath($path);
+
+    /**
+     * Add a path to load namespaced templates from.
+     *
+     * @param  string  $path
+     * @param  string  $namespace
+     * @return void
+     */
+    abstract public function addNamespace($path, $namespace);
+
+    /**
+     * Clear all compiled templates.
+     *
+     * @return void
+     */
+    abstract public function clearCompiled();
 }

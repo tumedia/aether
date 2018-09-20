@@ -6,7 +6,6 @@
             <import>test-cases/module-pending-render</import>
             <import>test-cases/providing-modules</import>
             <import>test-cases/section-test</import>
-            <import>test-cases/templating-searchpath</import>
             <rule default="true">
                 <section>Tests\Fixtures\Sections\NotFoundSection</section>
             </rule>
