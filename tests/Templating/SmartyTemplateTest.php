@@ -38,6 +38,29 @@ class SmartyTemplateTest extends TestCase
         $this->assertContains('hello world', $tpl->fetch('test.tpl'));
     }
 
+    public function testHasVariable()
+    {
+        $tpl = $this->aether->getTemplate();
+
+        $this->assertFalse($tpl->hasVariable('foo'));
+
+        $tpl->set('foo', 'yes hello');
+
+        $this->assertTrue($tpl->hasVariable('foo'));
+    }
+
+    public function testClearVariables()
+    {
+        $tpl = $this->aether->getTemplate();
+        $tpl->set('foo', 'foo');
+        $tpl->set('bar', 'bar');
+
+        $tpl->clearVariables();
+
+        $this->assertFalse($tpl->hasVariable('foo'));
+        $this->assertFalse($tpl->hasVariable('bar'));
+    }
+
     public function testTemplateExists()
     {
         $tpl = $this->aether->getTemplate();

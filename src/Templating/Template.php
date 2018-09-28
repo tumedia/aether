@@ -27,6 +27,21 @@ abstract class Template
     abstract public function setAll($keyValues);
 
     /**
+     * Check if a given variable name has been set.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    abstract public function hasVariable($key);
+
+    /**
+     * Clear all template variables that have been set.
+     *
+     * @return void
+     */
+    abstract public function clearVariables();
+
+    /**
      * Fetch rendered template
      *
      * @return string
