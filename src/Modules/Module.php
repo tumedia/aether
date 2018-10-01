@@ -91,6 +91,21 @@ abstract class Module
     }
 
     /**
+     * Get the key used to cache the module output.
+     *
+     * By default the $key is returned as-is. It is recommended to return a
+     * modified version of the $key - for example by appending a state
+     * identifier.
+     *
+     * @param  string  $key
+     * @return string
+     */
+    public function getCacheKey($key)
+    {
+        return $key;
+    }
+
+    /**
      * Render a given service
      *
      * @access public

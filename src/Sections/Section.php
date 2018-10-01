@@ -100,6 +100,10 @@ abstract class Section
                 $mCacheName .= $module['provides'];
             }
 
+            if (isset($module['obj'])) {
+                $mCacheName = $module['obj']->getCacheKey($mCacheName);
+            }
+
             // Try to read from cache, else generate and cache
             if (($mOut = $this->cache->get($mCacheName)) == false) {
                 if (isset($module['obj'])) {
