@@ -35,13 +35,6 @@ abstract class Template
     abstract public function hasVariable($key);
 
     /**
-     * Clear all template variables that have been set.
-     *
-     * @return void
-     */
-    abstract public function clearVariables();
-
-    /**
      * Fetch rendered template
      *
      * @return string

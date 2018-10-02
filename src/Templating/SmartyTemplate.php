@@ -69,14 +69,6 @@ class SmartyTemplate extends Template
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function clearVariables()
-    {
-        $this->engine->clearAllAssign();
-    }
-
-    /**
      * Fetch rendered template
      *
      * @return string
