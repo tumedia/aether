@@ -29,15 +29,37 @@ class AssetResolver
      */
     public function find(string $asset): string
     {
+        $assetPath = $this->findAssetPath($asset);
+
+        $uri = $this->uriPrefix($asset);
+
+        return $this->cacheBust($uri, $assetPath);
+    }
+
+    /**
+     * Get the last modification timestamp for a given asset.
+     *
+     * @param  string  $asset
+     * @return int
+     *
+     * @throws \Aether\Assets\AssetNotFoundException  If the asset could not be found.
+     */
+    public function lastModified(string $asset): int
+    {
+        $assetPath = $this->findAssetPath($asset);
+
+        return $this->files->lastModified($assetPath);
+    }
+
+    protected function findAssetPath(string $asset): string
+    {
         $assetPath = "{$this->assetsPath}/{$asset}";
 
         if (! $this->files->exists($assetPath)) {
             throw AssetNotFoundException::forAsset($asset, $assetPath);
         }
 
-        $uri = $this->uriPrefix($asset);
-
-        return $this->cacheBust($uri, $assetPath);
+        return $assetPath;
     }
 
     protected function uriPrefix(string $asset): string

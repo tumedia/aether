@@ -54,4 +54,28 @@ class AssetResolverTest extends TestCase
             \find_asset('main.js')
         );
     }
+
+    public function testGettingTheLastModifiedTimestamp()
+    {
+        $files = m::mock(Filesystem::class);
+        $files->shouldReceive('exists')->with('/tmp/assets/main.js')->andReturn(true);
+        $files->shouldReceive('lastModified')->with('/tmp/assets/main.js')->andReturn(1337);
+
+        $resolver = new AssetResolver($files, '/assets', '/tmp/assets');
+
+        $this->assertEquals(1337, $resolver->lastModified('main.js'));
+    }
+
+    /**
+     * @expectedException \Aether\Assets\AssetNotFoundException
+     */
+    public function testLastModifiedShouldThrowAnExceptionIfTheAssetDoesNotExist()
+    {
+        $files = m::mock(Filesystem::class);
+        $files->shouldReceive('exists')->with('/tmp/assets/main.js')->andReturn(false);
+
+        $resolver = new AssetResolver($files, '/assets', '/tmp/assets');
+
+        $resolver->lastModified('main.js');
+    }
 }
