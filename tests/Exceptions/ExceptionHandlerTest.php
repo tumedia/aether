@@ -53,21 +53,6 @@ class ExceptionHandlerTest extends TestCase
         $handler->report($e, ['foo' => 'bar']);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
-    public function testExceptionsAreRenderedUsingWhoopsInDevelopment()
-    {
-        $aether = m::mock(Aether::class);
-        $aether->shouldReceive('isProduction')->andReturn(false);
-
-        $handler = new Handler($aether);
-
-        $response = $handler->render(null, new Exception('expected'))->get();
-
-        $this->assertContains('Whoops\Handler\PrettyPageHandler', $response);
-    }
-
     public function testExceptionsAreRenderedInProduction()
     {
         $aether = m::mock(Aether::class)->makePartial();
